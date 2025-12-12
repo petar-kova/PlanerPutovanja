@@ -1,0 +1,37 @@
+﻿@model IEnumerable<PlanerPutovanja.Models.Trip>
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h1>My Trips</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Destination</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var trip in Model)
+        {
+            <tr>
+                <td>@trip.Name</td>
+                <td>@trip.Destination</td>
+                <td>@trip.StartDate.ToShortDateString()</td>
+                <td>@trip.EndDate.ToShortDateString()</td>
+                <td>
+                    <a asp-controller="Trips" asp-action="Details" asp-route-id="@trip.Id">Details</a> |
+                    <a asp-controller="Trips" asp-action="Edit" asp-route-id="@trip.Id">Edit</a> |
+                    <a asp-controller="Trips" asp-action="Delete" asp-route-id="@trip.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-controller="Trips" asp-action="Create" class="btn btn-primary">Add New Trip</a>
