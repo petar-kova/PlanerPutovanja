@@ -4,7 +4,8 @@ namespace PlanerPutovanja.Models
 {
     public class TripActivity
     {
-        public int Id { get; set; }
+        public int Id { get; set; }        [Required]
+        public string Name { get; set; } = null!;
 
         [Required]
         public string Name { get; set; } = null!;
