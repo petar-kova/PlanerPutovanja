@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PlanerPutovanja.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace PlanerPutovanja.Controllers
 {
@@ -15,12 +14,14 @@ namespace PlanerPutovanja.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Create(int tripId)
+        // GET: TripActivities/Create?tripId=1
+        public IActionResult Create(int tripId)
         {
             ViewBag.TripId = tripId;
             return View();
         }
 
+        // POST: TripActivities/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TripActivity activity)
@@ -31,6 +32,7 @@ namespace PlanerPutovanja.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", "Trips", new { id = activity.TripId });
             }
+
             ViewBag.TripId = activity.TripId;
             return View(activity);
         }

@@ -4,18 +4,12 @@ namespace PlanerPutovanja.Models
 {
     public class TripActivity
     {
-        public int Id { get; set; }        [Required]
-        public string Name { get; set; } = null!;
-
+        public int Id { get; set; }
         [Required]
         public string Name { get; set; } = null!;
-
         public string? Notes { get; set; }
 
-        [Required]
-        public string Category { get; set; } = null!;
-
-        // Foreign key
+        // Foreign key to Trip
         public int TripId { get; set; }
         public Trip Trip { get; set; } = null!;
     }

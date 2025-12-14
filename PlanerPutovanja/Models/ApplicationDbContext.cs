@@ -18,12 +18,10 @@ namespace PlanerPutovanja.Models
         {
             base.OnModelCreating(builder);
 
-            // Decimal precision for Amount
             builder.Entity<Expense>()
                 .Property(e => e.Amount)
                 .HasColumnType("decimal(18,2)");
 
-            // Optional: configure relationships explicitly if needed
             builder.Entity<Trip>()
                 .HasMany(t => t.Activities)
                 .WithOne(a => a.Trip)

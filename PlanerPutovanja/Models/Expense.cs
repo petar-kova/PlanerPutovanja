@@ -1,24 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PlanerPutovanja.Models
 {
     public class Expense
     {
         public int Id { get; set; }
-
         [Required]
         public string Name { get; set; } = null!;
-
-        [Required]
         public string Description { get; set; } = null!;
 
-        [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
 
-        [Required]
-        public string Category { get; set; } = null!;
-
-        // Foreign key
+        // Foreign key to Trip
         public int TripId { get; set; }
         public Trip Trip { get; set; } = null!;
     }

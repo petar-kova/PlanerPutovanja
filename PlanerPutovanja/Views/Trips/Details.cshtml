@@ -1,0 +1,63 @@
+﻿@model PlanerPutovanja.Models.Trip
+
+@{
+    ViewData["Title"] = "Trip details";
+}
+
+<h1>@Model.Name</h1>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Destination</dt>
+        <dd class="col-sm-10">@Model.Destination</dd>
+
+        <dt class="col-sm-2">Start</dt>
+        <dd class="col-sm-10">@Model.StartDate.ToShortDateString()</dd>
+
+        <dt class="col-sm-2">End</dt>
+        <dd class="col-sm-10">@Model.EndDate.ToShortDateString()</dd>
+    </dl>
+</div>
+
+<hr />
+
+<h2>Activities</h2>
+
+<p>
+    <a asp-controller="TripActivities"
+       asp-action="Create"
+       asp-route-tripId="@Model.Id"
+       class="btn btn-primary">
+        Add activity
+    </a>
+</p>
+
+@if (Model.Activities == null || !Model.Activities.Any())
+{
+    <p>No activities yet.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model.Activities)
+            {
+                <tr>
+                    <td>@a.Name</td>
+                    <td>@a.Notes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<p>
+    <a asp-controller="Trips" asp-action="Index">Back to list</a> |
+    <a asp-controller="Trips" asp-action="Edit" asp-route-id="@Model.Id">Edit trip</a>
+</p>
