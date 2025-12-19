@@ -15,6 +15,9 @@ namespace PlanerPutovanja.Controllers
 
         public IActionResult Index()
         {
+            if (User?.Identity?.IsAuthenticated == true)
+                return RedirectToAction("Index", "Trips");
+
             return View();
         }
 
@@ -26,7 +29,10 @@ namespace PlanerPutovanja.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
         }
     }
 }

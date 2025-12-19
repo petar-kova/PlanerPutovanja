@@ -20,3 +20,35 @@ html {
 body {
   margin-bottom: 60px;
 }
+/* --- Home hero --- */
+.home-hero {
+    background-image: linear-gradient(rgba(0,0,0,.60), rgba(0,0,0,.60)), url("/img/projekt.png");
+    background-size: cover;
+    background-position: center;
+    border-radius: 1.25rem;
+    min-height: 440px;
+    display: flex;
+    align-items: center;
+    /* polish */
+    box-shadow: 0 20px 45px rgba(0,0,0,.18);
+}
+
+    .home-hero h1,
+    .home-hero p {
+        color: #fff;
+    }
+
+    .home-hero p {
+        color: rgba(255,255,255,.85);
+    }
+
+/* nicer cards + hover */
+.card {
+    border-radius: 1rem;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    }

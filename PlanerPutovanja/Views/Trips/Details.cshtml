@@ -43,6 +43,7 @@ else
             <tr>
                 <th>Name</th>
                 <th>Notes</th>
+                <th style="width: 1%; white-space: nowrap;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -51,6 +52,23 @@ else
                 <tr>
                     <td>@a.Name</td>
                     <td>@a.Notes</td>
+                    <td class="d-flex gap-2">
+                        <a class="btn btn-warning btn-sm"
+                           asp-controller="TripActivities"
+                           asp-action="Edit"
+                           asp-route-id="@a.Id">
+                            Edit
+                        </a>
+
+                        <form asp-controller="TripActivities"
+                              asp-action="Delete"
+                              asp-route-id="@a.Id"
+                              method="post"
+                              onsubmit="return confirm('Obrisati aktivnost?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>
