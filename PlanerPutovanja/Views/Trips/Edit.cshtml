@@ -1,7 +1,7 @@
 ﻿@model PlanerPutovanja.Models.Trip
 
 @{
-    ViewData["Title"] = "Create Trip";
+    ViewData["Title"] = "Edit Trip";
 }
 
 <div class="container py-4">
@@ -14,8 +14,9 @@
         <div class="card-body">
             <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
-            <form asp-action="Create" method="post">
+            <form asp-action="Edit" method="post">
                 @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
 
                 <div class="mb-3">
                     <label asp-for="Name" class="form-label"></label>

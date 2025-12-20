@@ -1,81 +1,190 @@
-﻿@model PlanerPutovanja.Models.Trip
+﻿@using System.Globalization
+@model PlanerPutovanja.Models.Trip
 
 @{
     ViewData["Title"] = "Trip details";
+
+    var total = Model.Expenses?.Sum(e => e.Amount) ?? 0m;
 }
 
-<h1>@Model.Name</h1>
+<div class="container py-4">
+    <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+        <div>
+            <h1 class="mb-1">@Model.Name</h1>
+            <div class="text-muted">@Model.Destination</div>
+        </div>
 
-<div>
-    <dl class="row">
-        <dt class="col-sm-2">Destination</dt>
-        <dd class="col-sm-10">@Model.Destination</dd>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary"
+               asp-controller="Trips"
+               asp-action="Index">Back</a>
 
-        <dt class="col-sm-2">Start</dt>
-        <dd class="col-sm-10">@Model.StartDate.ToShortDateString()</dd>
+            <a class="btn btn-primary"
+               asp-controller="Trips"
+               asp-action="Edit"
+               asp-route-id="@Model.Id">Edit trip</a>
+        </div>
+    </div>
 
-        <dt class="col-sm-2">End</dt>
-        <dd class="col-sm-10">@Model.EndDate.ToShortDateString()</dd>
-    </dl>
-</div>
+    <hr class="my-4" />
 
-<hr />
+    <div class="row g-3">
+        <!-- Trip info -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Overview</h5>
 
-<h2>Activities</h2>
+                    <dl class="row mb-0">
+                        <dt class="col-5">Destination</dt>
+                        <dd class="col-7">@Model.Destination</dd>
 
-<p>
-    <a asp-controller="TripActivities"
-       asp-action="Create"
-       asp-route-tripId="@Model.Id"
-       class="btn btn-primary">
-        Add activity
-    </a>
-</p>
+                        <dt class="col-5">Start</dt>
+                        <dd class="col-7">@Model.StartDate.ToShortDateString()</dd>
 
-@if (Model.Activities == null || !Model.Activities.Any())
-{
-    <p>No activities yet.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Notes</th>
-                <th style="width: 1%; white-space: nowrap;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var a in Model.Activities)
-            {
-                <tr>
-                    <td>@a.Name</td>
-                    <td>@a.Notes</td>
-                    <td class="d-flex gap-2">
-                        <a class="btn btn-warning btn-sm"
-                           asp-controller="TripActivities"
-                           asp-action="Edit"
-                           asp-route-id="@a.Id">
-                            Edit
+                        <dt class="col-5">End</dt>
+                        <dd class="col-7">@Model.EndDate.ToShortDateString()</dd>
+
+                        <dt class="col-5">Total expenses</dt>
+                        <dd class="col-7">@total.ToString("0.00", CultureInfo.InvariantCulture)</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activities -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h4 class="mb-0">Activities</h4>
+
+                        <a asp-controller="TripActivities"
+                           asp-action="Create"
+                           asp-route-tripId="@Model.Id"
+                           class="btn btn-sm btn-primary">
+                            Add activity
                         </a>
+                    </div>
 
-                        <form asp-controller="TripActivities"
-                              asp-action="Delete"
-                              asp-route-id="@a.Id"
-                              method="post"
-                              onsubmit="return confirm('Obrisati aktivnost?');">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+                    @if (Model.Activities == null || !Model.Activities.Any())
+                    {
+                        <div class="text-muted">No activities yet.</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Notes</th>
+                                        <th style="width: 1%; white-space: nowrap;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var a in Model.Activities)
+                                    {
+                                        <tr>
+                                            <td>@a.Name</td>
+                                            <td class="text-muted">@a.Notes</td>
+                                            <td class="text-end" style="white-space: nowrap;">
+                                                <a class="btn btn-sm btn-outline-secondary"
+                                                   asp-controller="TripActivities"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@a.Id">
+                                                    Edit
+                                                </a>
 
-<p>
-    <a asp-controller="Trips" asp-action="Index">Back to list</a> |
-    <a asp-controller="Trips" asp-action="Edit" asp-route-id="@Model.Id">Edit trip</a>
-</p>
+                                                <form class="d-inline"
+                                                      asp-controller="TripActivities"
+                                                      asp-action="Delete"
+                                                      asp-route-id="@a.Id"
+                                                      method="post"
+                                                      onsubmit="return confirm('Obrisati aktivnost?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Expenses -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h4 class="mb-0">Expenses</h4>
+                        <a class="btn btn-sm btn-primary"
+                           asp-controller="Expenses"
+                           asp-action="Create"
+                           asp-route-tripId="@Model.Id">Add expense</a>
+                    </div>
+
+                    @if (Model.Expenses == null || !Model.Expenses.Any())
+                    {
+                        <div class="text-muted">No expenses yet.</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th class="text-end">Amount</th>
+                                        <th style="width: 1%; white-space: nowrap;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var e in Model.Expenses.OrderByDescending(x => x.Id))
+                                    {
+                                        <tr>
+                                            <td>@e.Name</td>
+                                            <td class="text-muted">@e.Description</td>
+                                            <td class="text-end">@e.Amount.ToString("0.00", CultureInfo.InvariantCulture)</td>
+                                            <td class="text-end" style="white-space: nowrap;">
+                                                <a class="btn btn-sm btn-outline-secondary"
+                                                   asp-controller="Expenses"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@e.Id">Edit</a>
+
+                                                <form class="d-inline"
+                                                      asp-controller="Expenses"
+                                                      asp-action="Delete"
+                                                      asp-route-id="@e.Id"
+                                                      method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                            onclick="return confirm('Obrisati trošak?');">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="2" class="text-end">Total</th>
+                                        <th class="text-end">@total.ToString("0.00", CultureInfo.InvariantCulture)</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
