@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using PlanerPutovanja.Models;
 
@@ -15,9 +15,7 @@ namespace PlanerPutovanja.Controllers
 
         public IActionResult Index()
         {
-            if (User?.Identity?.IsAuthenticated == true)
-                return RedirectToAction("Index", "Trips");
-
+            // Home uvijek prikazuje početnu (hero) stranicu
             return View();
         }
 
