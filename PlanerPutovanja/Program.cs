@@ -23,7 +23,7 @@ var app = builder.Build();
 // Error handling + HSTS
 if (app.Environment.IsDevelopment())
 {
-    // opcionalno, ali korisno dok radiš projekt
+    // opcionalno, ali korisno dok radiï¿½ projekt
     app.UseDeveloperExceptionPage();
 }
 else
