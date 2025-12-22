@@ -5,6 +5,13 @@
     ViewData["Title"] = "Trip details";
 
     var total = Model.Expenses?.Sum(e => e.Amount) ?? 0m;
+    decimal? budget = Model.Budget;
+    decimal? percentUsed = null;
+
+    if (budget.HasValue && budget.Value > 0)
+    {
+        percentUsed = Math.Min(100, (total / budget.Value) * 100);
+    }
 }
 
 <div class="container py-4">
@@ -17,7 +24,7 @@
         <div class="d-flex gap-2">
             <a class="btn btn-outline-secondary"
                asp-controller="Trips"
-               asp-action="Index">Back</a>
+               asp-action="Index">Back to trips</a>
 
             <a class="btn btn-primary"
                asp-controller="Trips"
@@ -39,14 +46,45 @@
                         <dt class="col-5">Destination</dt>
                         <dd class="col-7">@Model.Destination</dd>
 
-                        <dt class="col-5">Start</dt>
-                        <dd class="col-7">@Model.StartDate.ToShortDateString()</dd>
+                        <dt class="col-5">Start date</dt>
+                        <dd class="col-7">@Model.StartDate.ToString("dd.MM.yyyy")</dd>
 
-                        <dt class="col-5">End</dt>
-                        <dd class="col-7">@Model.EndDate.ToShortDateString()</dd>
+                        <dt class="col-5">End date</dt>
+                        <dd class="col-7">@Model.EndDate.ToString("dd.MM.yyyy")</dd>
 
                         <dt class="col-5">Total expenses</dt>
                         <dd class="col-7">@total.ToString("0.00", CultureInfo.InvariantCulture)</dd>
+
+                        @if (budget.HasValue)
+                        {
+                            <dt class="col-5">Budget</dt>
+                            <dd class="col-7">
+                                @budget.Value.ToString("0.00", CultureInfo.InvariantCulture) @Model.Currency
+                            </dd>
+
+                            <dt class="col-5">Budget usage</dt>
+                            <dd class="col-7">
+                                @if (percentUsed.HasValue)
+                                {
+                                    var pct = percentUsed.Value;
+                                    var barClass = pct < 70 ? "bg-success"
+                                    : pct <= 100 ? "bg-warning"
+                                    : "bg-danger";
+
+                                    <div class="progress" style="height: 0.9rem;">
+                                        <div class="progress-bar @barClass"
+                                             role="progressbar"
+                                             style="width: @pct.ToString("0.##", CultureInfo.InvariantCulture)%;">
+                                            @pct.ToString("0.##", CultureInfo.InvariantCulture)%
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No budget set.</span>
+                                }
+                            </dd>
+                        }
                     </dl>
                 </div>
             </div>
@@ -101,7 +139,7 @@
                                                       asp-action="Delete"
                                                       asp-route-id="@a.Id"
                                                       method="post"
-                                                      onsubmit="return confirm('Obrisati aktivnost?');">
+                                                      onsubmit="return confirm('Delete this activity?');">
                                                     @Html.AntiForgeryToken()
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                                         Delete
@@ -161,10 +199,10 @@
                                                       asp-controller="Expenses"
                                                       asp-action="Delete"
                                                       asp-route-id="@e.Id"
-                                                      method="post">
+                                                      method="post"
+                                                      onsubmit="return confirm('Delete this expense?');">
                                                     @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                            onclick="return confirm('Obrisati trošak?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
                                                         Delete
                                                     </button>
                                                 </form>

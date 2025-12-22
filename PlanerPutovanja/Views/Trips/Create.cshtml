@@ -1,43 +1,43 @@
 ﻿@model PlanerPutovanja.Models.Trip
 
 @{
-    ViewData["Title"] = "Create Trip";
+    ViewData["Title"] = "Create trip";
 }
 
 <div class="container py-4">
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <h1 class="mb-0">@ViewData["Title"]</h1>
-        <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+        <h1 class="mb-0">Create trip</h1>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back to list</a>
     </div>
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
             <form asp-action="Create" method="post">
                 @Html.AntiForgeryToken()
 
                 <div class="mb-3">
-                    <label asp-for="Name" class="form-label"></label>
+                    <label asp-for="Name" class="form-label">Trip name</label>
                     <input asp-for="Name" class="form-control" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Destination" class="form-label"></label>
+                    <label asp-for="Destination" class="form-label">Destination</label>
                     <input asp-for="Destination" class="form-control" />
                     <span asp-validation-for="Destination" class="text-danger"></span>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label asp-for="StartDate" class="form-label"></label>
+                        <label asp-for="StartDate" class="form-label">Start date</label>
                         <input asp-for="StartDate" type="date" class="form-control" />
                         <span asp-validation-for="StartDate" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label asp-for="EndDate" class="form-label"></label>
+                        <label asp-for="EndDate" class="form-label">End date</label>
                         <input asp-for="EndDate" type="date" class="form-control" />
                         <span asp-validation-for="EndDate" class="text-danger"></span>
                     </div>
@@ -48,7 +48,7 @@
                         <label asp-for="Budget" class="form-label">Budget (optional)</label>
                         <input asp-for="Budget" class="form-control" />
                         <span asp-validation-for="Budget" class="text-danger"></span>
-                        <div class="form-text">Leave empty if you don’t want to set a budget.</div>
+                        <div class="form-text">Leave empty if you do not want to set a budget.</div>
                     </div>
 
                     <div class="col-md-6 mb-3">

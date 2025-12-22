@@ -1,37 +1,46 @@
-﻿@model IEnumerable<PlanerPutovanja.Models.Trip>
+﻿@model PlanerPutovanja.Controllers.DashboardViewModel
 
 @{
     ViewData["Title"] = "Dashboard";
 }
 
-<h1>My Trips</h1>
+<section class="py-5">
+    <div class="container">
+        <h1 class="h2 mb-4">Dashboard</h1>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Destination</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var trip in (Model ?? Enumerable.Empty<PlanerPutovanja.Models.Trip>()))
-        {
-            <tr>
-                <td>@trip.Name</td>
-                <td>@trip.Destination</td>
-                <td>@trip.StartDate.ToShortDateString()</td>
-                <td>@trip.EndDate.ToShortDateString()</td>
-                <td>
-                    <a asp-controller="Trips" asp-action="Details" asp-route-id="@trip.Id">Details</a> |
-                    <a asp-controller="Trips" asp-action="Edit" asp-route-id="@trip.Id">Edit</a> |
-                    <a asp-controller="Trips" asp-action="Delete" asp-route-id="@trip.Id">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted text-uppercase mb-2">Total trips</h6>
+                        <div class="display-5 fw-bold">@Model.TotalTrips</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted text-uppercase mb-2">Upcoming trips</h6>
+                        <div class="display-5 fw-bold">@Model.UpcomingTrips</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted text-uppercase mb-2">Total expenses</h6>
+                        <div class="display-6 fw-bold">
+                            @Model.TotalExpenses.ToString("0.00")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<a asp-controller="Trips" asp-action="Create" class="btn btn-primary">Add New Trip</a>
+        <div>
+            <a asp-controller="Trips" asp-action="Index" class="btn btn-primary">
+                Go to trips
+            </a>
+        </div>
+    </div>
+</section>

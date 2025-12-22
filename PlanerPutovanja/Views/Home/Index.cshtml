@@ -17,9 +17,9 @@
                 min-height: 480px;">
             <div class="row align-items-center h-100">
                 <div class="col-lg-7">
-                    <h1 class="display-5 fw-bold mb-3">Planer Putovanja</h1>
+                    <h1 class="display-5 fw-bold mb-3">Travel Planner</h1>
                     <p class="lead mb-4">
-                        Organiziraj putovanja, aktivnosti i troškove na jednom mjestu — brzo, čisto i pregledno.
+                        Plan your trips, activities and expenses in one place — fast, clean and easy to use.
                     </p>
 
                     @if (!isSignedIn)
@@ -28,7 +28,7 @@
                             <a class="btn btn-primary btn-lg"
                                asp-area="Identity"
                                asp-page="/Account/Login">
-                                Login
+                                Log in
                             </a>
 
                             <a class="btn btn-outline-light btn-lg"
@@ -39,7 +39,7 @@
                         </div>
 
                         <p class="mt-3 small text-white-50 mb-0">
-                            Već imaš račun? Ulogiraj se i nastavi gdje si stao.
+                            Already have an account? Log in and continue where you left off.
                         </p>
                     }
                     else
@@ -67,7 +67,9 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">Trips</h5>
-                        <p class="card-text mb-0">Dodaj destinacije i datume putovanja.</p>
+                        <p class="card-text mb-0">
+                            Add destinations, dates and budgets for your trips.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -75,7 +77,9 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">Activities</h5>
-                        <p class="card-text mb-0">Planiraj dan po dan i uređuj aktivnosti.</p>
+                        <p class="card-text mb-0">
+                            Plan your days and manage all trip activities.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -83,7 +87,9 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">Expenses</h5>
-                        <p class="card-text mb-0">Prati troškove i imaj pregled budžeta.</p>
+                        <p class="card-text mb-0">
+                            Track your expenses and keep your budget under control.
+                        </p>
                     </div>
                 </div>
             </div>

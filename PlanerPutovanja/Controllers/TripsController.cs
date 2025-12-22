@@ -50,15 +50,17 @@ namespace PlanerPutovanja.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Trip trip)
         {
-            // Postavi UserId prije provjere validacije (jer nije dio forme)
             trip.UserId = CurrentUserId;
-
-            // Navigacija ne dolazi iz forme
             trip.User = null;
 
-            // Ukloni ModelState greške za polja koja nisu u formi (ako ih binder doda)
             ModelState.Remove(nameof(Trip.UserId));
             ModelState.Remove(nameof(Trip.User));
+
+            // date validation
+            if (trip.EndDate < trip.StartDate)
+            {
+                ModelState.AddModelError(nameof(Trip.EndDate), "End date must be on or after start date.");
+            }
 
             if (!ModelState.IsValid) return View(trip);
 
@@ -86,9 +88,14 @@ namespace PlanerPutovanja.Controllers
         {
             if (id != trip.Id) return BadRequest();
 
-            // Ne vjeruj POST-u za UserId
             ModelState.Remove(nameof(Trip.UserId));
             ModelState.Remove(nameof(Trip.User));
+
+            // date validation
+            if (trip.EndDate < trip.StartDate)
+            {
+                ModelState.AddModelError(nameof(Trip.EndDate), "End date must be on or after start date.");
+            }
 
             if (!ModelState.IsValid) return View(trip);
 
@@ -101,6 +108,8 @@ namespace PlanerPutovanja.Controllers
             tripFromDb.Destination = trip.Destination;
             tripFromDb.StartDate = trip.StartDate;
             tripFromDb.EndDate = trip.EndDate;
+            tripFromDb.Budget = trip.Budget;
+            tripFromDb.Currency = trip.Currency;
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
