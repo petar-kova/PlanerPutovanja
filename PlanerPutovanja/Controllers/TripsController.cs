@@ -19,13 +19,42 @@ namespace PlanerPutovanja.Controllers
         private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         // GET: Trips
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string filter = "all")
         {
-            var trips = await _context.Trips
-                .Where(t => t.UserId == CurrentUserId)
+            IQueryable<Trip> query = _context.Trips
+                .Where(t => t.UserId == CurrentUserId);
+
+            var today = DateTime.Today;
+
+            switch (filter?.ToLower())
+            {
+                case "upcoming":
+                    // tripovi koji još nisu počeli
+                    query = query.Where(t => t.StartDate > today);
+                    break;
+
+                case "past":
+                    // tripovi koji su završili
+                    query = query.Where(t => t.EndDate < today);
+                    break;
+
+                case "inprogress":
+                    // tripovi koji trenutno traju
+                    query = query.Where(t => t.StartDate <= today && t.EndDate >= today);
+                    break;
+
+                default:
+                    // "all" ili nepoznata vrijednost -> bez dodatnog filtra
+                    break;
+            }
+
+            var trips = await query
+                .Include(t => t.Activities)
+                .Include(t => t.Expenses)
                 .OrderByDescending(t => t.StartDate)
                 .ToListAsync();
 
+            ViewBag.CurrentFilter = filter;
             return View(trips);
         }
 
@@ -56,7 +85,6 @@ namespace PlanerPutovanja.Controllers
             ModelState.Remove(nameof(Trip.UserId));
             ModelState.Remove(nameof(Trip.User));
 
-            // date validation
             if (trip.EndDate < trip.StartDate)
             {
                 ModelState.AddModelError(nameof(Trip.EndDate), "End date must be on or after start date.");
@@ -91,7 +119,6 @@ namespace PlanerPutovanja.Controllers
             ModelState.Remove(nameof(Trip.UserId));
             ModelState.Remove(nameof(Trip.User));
 
-            // date validation
             if (trip.EndDate < trip.StartDate)
             {
                 ModelState.AddModelError(nameof(Trip.EndDate), "End date must be on or after start date.");
