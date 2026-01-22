@@ -4,71 +4,94 @@
     ViewData["Title"] = "Edit trip";
 }
 
-<div class="container py-4">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h1 class="mb-0">Edit trip</h1>
-        <a asp-action="Index" class="btn btn-outline-secondary">Back to list</a>
-    </div>
+<h1>Edit trip</h1>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
 
-            <form asp-action="Edit" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" asp-for="Id" />
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
 
-                <div class="mb-3">
-                    <label asp-for="Name" class="form-label">Trip name</label>
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
+        <div class="col-md-6">
+            <label asp-for="Destination" class="form-label">Primary destination</label>
+            <input asp-for="Destination" class="form-control" />
+            <span asp-validation-for="Destination" class="text-danger"></span>
+        </div>
 
-                <div class="mb-3">
-                    <label asp-for="Destination" class="form-label">Destination</label>
-                    <input asp-for="Destination" class="form-control" />
-                    <span asp-validation-for="Destination" class="text-danger"></span>
-                </div>
+        <div class="col-md-6">
+            <label asp-for="StartDate" class="form-label"></label>
+            <input asp-for="StartDate" class="form-control" type="date" />
+            <span asp-validation-for="StartDate" class="text-danger"></span>
+        </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="StartDate" class="form-label">Start date</label>
-                        <input asp-for="StartDate" type="date" class="form-control" />
-                        <span asp-validation-for="StartDate" class="text-danger"></span>
-                    </div>
+        <div class="col-md-6">
+            <label asp-for="EndDate" class="form-label"></label>
+            <input asp-for="EndDate" class="form-control" type="date" />
+            <span asp-validation-for="EndDate" class="text-danger"></span>
+        </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="EndDate" class="form-label">End date</label>
-                        <input asp-for="EndDate" type="date" class="form-control" />
-                        <span asp-validation-for="EndDate" class="text-danger"></span>
-                    </div>
-                </div>
+        <div class="col-md-6">
+            <label asp-for="Budget" class="form-label">Budget (optional)</label>
+            <input asp-for="Budget" class="form-control" type="text" />
+            <span asp-validation-for="Budget" class="text-danger"></span>
+            <div class="form-text">e.g. 1234,56</div>
+        </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Budget" class="form-label">Budget (optional)</label>
-                        <input asp-for="Budget" class="form-control" />
-                        <span asp-validation-for="Budget" class="text-danger"></span>
-                        <div class="form-text">Leave empty if you do not want to set a budget.</div>
-                    </div>
+        <div class="col-md-6">
+            <label asp-for="Currency" class="form-label"></label>
+            <select asp-for="Currency" class="form-select">
+                <option value="EUR">EUR (€)</option>
+                <option value="USD">USD ($)</option>
+                <option value="HRK">HRK (kn)</option>
+            </select>
+        </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Currency" class="form-label">Currency</label>
-                        <select asp-for="Currency" class="form-select">
-                            <option value="EUR">EUR</option>
-                            <option value="USD">USD</option>
-                            <option value="GBP">GBP</option>
-                        </select>
-                        <span asp-validation-for="Currency" class="text-danger"></span>
-                    </div>
-                </div>
+        <div class="col-md-6">
+            <label asp-for="Transport" class="form-label">Transport</label>
+            <select asp-for="Transport" class="form-select">
+                <option value="0">Not selected</option>
+                <option value="1">🚗 Car</option>
+                <option value="2">✈️ Plane</option>
+                <option value="3">🚂 Train</option>
+                <option value="4">🚌 Bus</option>
+                <option value="5">🛳️ Cruise ship</option> 
+                <option value="6">Other</option>
+            </select>
 
-                <button type="submit" class="btn btn-primary">Save changes</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-            </form>
+        </div>
+        @if (Model.Destinations.Any())
+        {
+            <div class="col-12 mb-3">
+                <h6>Destinations (@Model.Destinations.Count)</h6>
+                <ul class="list-unstyled">
+                    @foreach (var dest in Model.Destinations.OrderBy(d => d.Order))
+                    {
+                        <li>📍 @dest.City (@dest.Nights noćenja)</li>
+                    }
+                </ul>
+                <a href="#" class="btn btn-sm btn-outline-primary">Manage destinations</a>
+            </div>
+        }
+
+
+        <div class="col-md-6">
+            <label asp-for="DrivingDistanceKm" class="form-label">Distance (km)</label>
+            <input asp-for="DrivingDistanceKm" class="form-control" type="number" />
+            <span asp-validation-for="DrivingDistanceKm" class="text-danger"></span>
+            <div class="form-text">Only for car trips</div>
         </div>
     </div>
-</div>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

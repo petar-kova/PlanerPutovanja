@@ -13,6 +13,7 @@ namespace PlanerPutovanja.Models
         public DbSet<Trip> Trips { get; set; } = null!;
         public DbSet<TripActivity> Activities { get; set; } = null!;
         public DbSet<Expense> Expenses { get; set; } = null!;
+        public DbSet<TripDestination> TripDestinations { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

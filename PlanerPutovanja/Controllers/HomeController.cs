@@ -15,7 +15,6 @@ namespace PlanerPutovanja.Controllers
 
         public IActionResult Index()
         {
-            // Home uvijek prikazuje početnu (hero) stranicu
             return View();
         }
 

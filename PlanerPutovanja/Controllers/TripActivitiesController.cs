@@ -18,7 +18,6 @@ namespace PlanerPutovanja.Controllers
 
         private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        // GET: TripActivities/Create?tripId=1
         public async Task<IActionResult> Create(int tripId)
         {
             var ownsTrip = await _context.Trips.AnyAsync(t => t.Id == tripId && t.UserId == CurrentUserId);
@@ -27,7 +26,6 @@ namespace PlanerPutovanja.Controllers
             return View(new TripActivity { TripId = tripId });
         }
 
-        // POST: TripActivities/Create?tripId=1
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(int tripId, TripActivity activity)
@@ -35,10 +33,8 @@ namespace PlanerPutovanja.Controllers
             var ownsTrip = await _context.Trips.AnyAsync(t => t.Id == tripId && t.UserId == CurrentUserId);
             if (!ownsTrip) return NotFound();
 
-            // Force FK from route/query, not from form
             activity.TripId = tripId;
 
-            // Trip navigation isn't posted -> remove from validation
             ModelState.Remove(nameof(TripActivity.Trip));
             ModelState.Remove(nameof(TripActivity.TripId));
 
@@ -54,7 +50,6 @@ namespace PlanerPutovanja.Controllers
             return RedirectToAction("Details", "Trips", new { id = tripId });
         }
 
-        // GET: TripActivities/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var activity = await _context.Activities
@@ -66,14 +61,12 @@ namespace PlanerPutovanja.Controllers
             return View(activity);
         }
 
-        // POST: TripActivities/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, TripActivity activity)
         {
             if (id != activity.Id) return BadRequest();
 
-            // Don't trust posted FK/navigation
             ModelState.Remove(nameof(TripActivity.TripId));
             ModelState.Remove(nameof(TripActivity.Trip));
 
@@ -93,7 +86,6 @@ namespace PlanerPutovanja.Controllers
             return RedirectToAction("Details", "Trips", new { id = activityFromDb.TripId });
         }
 
-        // POST: TripActivities/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

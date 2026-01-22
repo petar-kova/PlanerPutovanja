@@ -17,8 +17,6 @@ namespace PlanerPutovanja.Controllers
         }
 
         private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-
-        // GET: Expenses/Create?tripId=1
         public async Task<IActionResult> Create(int tripId)
         {
             var ownsTrip = await _context.Trips.AnyAsync(t => t.Id == tripId && t.UserId == CurrentUserId);
@@ -27,7 +25,6 @@ namespace PlanerPutovanja.Controllers
             return View(new Expense { TripId = tripId });
         }
 
-        // POST: Expenses/Create?tripId=1
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(int tripId, Expense expense)
@@ -35,10 +32,8 @@ namespace PlanerPutovanja.Controllers
             var ownsTrip = await _context.Trips.AnyAsync(t => t.Id == tripId && t.UserId == CurrentUserId);
             if (!ownsTrip) return NotFound();
 
-            // FK comes from route/query, not from form
             expense.TripId = tripId;
 
-            // Navigation not posted
             ModelState.Remove(nameof(Expense.Trip));
 
             if (!ModelState.IsValid)
@@ -50,7 +45,6 @@ namespace PlanerPutovanja.Controllers
             return RedirectToAction("Details", "Trips", new { id = tripId });
         }
 
-        // GET: Expenses/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var expense = await _context.Expenses
@@ -62,14 +56,12 @@ namespace PlanerPutovanja.Controllers
             return View(expense);
         }
 
-        // POST: Expenses/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Expense expense)
         {
             if (id != expense.Id) return BadRequest();
 
-            // Don't trust posted FK/navigation
             ModelState.Remove(nameof(Expense.TripId));
             ModelState.Remove(nameof(Expense.Trip));
 
@@ -90,7 +82,6 @@ namespace PlanerPutovanja.Controllers
             return RedirectToAction("Details", "Trips", new { id = expenseFromDb.TripId });
         }
 
-        // POST: Expenses/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

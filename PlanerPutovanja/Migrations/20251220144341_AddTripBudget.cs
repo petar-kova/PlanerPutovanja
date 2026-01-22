@@ -4,10 +4,8 @@
 
 namespace PlanerPutovanja.Migrations
 {
-    /// <inheritdoc />
     public partial class AddTripBudget : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<decimal>(
@@ -25,7 +23,6 @@ namespace PlanerPutovanja.Migrations
                 defaultValue: "");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(

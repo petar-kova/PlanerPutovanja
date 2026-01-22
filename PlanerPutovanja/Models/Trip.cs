@@ -25,7 +25,6 @@ namespace PlanerPutovanja.Models
         [Display(Name = "End date")]
         public DateTime EndDate { get; set; }
 
-        // Optional total budget (null = no budget)
         [Column(TypeName = "decimal(18,2)")]
         [Range(0, 1_000_000_000, ErrorMessage = "Budget must be a positive number.")]
         public decimal? Budget { get; set; }
@@ -37,11 +36,29 @@ namespace PlanerPutovanja.Models
         public ICollection<TripActivity> Activities { get; set; } = new List<TripActivity>();
         public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
 
-        // Foreign key to User
+ 
         [Required]
         public string UserId { get; set; } = null!;
 
-        // Navigation (not posted from MVC forms)
+
         public User? User { get; set; }
+        public List<TripDestination> Destinations { get; set; } = new();
+
+        public enum TransportMode
+        {
+            NotSelected = 0,
+            Car = 1,
+            Plane = 2,
+            Train = 3,
+            Bus = 4,
+            CruiseShip = 5,
+            Other = 6
+        }
+
+        public TransportMode Transport { get; set; }
+        public int? DrivingDistanceKm { get; set; }
+
+        public bool IsCruise => Transport == TransportMode.CruiseShip;
     }
 }
+
