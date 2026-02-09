@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlanerPutovanja.Models;
+using System.Globalization;
 
 namespace PlanerPutovanja.Controllers
 {
@@ -16,7 +17,7 @@ namespace PlanerPutovanja.Controllers
             _context = context;
         }
 
-        private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
         public async Task<IActionResult> Index(string filter = "all")
         {
@@ -25,26 +26,22 @@ namespace PlanerPutovanja.Controllers
 
             var today = DateTime.Today;
 
-            if (filter == "upcoming")
+            query = filter switch
             {
-                query = query.Where(t => t.StartDate > today);
-            }
-            else if (filter == "past")
-            {
-                query = query.Where(t => t.EndDate < today);
-            }
-            else if (filter == "current")
-            {
-                query = query.Where(t => t.StartDate <= today && t.EndDate >= today);
-            }
+                "upcoming" => query.Where(t => t.StartDate > today),
+                "past" => query.Where(t => t.EndDate < today),
+                "current" => query.Where(t => t.StartDate <= today && t.EndDate >= today),
+                _ => query
+            };
 
             var trips = await query
                 .Include(t => t.Activities)
                 .Include(t => t.Expenses)
+                .Include(t => t.Destinations)
                 .OrderByDescending(t => t.StartDate)
                 .ToListAsync();
 
-            ViewBag.Filter = filter;
+            ViewBag.CurrentFilter = filter;
             return View(trips);
         }
 
@@ -55,6 +52,7 @@ namespace PlanerPutovanja.Controllers
             var trip = await _context.Trips
                 .Include(t => t.Activities)
                 .Include(t => t.Expenses)
+                .Include(t => t.Destinations)
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
 
             if (trip == null) return NotFound();
@@ -63,36 +61,48 @@ namespace PlanerPutovanja.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            return View(new Trip
+            {
+                StartDate = DateTime.Today,
+                EndDate = DateTime.Today.AddDays(1),
+                Budget = 0
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Location,StartDate,EndDate,Transport,Accommodation,Budget")] Trip trip)
+        public IActionResult Create(Trip trip)
         {
+            // UserId nije user input -> mi ga postavljamo
             trip.UserId = CurrentUserId;
 
-            // IGNORIRAJ validaciju za Budget
-            ModelState.Remove("Budget");
+            // Ukloni eventualnu ModelState grešku za UserId (scaffold / metadata / stari build)
+            ModelState.Remove(nameof(Trip.UserId));
 
-            if (ModelState.IsValid)
-            {
-                _context.Add(trip);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(trip);
+            var budgetRaw = Request.Form["Budget"].FirstOrDefault()
+             ?? Request.Form["budget"].FirstOrDefault()
+             ?? "";
+
+            trip.Budget = ParseBudget(budgetRaw);
+
+
+            if (!ModelState.IsValid)
+                return View(trip);
+
+            _context.Add(trip);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
         }
-
 
 
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var trip = await _context.Trips.FindAsync(id);
-            if (trip == null || trip.UserId != CurrentUserId) return NotFound();
+            var trip = await _context.Trips
+                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
 
+            if (trip == null) return NotFound();
             return View(trip);
         }
 
@@ -102,40 +112,40 @@ namespace PlanerPutovanja.Controllers
         {
             if (id != trip.Id) return NotFound();
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var existingTrip = await _context.Trips.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
-                    if (existingTrip == null || existingTrip.UserId != CurrentUserId)
-                        return NotFound();
-
-                    _context.Update(trip);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Trips.Any(e => e.Id == trip.Id))
-                        return NotFound();
-                    throw;
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(trip);
-        }
-
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var trip = await _context.Trips
-                .Include(t => t.Activities)
-                .Include(t => t.Expenses)
+            // Provjeri da trip pripada useru
+            var existingTrip = await _context.Trips
+                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
 
-            if (trip == null) return NotFound();
-            return View(trip);
+            if (existingTrip == null) return NotFound();
+
+            // UserId nije user input -> mi ga postavljamo
+            trip.UserId = CurrentUserId;
+
+            // Ukloni ModelState gresku za UserId (da ne blokira spremanje)
+            ModelState.Remove(nameof(Trip.UserId));
+            var budgetRaw = Request.Form["Budget"].FirstOrDefault()
+                         ?? Request.Form["budget"].FirstOrDefault()
+                         ?? "";
+
+            trip.Budget = ParseBudget(budgetRaw);
+
+
+            if (!ModelState.IsValid)
+                return View(trip);
+
+            try
+            {
+                _context.Update(trip);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View(trip);
+            }
         }
+
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -156,5 +166,17 @@ namespace PlanerPutovanja.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        private decimal? ParseBudget(string? budgetInput)
+        {
+            if (string.IsNullOrWhiteSpace(budgetInput)) return null;
+
+            budgetInput = budgetInput.Replace(",", ".").Replace(" ", "").Trim();
+
+            return decimal.TryParse(budgetInput, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal budget)
+                ? budget
+                : null;
+        }
+
     }
 }

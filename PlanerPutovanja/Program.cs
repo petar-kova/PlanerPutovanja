@@ -7,6 +7,16 @@ using Microsoft.AspNetCore.Localization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient("gm", c =>
+{
+    c.Timeout = TimeSpan.FromSeconds(8);
+});
+
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<PlanerPutovanja.Services.GoogleMapsService>();
+
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -16,6 +26,23 @@ builder.Services.AddDefaultIdentity<User>(options =>
     options.SignIn.RequireConfirmedAccount = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// HR LOKALIZACIJA - decimal zarez radi
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { new CultureInfo("hr-HR") };
+    options.DefaultRequestCulture = new RequestCulture("hr-HR");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
+builder.Services.AddMemoryCache();
+
+builder.Services.AddHttpClient("gm", c =>
+{
+    c.Timeout = TimeSpan.FromSeconds(8);
+});
+
+builder.Services.AddScoped<PlanerPutovanja.Services.GoogleMapsService>();
 
 var app = builder.Build();
 
@@ -29,21 +56,13 @@ else
     app.UseHsts();
 }
 
-// ← LOKALIZACIJA IDE PRVO (prije routinga)
-var hrCulture = new CultureInfo("hr-HR");
-var localizationOptions = new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture(hrCulture),
-    SupportedCultures = new List<CultureInfo> { hrCulture },
-    SupportedUICultures = new List<CultureInfo> { hrCulture }
-};
-app.UseRequestLocalization(localizationOptions);
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseRouting();
+// LOKALIZACIJA PRVO!
+app.UseRequestLocalization();
 
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 

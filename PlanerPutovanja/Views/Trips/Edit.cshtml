@@ -6,7 +6,7 @@
 
 <h1>Edit trip</h1>
 
-<div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+<div asp-validation-summary="All" class="text-danger mb-4"></div>
 <form asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
 
@@ -25,65 +25,48 @@
 
         <div class="col-md-6">
             <label asp-for="StartDate" class="form-label"></label>
-            <input asp-for="StartDate" class="form-control" type="date" />
+            <input asp-for="StartDate"
+                   type="text"
+                   class="form-control date-input"
+                   value="@(Model?.StartDate.ToString("dd.MM.yyyy") ?? "")"
+                   placeholder="dd.MM.yyyy"
+                   autocomplete="off" />
             <span asp-validation-for="StartDate" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
             <label asp-for="EndDate" class="form-label"></label>
-            <input asp-for="EndDate" class="form-control" type="date" />
+            <input asp-for="EndDate"
+                   type="text"
+                   class="form-control date-input"
+                   value="@(Model?.EndDate.ToString("dd.MM.yyyy") ?? "")"
+                   placeholder="dd.MM.yyyy"
+                   autocomplete="off" />
             <span asp-validation-for="EndDate" class="text-danger"></span>
         </div>
 
-        <div class="col-md-6">
-            <label asp-for="Budget" class="form-label">Budget (optional)</label>
-            <input asp-for="Budget" class="form-control" type="text" />
-            <span asp-validation-for="Budget" class="text-danger"></span>
-            <div class="form-text">e.g. 1234,56</div>
-        </div>
+
 
         <div class="col-md-6">
-            <label asp-for="Currency" class="form-label"></label>
-            <select asp-for="Currency" class="form-select">
-                <option value="EUR">EUR (€)</option>
-                <option value="USD">USD ($)</option>
-                <option value="HRK">HRK (kn)</option>
-            </select>
+            <label class="form-label">Budžet</label>
+            <input name="Budget" class="form-control" type="number" step="1" min="0"
+                   value="@((Model?.Budget) ?? 0)"
+                   placeholder="50" />
         </div>
+
 
         <div class="col-md-6">
             <label asp-for="Transport" class="form-label">Transport</label>
             <select asp-for="Transport" class="form-select">
-                <option value="0">Not selected</option>
+                <option value="">Not selected</option>
                 <option value="1">🚗 Car</option>
                 <option value="2">✈️ Plane</option>
                 <option value="3">🚂 Train</option>
                 <option value="4">🚌 Bus</option>
-                <option value="5">🛳️ Cruise ship</option> 
+                <option value="5">🛳️ Cruise ship</option>
                 <option value="6">Other</option>
             </select>
-
-        </div>
-        @if (Model.Destinations.Any())
-        {
-            <div class="col-12 mb-3">
-                <h6>Destinations (@Model.Destinations.Count)</h6>
-                <ul class="list-unstyled">
-                    @foreach (var dest in Model.Destinations.OrderBy(d => d.Order))
-                    {
-                        <li>📍 @dest.City (@dest.Nights noćenja)</li>
-                    }
-                </ul>
-                <a href="#" class="btn btn-sm btn-outline-primary">Manage destinations</a>
-            </div>
-        }
-
-
-        <div class="col-md-6">
-            <label asp-for="DrivingDistanceKm" class="form-label">Distance (km)</label>
-            <input asp-for="DrivingDistanceKm" class="form-control" type="number" />
-            <span asp-validation-for="DrivingDistanceKm" class="text-danger"></span>
-            <div class="form-text">Only for car trips</div>
+            <span asp-validation-for="Transport" class="text-danger"></span>
         </div>
     </div>
 
@@ -95,4 +78,25 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/i18n/jquery-ui-i18n.min.js"></script>
+
+    <script>
+        $(function () {
+            // Croatian locale (day-month-year feel, textovi, itd.)
+            if ($.datepicker && $.datepicker.regional && $.datepicker.regional["hr"]) {
+                $.datepicker.setDefaults($.datepicker.regional["hr"]);
+            }
+
+            $(".date-input").datepicker({
+                dateFormat: "dd.mm.yy",
+                firstDay: 1
+            });
+        });
+    </script>
 }
+
+
+
