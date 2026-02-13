@@ -1,4 +1,5 @@
-﻿@model PlanerPutovanja.Models.Trip
+﻿@using System.Globalization
+@model PlanerPutovanja.Models.Trip
 
 @{
     ViewData["Title"] = "Edit trip";
@@ -46,13 +47,18 @@
         </div>
 
 
-
         <div class="col-md-6">
-            <label class="form-label">Budžet</label>
-            <input name="Budget" class="form-control" type="number" step="1" min="0"
-                   value="@((Model?.Budget) ?? 0)"
-                   placeholder="50" />
+            <label asp-for="Budget" class="form-label">Budget</label>
+            <input name="Budget"
+                   type="text"
+                   class="form-control"
+                   value="@(Model?.Budget?.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) ?? "")"
+                   placeholder="e.g. 250,00" />
+            <span asp-validation-for="Budget" class="text-danger"></span>
         </div>
+
+
+
 
 
         <div class="col-md-6">
@@ -85,7 +91,7 @@
 
     <script>
         $(function () {
-            // Croatian locale (day-month-year feel, textovi, itd.)
+           
             if ($.datepicker && $.datepicker.regional && $.datepicker.regional["hr"]) {
                 $.datepicker.setDefaults($.datepicker.regional["hr"]);
             }

@@ -24,11 +24,11 @@ namespace PlanerPutovanja.Controllers
         private string CurrentUserId =>
             User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
-        // GET: /api/routes/trip/5/summary
+        
         [HttpGet("trip/{tripId:int}/summary")]
         public async Task<IActionResult> GetTripRouteSummary(int tripId)
         {
-            // ✅ security: trip mora biti od trenutnog usera
+            
             var tripOk = await _db.Trips.AnyAsync(t => t.Id == tripId && t.UserId == CurrentUserId);
             if (!tripOk) return NotFound();
 

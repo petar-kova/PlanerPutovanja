@@ -27,12 +27,10 @@ namespace PlanerPutovanja.Services
             if (locations == null || locations.Count < 2)
                 return new RouteSummary { TotalDistanceKm = 0, TotalDurationMinutes = 0 };
 
-            // Cache key (ordered)
             string cacheKey = "route_" + string.Join("->", locations).ToLowerInvariant();
             if (_cache.TryGetValue(cacheKey, out RouteSummary? cached) && cached != null)
                 return cached;
 
-            // Encode locations for URL
             var origins = string.Join("|", locations.Take(locations.Count - 1).Select(Uri.EscapeDataString));
             var destinations = string.Join("|", locations.Skip(1).Select(Uri.EscapeDataString));
 
@@ -43,8 +41,6 @@ namespace PlanerPutovanja.Services
             var client = _httpClientFactory.CreateClient("gm");
 
 
-            // IMPORTANT: if Google returns REQUEST_DENIED, this call will still deserialize,
-            // but status won't be OK - we'll surface that as an exception below.
             var response = await client.GetFromJsonAsync<DistanceMatrixResponse>(url);
 
             if (response == null)
@@ -59,15 +55,12 @@ namespace PlanerPutovanja.Services
             double totalKm = 0;
             int totalMinutes = 0;
 
-            // We expect: row i -> element i (A->B, B->C, C->D...)
             for (int i = 0; i < response.rows.Count; i++)
             {
                 var row = response.rows[i];
                 if (row?.elements == null || row.elements.Count == 0)
                     continue;
 
-                // Uzimamo element [i] ako postoji (idealno),
-                // a ako ne postoji, uzmi [0] kao fallback.
                 var idx = Math.Min(i, row.elements.Count - 1);
                 var element = row.elements[idx];
 

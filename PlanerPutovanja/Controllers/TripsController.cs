@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlanerPutovanja.Models;
-using System.Globalization;
 
 namespace PlanerPutovanja.Controllers
 {
@@ -21,8 +21,7 @@ namespace PlanerPutovanja.Controllers
 
         public async Task<IActionResult> Index(string filter = "all")
         {
-            IQueryable<Trip> query = _context.Trips
-                .Where(t => t.UserId == CurrentUserId);
+            IQueryable<Trip> query = _context.Trips.Where(t => t.UserId == CurrentUserId);
 
             var today = DateTime.Today;
 
@@ -64,8 +63,7 @@ namespace PlanerPutovanja.Controllers
             return View(new Trip
             {
                 StartDate = DateTime.Today,
-                EndDate = DateTime.Today.AddDays(1),
-                Budget = 0
+                EndDate = DateTime.Today.AddDays(1)
             });
         }
 
@@ -73,18 +71,13 @@ namespace PlanerPutovanja.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Trip trip)
         {
-            // UserId nije user input -> mi ga postavljamo
             trip.UserId = CurrentUserId;
 
-            // Ukloni eventualnu ModelState grešku za UserId (scaffold / metadata / stari build)
-            ModelState.Remove(nameof(Trip.UserId));
-
-            var budgetRaw = Request.Form["Budget"].FirstOrDefault()
-             ?? Request.Form["budget"].FirstOrDefault()
-             ?? "";
-
+            ModelState.Remove(nameof(Trip.UserId));            var budgetRaw = Request.Form[nameof(Trip.Budget)].FirstOrDefault()
+                            ?? Request.Form["Budget"].FirstOrDefault()
+                            ?? "";
             trip.Budget = ParseBudget(budgetRaw);
-
+            ModelState.Remove(nameof(Trip.Budget));
 
             if (!ModelState.IsValid)
                 return View(trip);
@@ -93,7 +86,6 @@ namespace PlanerPutovanja.Controllers
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
-
 
         public async Task<IActionResult> Edit(int? id)
         {
@@ -112,40 +104,30 @@ namespace PlanerPutovanja.Controllers
         {
             if (id != trip.Id) return NotFound();
 
-            // Provjeri da trip pripada useru
             var existingTrip = await _context.Trips
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
 
             if (existingTrip == null) return NotFound();
 
-            // UserId nije user input -> mi ga postavljamo
             trip.UserId = CurrentUserId;
 
-            // Ukloni ModelState gresku za UserId (da ne blokira spremanje)
             ModelState.Remove(nameof(Trip.UserId));
-            var budgetRaw = Request.Form["Budget"].FirstOrDefault()
-                         ?? Request.Form["budget"].FirstOrDefault()
-                         ?? "";
 
+            var budgetRaw = Request.Form[nameof(Trip.Budget)].FirstOrDefault()
+                            ?? Request.Form["Budget"].FirstOrDefault()
+                            ?? "";
             trip.Budget = ParseBudget(budgetRaw);
-
+            ModelState.Remove(nameof(Trip.Budget));
 
             if (!ModelState.IsValid)
                 return View(trip);
 
-            try
-            {
-                _context.Update(trip);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View(trip);
-            }
-        }
+            _context.Update(trip);
+            await _context.SaveChangesAsync();
 
+            return RedirectToAction(nameof(Index));
+        }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -171,12 +153,11 @@ namespace PlanerPutovanja.Controllers
         {
             if (string.IsNullOrWhiteSpace(budgetInput)) return null;
 
-            budgetInput = budgetInput.Replace(",", ".").Replace(" ", "").Trim();
+            budgetInput = budgetInput.Trim().Replace(" ", "").Replace(",", ".");
 
-            return decimal.TryParse(budgetInput, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal budget)
+            return decimal.TryParse(budgetInput, NumberStyles.Any, CultureInfo.InvariantCulture, out var budget)
                 ? budget
                 : null;
         }
-
     }
 }

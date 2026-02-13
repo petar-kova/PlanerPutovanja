@@ -7,6 +7,16 @@ namespace PlanerPutovanja.Models
 {
     public class Trip
     {
+        [NotMapped]
+        public int TotalNights
+        {
+            get
+            {
+                var nights = (EndDate.Date - StartDate.Date).Days;
+                return nights < 0 ? 0 : nights;
+            }
+        }
+
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Trip name is required.")]
@@ -58,7 +68,6 @@ namespace PlanerPutovanja.Models
         public bool IsCruise => Transport == TransportMode.CruiseShip;
     }
 
-    // Custom validation for EndDate ≥ StartDate
     public class CompareDatesAttribute : ValidationAttribute
     {
         private readonly string _startDateProperty;

@@ -79,13 +79,13 @@ namespace PlanerPutovanja.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            // opcionalno: prepakiraj Order (1..N) da bude uredno
+          
             await NormalizeOrder(tripId);
 
             return RedirectToAction("Details", "Trips", new { id = tripId });
         }
 
-        // ===== REORDER ACTIONI (↑ ↓) =====
+        
 
         [HttpPost]
         [ValidateAntiForgeryToken]

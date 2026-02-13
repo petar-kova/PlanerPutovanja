@@ -4,10 +4,8 @@
 
 namespace PlanerPutovanja.Migrations
 {
-    /// <inheritdoc />
     public partial class FixTripDestinationOrder : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
@@ -29,7 +27,6 @@ namespace PlanerPutovanja.Migrations
                 oldType: "nvarchar(max)");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(

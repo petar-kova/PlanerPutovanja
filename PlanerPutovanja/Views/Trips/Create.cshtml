@@ -50,12 +50,15 @@
 
         <div class="col-md-6">
             <label asp-for="Budget" class="form-label">Budget</label>
-            <input asp-for="Budget"
+            <input name="Budget"
+                   type="text"
                    class="form-control"
-                   placeholder="e.g. 250.00" />
-
+                   value="@(Model?.Budget?.ToString("0.##", CultureInfo.InvariantCulture) ?? "")"
+                   placeholder="e.g. 250,00" />
             <span asp-validation-for="Budget" class="text-danger"></span>
         </div>
+
+
 
 
 
@@ -89,7 +92,6 @@
 
     <script>
         $(function () {
-            // Croatian locale (day-month-year feel, textovi, itd.)
             if ($.datepicker && $.datepicker.regional && $.datepicker.regional["hr"]) {
                 $.datepicker.setDefaults($.datepicker.regional["hr"]);
             }

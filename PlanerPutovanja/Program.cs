@@ -27,7 +27,7 @@ builder.Services.AddDefaultIdentity<User>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// HR LOKALIZACIJA - decimal zarez radi
+
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[] { new CultureInfo("hr-HR") };
@@ -59,7 +59,7 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// LOKALIZACIJA PRVO!
+
 app.UseRequestLocalization();
 
 app.UseRouting();

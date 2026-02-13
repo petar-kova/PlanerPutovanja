@@ -7,12 +7,14 @@
 @{
     ViewData["Title"] = "Trip details";
 
-    var destinations = Model.Destinations ?? new List<PlanerPutovanja.Models.TripDestination>();
+    var destinations = Model.Destinations?.OrderBy(d => d.Order).ToList()
+                      ?? new List<PlanerPutovanja.Models.TripDestination>();
+
     var activities = Model.Activities ?? new List<PlanerPutovanja.Models.TripActivity>();
     var expenses = Model.Expenses ?? new List<PlanerPutovanja.Models.Expense>();
 
     var total = expenses.Sum(e => e.Amount);
-    var budget = Model.Budget;
+    decimal? budget = Model.Budget;
 
     decimal? percentUsedRaw = null;
     decimal? percentUsedWidth = null;
@@ -26,7 +28,6 @@
     var tripDays = (Model.EndDate.Date - Model.StartDate.Date).Days + 1;
     if (tripDays < 1) tripDays = 1;
 
-    var totalNights = destinations.Sum(d => d.Nights);
     var costPerDay = tripDays > 0 ? total / tripDays : total;
 
     var isCarTrip = Model.Transport == PlanerPutovanja.Models.Trip.TransportMode.Car;
@@ -53,15 +54,19 @@
     };
 
     var mapsKey = (Configuration["GoogleMaps:ApiKey"] ?? "").Trim();
-    var mapsScriptUrl = $"https://maps.googleapis.com/maps/api/js?key={Uri.EscapeDataString(mapsKey)}&callback=initMap";
+    var hasMap = !string.IsNullOrWhiteSpace(mapsKey) && destinations.Any();
+    var mapsScriptUrl =
+        $"https://maps.googleapis.com/maps/api/js?key={Uri.EscapeDataString(mapsKey)}&callback=initMap";
 
     var locationsJson = JsonSerializer.Serialize(
         destinations
-            .OrderBy(d => d.Order)
             .Select(d => d.City)
             .Where(c => !string.IsNullOrWhiteSpace(c))
             .ToList()
     );
+
+    var firstId = destinations.FirstOrDefault()?.Id ?? 0;
+    var lastId = destinations.LastOrDefault()?.Id ?? 0;
 }
 
 <div class="container py-4">
@@ -79,10 +84,7 @@
     <hr />
 
     <div class="row g-3">
-        <!-- LEFT COLUMN -->
         <div class="col-lg-4">
-
-            <!-- OVERVIEW -->
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h5>Overview</h5>
@@ -99,9 +101,6 @@
 
                         <dt class="col-5">Trip length</dt>
                         <dd class="col-7">@tripDays day@(tripDays > 1 ? "s" : "")</dd>
-
-                        <dt class="col-5">Total nights</dt>
-                        <dd class="col-7">@totalNights</dd>
 
                         <dt class="col-5">Cost / day</dt>
                         <dd class="col-7">@costPerDay.ToString("0.00", CultureInfo.InvariantCulture) €</dd>
@@ -141,7 +140,6 @@
                 </div>
             </div>
 
-            <!-- ROUTE -->
             <div class="card shadow-sm mt-3">
                 <div class="card-body">
                     <h5>Route</h5>
@@ -171,8 +169,7 @@
                 </div>
             </div>
 
-            <!-- MAP -->
-            @if (!string.IsNullOrWhiteSpace(mapsKey) && destinations.Any())
+            @if (hasMap)
             {
                 <div class="card shadow-sm mt-3">
                     <div class="card-body">
@@ -180,15 +177,15 @@
                         <div id="map"
                              data-locations='@Html.Raw(locationsJson)'
                              style="height:300px;width:100%;border-radius:8px;"></div>
+
+                       
                     </div>
                 </div>
             }
         </div>
 
-        <!-- RIGHT COLUMN -->
         <div class="col-lg-8">
 
-            <!-- DESTINATIONS -->
             <div class="card shadow-sm mb-3">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -199,7 +196,7 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="tripId" value="@Model.Id" />
                         <input type="text" name="destination" class="form-control" required maxlength="80"
-                               placeholder="Add destination (e.g. Zagreb, Split, Zadar)" />
+                               placeholder="Add destination (e.g. Zagreb, Split, Rome, Italy)" />
                         <button type="submit" class="btn btn-primary">Add</button>
                     </form>
 
@@ -209,21 +206,14 @@
                     }
                     else
                     {
-                        var ordered = destinations.OrderBy(x => x.Order).ToList();
-                        var firstId = ordered.First().Id;
-                        var lastId = ordered.Last().Id;
-
                         <ul class="list-group">
-                            @foreach (var d in ordered)
+                            @foreach (var d in destinations)
                             {
                                 var isFirst = d.Id == firstId;
                                 var isLast = d.Id == lastId;
 
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>
-                                        <strong>@d.City</strong>
-                                        <span class="text-muted">(@d.Nights night@(d.Nights > 1 ? "s" : ""))</span>
-                                    </span>
+                                    <strong>@d.City</strong>
 
                                     <div class="d-flex gap-1">
                                         <form asp-controller="TripDestinations" asp-action="MoveUp" method="post" class="m-0">
@@ -238,20 +228,6 @@
                                             <input type="hidden" name="id" value="@d.Id" />
                                             <input type="hidden" name="tripId" value="@Model.Id" />
                                             <button class="btn btn-sm btn-outline-secondary" title="Move down" @(isLast ? "disabled" : null)>↓</button>
-                                        </form>
-
-                                        <form asp-controller="TripDestinations" asp-action="NightsMinus" method="post" class="m-0">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@d.Id" />
-                                            <input type="hidden" name="tripId" value="@Model.Id" />
-                                            <button class="btn btn-sm btn-outline-secondary" title="Minus night" @(d.Nights <= 1 ? "disabled" : null)>-</button>
-                                        </form>
-
-                                        <form asp-controller="TripDestinations" asp-action="NightsPlus" method="post" class="m-0">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@d.Id" />
-                                            <input type="hidden" name="tripId" value="@Model.Id" />
-                                            <button class="btn btn-sm btn-outline-secondary" title="Plus night" @(d.Nights >= 30 ? "disabled" : null)>+</button>
                                         </form>
 
                                         <form asp-controller="TripDestinations" asp-action="Delete" method="post" class="m-0"
@@ -269,26 +245,13 @@
                 </div>
             </div>
 
-            <!-- ACTIVITIES -->
             <div class="card shadow-sm mb-3">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h4 class="mb-0">Activities</h4>
+                        <a asp-controller="TripActivities" asp-action="Create" asp-route-tripId="@Model.Id"
+                           class="btn btn-sm btn-primary">Add activity</a>
                     </div>
-
-                    <!-- Inline add Activity (TripActivitiesController.Create expects tripId in route) -->
-                    <form asp-controller="TripActivities" asp-action="Create" asp-route-tripId="@Model.Id" method="post" class="row g-2 mb-3">
-                        @Html.AntiForgeryToken()
-                        <div class="col-md-4">
-                            <input name="Name" class="form-control" placeholder="Activity name" required maxlength="100" />
-                        </div>
-                        <div class="col-md-6">
-                            <input name="Notes" class="form-control" placeholder="Notes (optional)" maxlength="250" />
-                        </div>
-                        <div class="col-md-2 d-grid">
-                            <button class="btn btn-primary">Add</button>
-                        </div>
-                    </form>
 
                     @if (!activities.Any())
                     {
@@ -312,10 +275,9 @@
                                         <a asp-controller="TripActivities" asp-action="Edit" asp-route-id="@a.Id"
                                            class="btn btn-sm btn-outline-secondary">Edit</a>
 
-                                        <form asp-controller="TripActivities" asp-action="Delete" method="post" class="m-0"
-                                              onsubmit="return confirm('Delete this activity?');">
+                                        <form asp-controller="TripActivities" asp-action="Delete" asp-route-id="@a.Id"
+                                              method="post" class="m-0" onsubmit="return confirm('Delete this activity?');">
                                             @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@a.Id" />
                                             <button class="btn btn-sm btn-outline-danger">✕</button>
                                         </form>
                                     </div>
@@ -326,29 +288,13 @@
                 </div>
             </div>
 
-            <!-- EXPENSES -->
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h4 class="mb-0">Expenses</h4>
+                        <a asp-controller="Expenses" asp-action="Create" asp-route-tripId="@Model.Id"
+                           class="btn btn-sm btn-primary">Add expense</a>
                     </div>
-
-                    <!-- Inline add Expense (ExpensesController.Create expects tripId in route) -->
-                    <form asp-controller="Expenses" asp-action="Create" asp-route-tripId="@Model.Id" method="post" class="row g-2 mb-3">
-                        @Html.AntiForgeryToken()
-                        <div class="col-md-4">
-                            <input name="Name" class="form-control" placeholder="Expense name" required maxlength="100" />
-                        </div>
-                        <div class="col-md-5">
-                            <input name="Description" class="form-control" placeholder="Description (optional)" maxlength="250" />
-                        </div>
-                        <div class="col-md-2">
-                            <input name="Amount" type="number" step="0.01" class="form-control" placeholder="Amount" required />
-                        </div>
-                        <div class="col-md-1 d-grid">
-                            <button class="btn btn-primary">Add</button>
-                        </div>
-                    </form>
 
                     @if (!expenses.Any())
                     {
@@ -356,34 +302,43 @@
                     }
                     else
                     {
-                        <ul class="list-group">
-                            @foreach (var e in expenses.OrderByDescending(x => x.Amount))
-                            {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="fw-semibold">@e.Name</div>
-                                        @if (!string.IsNullOrWhiteSpace(e.Description))
-                                        {
-                                            <div class="text-muted">@e.Description</div>
-                                        }
-                                    </div>
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th class="text-end">Amount</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var e in expenses.OrderByDescending(x => x.Id))
+                                {
+                                    <tr>
+                                        <td>@e.Name</td>
+                                        <td>@e.Description</td>
+                                        <td class="text-end">@e.Amount.ToString("0.00", CultureInfo.InvariantCulture) €</td>
+                                        <td class="text-end">
+                                            <a asp-controller="Expenses" asp-action="Edit" asp-route-id="@e.Id"
+                                               class="btn btn-sm btn-outline-secondary">Edit</a>
 
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="fw-semibold">@e.Amount.ToString("0.00", CultureInfo.InvariantCulture) €</div>
-
-                                        <a asp-controller="Expenses" asp-action="Edit" asp-route-id="@e.Id"
-                                           class="btn btn-sm btn-outline-secondary">Edit</a>
-
-                                        <form asp-controller="Expenses" asp-action="Delete" method="post" class="m-0"
-                                              onsubmit="return confirm('Delete this expense?');">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@e.Id" />
-                                            <button class="btn btn-sm btn-outline-danger">✕</button>
-                                        </form>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
+                                            <form asp-controller="Expenses" asp-action="Delete" asp-route-id="@e.Id"
+                                                  method="post" class="d-inline" onsubmit="return confirm('Delete this expense?');">
+                                                @Html.AntiForgeryToken()
+                                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="2" class="text-end">Total</th>
+                                    <th class="text-end">@total.ToString("0.00", CultureInfo.InvariantCulture) €</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
                     }
                 </div>
             </div>
@@ -393,7 +348,6 @@
 </div>
 
 @section Scripts {
-
     <script>
         function formatDuration(minutes) {
             if (!minutes || minutes <= 0) return "0 min";
@@ -411,7 +365,7 @@
             result.textContent = "";
 
             try {
-                const res = await fetch(`/api/routes/trip/${tripId}/summary`);
+                const res = await fetch(`/api/routes/trip/${tripId}/summary`, { credentials: "include" });
                 if (!res.ok) throw new Error("Route API failed");
                 const data = await res.json();
 
@@ -428,93 +382,80 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const btn = document.getElementById("btnCalcRoute");
-            if (!btn || btn.disabled) return;
-
-            const tripId = btn.dataset.tripId;
-
-            btn.addEventListener("click", () => calcRoute(tripId));
-            calcRoute(tripId);
+            if (btn && !btn.disabled) {
+                const tripId = btn.dataset.tripId;
+                btn.addEventListener("click", () => calcRoute(tripId));
+                calcRoute(tripId);
+            }
         });
     </script>
 
-    @if (!string.IsNullOrWhiteSpace(mapsKey) && destinations.Any())
+    @if (hasMap)
     {
         <script>
             window.initMap = async function () {
                 const mapEl = document.getElementById("map");
                 if (!mapEl) return;
 
-                const locations = JSON.parse(mapEl.getAttribute("data-locations") || "[]")
-                    .filter(x => x && x.trim().length > 0);
+                let locations = [];
+                try {
+                    locations = JSON.parse(mapEl.getAttribute("data-locations") || "[]");
+                } catch {
+                    locations = [];
+                }
+
+                locations = locations
+                    .map(x => (x || "").toString().trim())
+                    .filter(x => x.length > 0);
 
                 const map = new google.maps.Map(mapEl, {
                     zoom: 6,
-                    center: { lat: 45.815, lng: 15.981 } // fallback Zagreb
+                    center: { lat: 45.815, lng: 15.981 }
                 });
 
-                // Ako nema dovoljno lokacija, samo pokušaj marker za prvu
                 if (locations.length === 0) return;
 
-                // Directions (prava cesta)
                 const directionsService = new google.maps.DirectionsService();
-                const directionsRenderer = new google.maps.DirectionsRenderer({
-                    map,
-                    suppressMarkers: false
-                });
+                const directionsRenderer = new google.maps.DirectionsRenderer({ map, suppressMarkers: false });
 
-                // Helper: fallback markeri preko geocoding-a (ako Directions pukne)
                 async function fallbackMarkers() {
                     const geocoder = new google.maps.Geocoder();
                     const bounds = new google.maps.LatLngBounds();
-                    const points = [];
+                    let count = 0;
 
                     for (const city of locations) {
                         try {
-                            const r = await geocoder.geocode({ address: city + ", Croatia" });
-                            const pos = r.results[0].geometry.location;
-                            new google.maps.Marker({ map, position: pos, title: city });
-                            bounds.extend(pos);
-                            points.push(pos);
-                        } catch { /* ignore */ }
+                            const res = await geocoder.geocode({ address: city });
+                            if (res.results && res.results.length > 0) {
+                                const pos = res.results[0].geometry.location;
+                                new google.maps.Marker({ map, position: pos, title: city });
+                                bounds.extend(pos);
+                                count++;
+                            }
+                        } catch { }
                     }
 
-                    if (points.length > 1) map.fitBounds(bounds);
-                    else if (points.length === 1) { map.setCenter(points[0]); map.setZoom(10); }
+                    if (count > 1) map.fitBounds(bounds);
+                    else if (count === 1) map.setZoom(10);
                 }
 
-                // Ako je samo 1 lokacija, nacrtaj marker (geocode) i centriraj
                 if (locations.length === 1) {
                     await fallbackMarkers();
                     return;
                 }
 
-                // Start / End / Waypoints
-                const origin = locations[0] + ", Croatia";
-                const destination = locations[locations.length - 1] + ", Croatia";
-                const waypoints = locations
-                    .slice(1, -1)
-                    .map(c => ({ location: c + ", Croatia", stopover: true }));
-
-                const request = {
-                    origin,
-                    destination,
-                    waypoints,
+                directionsService.route({
+                    origin: locations[0],
+                    destination: locations[locations.length - 1],
+                    waypoints: locations.slice(1, -1).map(c => ({ location: c, stopover: true })),
                     travelMode: google.maps.TravelMode.DRIVING,
                     optimizeWaypoints: false
-                };
-
-                directionsService.route(request, async (result, status) => {
-                    if (status === "OK") {
-                        directionsRenderer.setDirections(result);
-                    } else {
-                        // Fallback: bar markeri da se nešto vidi
-                        await fallbackMarkers();
-                    }
+                }, async (result, status) => {
+                    if (status === "OK") directionsRenderer.setDirections(result);
+                    else await fallbackMarkers();
                 });
             };
         </script>
-
-
 
         <script async defer src="@mapsScriptUrl"></script>
     }

@@ -13,7 +13,6 @@ namespace PlanerPutovanja.Models
         [Range(1, 30, ErrorMessage = "Nights must be at least 1 and at most 30.")]
         public int Nights { get; set; } = 1;
 
-        // Redoslijed destinacije u putovanju (1,2,3...)
         public int Order { get; set; }
 
         [Required]

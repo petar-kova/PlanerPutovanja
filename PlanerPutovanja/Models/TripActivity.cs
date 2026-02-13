@@ -13,7 +13,6 @@ namespace PlanerPutovanja.Models
         [StringLength(500, ErrorMessage = "Notes must be at most 500 characters long.")]
         public string? Notes { get; set; }
 
-        // Foreign key to Trip
         [Required]
         public int TripId { get; set; }
 
