@@ -62,13 +62,25 @@ namespace PlanerPutovanja.Controllers
 
             if (trip == null) return NotFound();
 
-            var weatherCity = trip.Destinations
-                .OrderBy(d => d.Order)
-                .Select(d => d.City)
-                .FirstOrDefault(c => !string.IsNullOrWhiteSpace(c))
-                ?? trip.Destination;
+            var cities = trip.Destinations?
+    .OrderBy(d => d.Order)
+    .Select(d => d.City)
+    .Where(c => !string.IsNullOrWhiteSpace(c))
+    .Select(c => c!.Trim())
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToList() ?? new List<string>();
 
-            ViewBag.Weather = await _weatherService.GetCurrentWeatherAsync(weatherCity);
+            var weatherByCity = new Dictionary<string, WeatherService.WeatherInfo?>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var city in cities)
+            {
+                weatherByCity[city] = await _weatherService.GetCurrentWeatherAsync(city);
+            }
+
+            ViewBag.WeatherByCity = weatherByCity;
+
+            var topCity = cities.FirstOrDefault() ?? trip.Destination;
+            ViewBag.Weather = await _weatherService.GetCurrentWeatherAsync(topCity);
 
             return View(trip);
         }
@@ -220,15 +232,30 @@ namespace PlanerPutovanja.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private decimal? ParseBudget(string? budgetInput)
+        private decimal? ParseBudget(string? input)
         {
-            if (string.IsNullOrWhiteSpace(budgetInput)) return null;
+            if (string.IsNullOrWhiteSpace(input))
+                return null;
 
-            budgetInput = budgetInput.Trim().Replace(" ", "").Replace(",", ".");
+            input = input.Trim();
 
-            return decimal.TryParse(budgetInput, NumberStyles.Any, CultureInfo.InvariantCulture, out var budget)
-                ? budget
-                : null;
+            input = input.Replace(" ", "");
+
+            if (input.Contains('.') && input.Contains(','))
+            {
+                input = input.Replace(".", "");
+                input = input.Replace(",", ".");
+            }
+            else
+            {
+                if (input.Contains(',') && !input.Contains('.'))
+                    input = input.Replace(",", ".");
+            }
+
+            if (decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+                return value;
+
+            return null;
         }
     }
 }

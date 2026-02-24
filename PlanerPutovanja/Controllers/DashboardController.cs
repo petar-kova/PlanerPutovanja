@@ -1,151 +1,129 @@
-using System.Globalization;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlanerPutovanja.Models;
 
-namespace PlanerPutovanja.Controllers;
-
-[Authorize]
-public class DashboardController : Controller
+namespace PlanerPutovanja.Controllers
 {
-    private readonly ApplicationDbContext _context;
-    private readonly UserManager<User> _userManager;
-
-    public DashboardController(ApplicationDbContext context, UserManager<User> userManager)
+    [Authorize]
+    public class DashboardController : Controller
     {
-        _context = context;
-        _userManager = userManager;
-    }
+        private readonly ApplicationDbContext _context;
 
-    public async Task<IActionResult> Index()
-    {
-        var userId = _userManager.GetUserId(User);
-        if (string.IsNullOrEmpty(userId))
+        public DashboardController(ApplicationDbContext context)
         {
-            return Challenge();
+            _context = context;
         }
 
-        var now = DateTime.UtcNow;
-        var today = now.Date;
-        var firstMonth = new DateTime(now.Year, now.Month, 1).AddMonths(-11);
-        var nextMonth = new DateTime(now.Year, now.Month, 1).AddMonths(1);
+        private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
-        var totalTripsTask = _context.Trips
-            .AsNoTracking()
-            .Where(t => t.UserId == userId)
-            .CountAsync();
-
-        var totalExpensesTask = _context.Expenses
-            .AsNoTracking()
-            .Where(e => e.Trip.UserId == userId)
-            .SumAsync(e => (decimal?)e.Amount);
-
-        var totalBudgetTask = _context.Trips
-            .AsNoTracking()
-            .Where(t => t.UserId == userId && t.Budget.HasValue)
-            .SumAsync(t => (decimal?)t.Budget);
-
-        var upcomingTripsTask = _context.Trips
-            .AsNoTracking()
-            .Where(t => t.UserId == userId && t.StartDate >= today)
-            .OrderBy(t => t.StartDate)
-            .Select(t => new TripSummaryItem
-            {
-                TripId = t.Id,
-                Name = t.Name,
-                Destination = t.Destinations
-                    .OrderBy(d => d.Order)
-                    .Select(d => d.City)
-                    .FirstOrDefault() ?? t.Destination,
-                StartDate = t.StartDate,
-                EndDate = t.EndDate
-            })
-            .Take(5)
-            .ToListAsync();
-
-        var monthlyRawTask = _context.Expenses
-            .AsNoTracking()
-            .Where(e => e.Trip.UserId == userId && e.Trip.StartDate >= firstMonth && e.Trip.StartDate < nextMonth)
-            .GroupBy(e => new { e.Trip.StartDate.Year, e.Trip.StartDate.Month })
-            .Select(g => new
-            {
-                g.Key.Year,
-                g.Key.Month,
-                Total = g.Sum(x => x.Amount)
-            })
-            .ToListAsync();
-
-        var topDestinationsTask = _context.TripDestinations
-            .AsNoTracking()
-            .Where(td => td.Trip.UserId == userId)
-            .GroupBy(td => td.City)
-            .Select(g => new TopDestinationItem
-            {
-                City = g.Key,
-                Count = g.Count()
-            })
-            .OrderByDescending(x => x.Count)
-            .ThenBy(x => x.City)
-            .Take(7)
-            .ToListAsync();
-
-        var overBudgetTask = _context.Trips
-            .AsNoTracking()
-            .Where(t => t.UserId == userId && t.Budget.HasValue && t.Budget.Value > 0)
-            .Select(t => new OverBudgetTripItem
-            {
-                TripId = t.Id,
-                Name = t.Name,
-                Budget = t.Budget!.Value,
-                Expenses = t.Expenses.Sum(e => (decimal?)e.Amount) ?? 0m,
-                UsagePercent = ((t.Expenses.Sum(e => (decimal?)e.Amount) ?? 0m) / t.Budget!.Value) * 100m
-            })
-            .Where(x => x.UsagePercent > 90m)
-            .OrderByDescending(x => x.UsagePercent)
-            .ThenBy(x => x.Name)
-            .ToListAsync();
-
-        await Task.WhenAll(
-            totalTripsTask,
-            totalExpensesTask,
-            totalBudgetTask,
-            upcomingTripsTask,
-            monthlyRawTask,
-            topDestinationsTask,
-            overBudgetTask);
-
-        var monthlyLookup = monthlyRawTask.Result
-            .ToDictionary(x => (x.Year, x.Month), x => x.Total);
-
-        var monthlyExpenses = Enumerable.Range(0, 12)
-            .Select(offset => firstMonth.AddMonths(offset))
-            .Select(month => new MonthlyExpensePoint
-            {
-                Label = month.ToString("yyyy-MM", CultureInfo.InvariantCulture),
-                Total = monthlyLookup.TryGetValue((month.Year, month.Month), out var total) ? total : 0m
-            })
-            .ToList();
-
-        var totalExpenses = totalExpensesTask.Result ?? 0m;
-        var totalBudget = totalBudgetTask.Result ?? 0m;
-        var budgetUsagePercent = totalBudget <= 0m
-            ? 0m
-            : Math.Round((totalExpenses / totalBudget) * 100m, 2);
-
-        var model = new DashboardViewModel
+        public async Task<IActionResult> Index()
         {
-            TotalTrips = totalTripsTask.Result,
-            TotalExpenses = totalExpenses,
-            TotalBudget = totalBudget,
-            BudgetUsagePercent = budgetUsagePercent,
-            UpcomingTrips = upcomingTripsTask.Result,
-            MonthlyExpenses = monthlyExpenses,
-            TopDestinations = topDestinationsTask.Result,
-            OverBudgetTrips = overBudgetTask.Result
-        };
+            // FILTER EVERYTHING BY USER
+            var userTrips = _context.Trips.Where(t => t.UserId == CurrentUserId);
 
-        return View(model);
+            var totalTrips = await userTrips.CountAsync();
+
+            var totalExpenses = await _context.Expenses
+                .Where(e => e.Trip.UserId == CurrentUserId)
+                .SumAsync(e => (decimal?)e.Amount) ?? 0m;
+
+            var totalBudget = await userTrips
+                .SumAsync(t => (decimal?)t.Budget) ?? 0m;
+
+            var budgetUsagePercent = totalBudget <= 0m
+                ? 0m
+                : (totalExpenses / totalBudget) * 100m;
+
+            // Upcoming trips
+            var today = DateTime.Today;
+
+            var upcomingTrips = await userTrips
+                .Where(t => t.StartDate >= today)
+                .OrderBy(t => t.StartDate)
+                .Select(t => new TripSummaryItem
+                {
+                    TripId = t.Id,
+                    Name = t.Name,
+                    Destination = t.Destination,
+                    StartDate = t.StartDate,
+                    EndDate = t.EndDate
+                })
+                .Take(5)
+                .ToListAsync();
+
+            // "MonthlyExpenses" placeholder: Top 12 trips by expenses (for this user only)
+            var expensesByTripRaw = await userTrips
+                .Select(t => new
+                {
+                    t.Name,
+                    Total = t.Expenses.Sum(e => (decimal?)e.Amount) ?? 0m
+                })
+                .OrderByDescending(x => x.Total)
+                .Take(12)
+                .ToListAsync();
+
+            var monthlyExpenses = expensesByTripRaw
+                .Select(x => new MonthlyExpensePoint
+                {
+                    Label = x.Name,
+                    Total = x.Total
+                })
+                .ToList();
+
+            // Top destinations (for this user only)
+            var topDestinations = await _context.TripDestinations
+                .Where(d => d.Trip.UserId == CurrentUserId)
+                .GroupBy(d => d.City)
+                .Select(g => new TopDestinationItem
+                {
+                    City = g.Key,
+                    Count = g.Count()
+                })
+                .OrderByDescending(x => x.Count)
+                .Take(7)
+                .ToListAsync();
+
+            // Over budget (for this user only)
+            var overBudgetRaw = await userTrips
+                .Where(t => t.Budget.HasValue && t.Budget.Value > 0m)
+                .Select(t => new
+                {
+                    t.Id,
+                    t.Name,
+                    Budget = t.Budget!.Value,
+                    Expenses = t.Expenses.Sum(e => (decimal?)e.Amount) ?? 0m
+                })
+                .ToListAsync();
+
+            var overBudgetTrips = overBudgetRaw
+                .Select(t => new OverBudgetTripItem
+                {
+                    TripId = t.Id,
+                    Name = t.Name,
+                    Budget = t.Budget,
+                    Expenses = t.Expenses,
+                    UsagePercent = (t.Expenses / t.Budget) * 100m
+                })
+                .Where(x => x.UsagePercent >= 90m)
+                .OrderByDescending(x => x.UsagePercent)
+                .Take(10)
+                .ToList();
+
+            var vm = new DashboardViewModel
+            {
+                TotalTrips = totalTrips,
+                TotalExpenses = totalExpenses,
+                TotalBudget = totalBudget,
+                BudgetUsagePercent = budgetUsagePercent,
+                UpcomingTrips = upcomingTrips,
+                MonthlyExpenses = monthlyExpenses,
+                TopDestinations = topDestinations,
+                OverBudgetTrips = overBudgetTrips
+            };
+
+            return View(vm);
+        }
     }
 }
