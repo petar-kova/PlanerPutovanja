@@ -1,46 +1,236 @@
-﻿@model PlanerPutovanja.Controllers.DashboardViewModel
+@model PlanerPutovanja.Models.DashboardViewModel
+@using System.Text.Json
 
 @{
     ViewData["Title"] = "Dashboard";
+
+    var usageColorClass = Model.BudgetUsagePercent switch
+    {
+        < 70m => "bg-success",
+        <= 90m => "bg-warning",
+        _ => "bg-danger"
+    };
+
+    var usageTextClass = Model.BudgetUsagePercent switch
+    {
+        < 70m => "text-success",
+        <= 90m => "text-warning",
+        _ => "text-danger"
+    };
+
+    var monthlyLabelsJson = JsonSerializer.Serialize(Model.MonthlyExpenses.Select(x => x.Label));
+    var monthlyTotalsJson = JsonSerializer.Serialize(Model.MonthlyExpenses.Select(x => x.Total));
+    var destinationLabelsJson = JsonSerializer.Serialize(Model.TopDestinations.Select(x => x.City));
+    var destinationCountsJson = JsonSerializer.Serialize(Model.TopDestinations.Select(x => x.Count));
 }
 
-<section class="py-5">
-    <div class="container">
-        <h1 class="h2 mb-4">Dashboard</h1>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <h1 class="h2 mb-0">Dashboard</h1>
+    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary">
+        Refresh
+    </a>
+</div>
 
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card shadow-sm text-center">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase mb-2">Total trips</h6>
-                        <div class="display-5 fw-bold">@Model.TotalTrips</div>
-                    </div>
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-muted text-uppercase small fw-semibold">Total trips</span>
+                    <span>🧳</span>
                 </div>
+                <div class="display-6 fw-bold">@Model.TotalTrips</div>
             </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm text-center">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase mb-2">Upcoming trips</h6>
-                        <div class="display-5 fw-bold">@Model.UpcomingTrips</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm text-center">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase mb-2">Total expenses</h6>
-                        <div class="display-6 fw-bold">
-                            @Model.TotalExpenses.ToString("0.00")
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div>
-            <a asp-controller="Trips" asp-action="Index" class="btn btn-primary">
-                Go to trips
-            </a>
         </div>
     </div>
-</section>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-muted text-uppercase small fw-semibold">Total expenses</span>
+                    <span>💸</span>
+                </div>
+                <div class="display-6 fw-bold">@Model.TotalExpenses.ToString("N2")</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-muted text-uppercase small fw-semibold">Total budget</span>
+                    <span>💰</span>
+                </div>
+                <div class="display-6 fw-bold">@Model.TotalBudget.ToString("N2")</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-muted text-uppercase small fw-semibold">Budget usage</span>
+                    <span>📊</span>
+                </div>
+                <div class="display-6 fw-bold @usageTextClass">@Model.BudgetUsagePercent.ToString("0.##")%</div>
+                <div class="progress mt-3" role="progressbar" aria-label="Budget usage" aria-valuenow="@Model.BudgetUsagePercent" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar @usageColorClass" style="width: @Math.Min(Model.BudgetUsagePercent, 100m).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Monthly expenses (last 12 months)</h2>
+                <canvas id="monthlyExpensesChart" height="130"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Top destinations</h2>
+                <canvas id="topDestinationsChart" height="130"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Upcoming trips</h2>
+                @if (!Model.UpcomingTrips.Any())
+                {
+                    <p class="text-muted mb-0">No upcoming trips yet.</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Trip</th>
+                                    <th>Destination</th>
+                                    <th>Dates</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var trip in Model.UpcomingTrips)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Trips" asp-action="Details" asp-route-id="@trip.TripId" class="text-decoration-none fw-semibold">
+                                                @trip.Name
+                                            </a>
+                                        </td>
+                                        <td>@trip.Destination</td>
+                                        <td>@trip.StartDate.ToString("dd MMM yyyy") - @trip.EndDate.ToString("dd MMM yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Over budget / Warning</h2>
+                @if (!Model.OverBudgetTrips.Any())
+                {
+                    <p class="text-muted mb-0">Great! No trips above 90% budget usage.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var trip in Model.OverBudgetTrips)
+                        {
+                            var badgeClass = trip.UsagePercent >= 100m ? "bg-danger" : "bg-warning text-dark";
+                            var badgeText = trip.UsagePercent >= 100m ? "Over budget" : "Warning";
+
+                            <li class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <div>
+                                        <a asp-controller="Trips" asp-action="Details" asp-route-id="@trip.TripId" class="fw-semibold text-decoration-none">@trip.Name</a>
+                                        <div class="small text-muted">
+                                            @trip.Expenses.ToString("N2") / @trip.Budget.ToString("N2")
+                                        </div>
+                                    </div>
+                                    <span class="badge @badgeClass">@badgeText (@trip.UsagePercent.ToString("0.#")%)</span>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const monthlyLabels = @Html.Raw(monthlyLabelsJson);
+        const monthlyTotals = @Html.Raw(monthlyTotalsJson);
+        const destinationLabels = @Html.Raw(destinationLabelsJson);
+        const destinationCounts = @Html.Raw(destinationCountsJson);
+
+        new Chart(document.getElementById('monthlyExpensesChart'), {
+            type: 'line',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Expenses',
+                    data: monthlyTotals,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13,110,253,0.15)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('topDestinationsChart'), {
+            type: 'bar',
+            data: {
+                labels: destinationLabels,
+                datasets: [{
+                    label: 'Trips',
+                    data: destinationCounts,
+                    backgroundColor: '#198754'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, ticks: { precision: 0 } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+}
