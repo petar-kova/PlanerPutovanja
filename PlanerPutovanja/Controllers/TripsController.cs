@@ -178,7 +178,7 @@ namespace PlanerPutovanja.Controllers
 
                         col.Item().PaddingTop(8).Text("Destinations").SemiBold();
                         foreach (var d in trip.Destinations.OrderBy(d => d.Order))
-                            col.Item().Text($"• {d.City} ({d.Nights} night(s))");
+                            col.Item().Text($"• {d.City}");
 
                         col.Item().PaddingTop(8).Text("Activities").SemiBold();
                         foreach (var a in trip.Activities)
