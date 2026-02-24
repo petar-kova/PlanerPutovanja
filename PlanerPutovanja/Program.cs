@@ -1,22 +1,29 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using PlanerPutovanja.Models;
+using PlanerPutovanja.Services;
+using QuestPDF.Infrastructure;
 using System.Globalization;
-using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddMemoryCache();
+
 builder.Services.AddHttpClient("gm", c =>
 {
     c.Timeout = TimeSpan.FromSeconds(8);
 });
 
-builder.Services.AddMemoryCache();
-builder.Services.AddScoped<PlanerPutovanja.Services.GoogleMapsService>();
+builder.Services.AddHttpClient("weather", c =>
+{
+    c.BaseAddress = new Uri("https://api.openweathermap.org/data/2.5/");
+    c.Timeout = TimeSpan.FromSeconds(8);
+});
 
-
+builder.Services.AddScoped<GoogleMapsService>();
+builder.Services.AddScoped<WeatherService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -27,7 +34,6 @@ builder.Services.AddDefaultIdentity<User>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[] { new CultureInfo("hr-HR") };
@@ -35,14 +41,8 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
 });
-builder.Services.AddMemoryCache();
 
-builder.Services.AddHttpClient("gm", c =>
-{
-    c.Timeout = TimeSpan.FromSeconds(8);
-});
-
-builder.Services.AddScoped<PlanerPutovanja.Services.GoogleMapsService>();
+QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 
@@ -58,8 +58,6 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-
 app.UseRequestLocalization();
 
 app.UseRouting();
