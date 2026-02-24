@@ -67,6 +67,8 @@
 
     var firstId = destinations.FirstOrDefault()?.Id ?? 0;
     var lastId = destinations.LastOrDefault()?.Id ?? 0;
+
+    var weather = ViewBag.Weather as PlanerPutovanja.Services.WeatherService.WeatherInfo;
 }
 
 <div class="container py-4">
@@ -77,6 +79,7 @@
         </div>
         <div class="d-flex gap-2">
             <a asp-controller="Trips" asp-action="Index" class="btn btn-outline-secondary">Back to trips</a>
+            <a asp-controller="Trips" asp-action="ExportPdf" asp-route-id="@Model.Id" class="btn btn-outline-primary">Export PDF</a>
             <a asp-controller="Trips" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit trip</a>
         </div>
     </div>
@@ -137,6 +140,23 @@
                             </dd>
                         }
                     </dl>
+                </div>
+            </div>
+
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-body">
+                    <h5>Weather</h5>
+                    @if (weather is null)
+                    {
+                        <p class="text-muted mb-0">Weather is unavailable. Add OpenWeather API key in configuration.</p>
+                    }
+                    else
+                    {
+                        <div><strong>@weather.City</strong></div>
+                        <div class="text-muted text-capitalize">@weather.Description</div>
+                        <div class="mt-1">@weather.TemperatureC.ToString("0.0", CultureInfo.InvariantCulture) °C (feels like @weather.FeelsLikeC.ToString("0.0", CultureInfo.InvariantCulture) °C)</div>
+                    }
                 </div>
             </div>
 

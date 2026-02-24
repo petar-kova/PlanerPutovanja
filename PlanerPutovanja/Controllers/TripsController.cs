@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlanerPutovanja.Models;
+using PlanerPutovanja.Services;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace PlanerPutovanja.Controllers
 {
@@ -11,10 +15,12 @@ namespace PlanerPutovanja.Controllers
     public class TripsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly WeatherService _weatherService;
 
-        public TripsController(ApplicationDbContext context)
+        public TripsController(ApplicationDbContext context, WeatherService weatherService)
         {
             _context = context;
+            _weatherService = weatherService;
         }
 
         private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
@@ -55,6 +61,15 @@ namespace PlanerPutovanja.Controllers
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
 
             if (trip == null) return NotFound();
+
+            var weatherCity = trip.Destinations
+                .OrderBy(d => d.Order)
+                .Select(d => d.City)
+                .FirstOrDefault(c => !string.IsNullOrWhiteSpace(c))
+                ?? trip.Destination;
+
+            ViewBag.Weather = await _weatherService.GetCurrentWeatherAsync(weatherCity);
+
             return View(trip);
         }
 
@@ -73,7 +88,8 @@ namespace PlanerPutovanja.Controllers
         {
             trip.UserId = CurrentUserId;
 
-            ModelState.Remove(nameof(Trip.UserId));            var budgetRaw = Request.Form[nameof(Trip.Budget)].FirstOrDefault()
+            ModelState.Remove(nameof(Trip.UserId));
+            var budgetRaw = Request.Form[nameof(Trip.Budget)].FirstOrDefault()
                             ?? Request.Form["Budget"].FirstOrDefault()
                             ?? "";
             trip.Budget = ParseBudget(budgetRaw);
@@ -127,6 +143,61 @@ namespace PlanerPutovanja.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportPdf(int id)
+        {
+            var trip = await _context.Trips
+                .Include(t => t.Destinations)
+                .Include(t => t.Activities)
+                .Include(t => t.Expenses)
+                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
+
+            if (trip == null) return NotFound();
+
+            var pdf = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(30);
+                    page.Size(PageSizes.A4);
+                    page.DefaultTextStyle(x => x.FontSize(11));
+
+                    page.Header()
+                        .Text($"Trip report: {trip.Name}")
+                        .SemiBold().FontSize(18).FontColor(Colors.Blue.Medium);
+
+                    page.Content().Column(col =>
+                    {
+                        col.Spacing(8);
+                        col.Item().Text($"Destination: {trip.Destination}");
+                        col.Item().Text($"Dates: {trip.StartDate:dd.MM.yyyy} - {trip.EndDate:dd.MM.yyyy}");
+                        col.Item().Text($"Budget: {(trip.Budget.HasValue ? $"{trip.Budget:0.00} €" : "n/a")}");
+                        col.Item().Text($"Total expenses: {trip.Expenses.Sum(e => e.Amount):0.00} €");
+
+                        col.Item().PaddingTop(8).Text("Destinations").SemiBold();
+                        foreach (var d in trip.Destinations.OrderBy(d => d.Order))
+                            col.Item().Text($"• {d.City} ({d.Nights} night(s))");
+
+                        col.Item().PaddingTop(8).Text("Activities").SemiBold();
+                        foreach (var a in trip.Activities)
+                            col.Item().Text($"• {a.Name}" + (string.IsNullOrWhiteSpace(a.Notes) ? string.Empty : $" - {a.Notes}"));
+
+                        col.Item().PaddingTop(8).Text("Expenses").SemiBold();
+                        foreach (var e in trip.Expenses.OrderByDescending(e => e.Id))
+                            col.Item().Text($"• {e.Name}: {e.Amount:0.00} €");
+                    });
+
+                    page.Footer().AlignRight().Text(x =>
+                    {
+                        x.Span("Generated: ");
+                        x.Span(DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
+                    });
+                });
+            }).GeneratePdf();
+
+            return File(pdf, "application/pdf", $"trip-{trip.Id}.pdf");
         }
 
         [HttpPost, ActionName("Delete")]
