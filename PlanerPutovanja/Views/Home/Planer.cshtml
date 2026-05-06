@@ -1,0 +1,150 @@
+﻿@{
+    ViewData["Title"] = "Planer";
+}
+
+<section class="page-hero planner-hero">
+    <div class="container">
+        <div class="page-hero-content text-center">
+            <span class="eyebrow">Interaktivni planer</span>
+            <h1>Složi okvirni plan putovanja u nekoliko klikova</h1>
+            <p>
+                Odaberi destinaciju, broj dana i stil putovanja. Planer će ti prikazati prijedlog aktivnosti
+                koji može poslužiti kao inspiracija za organizaciju odmora.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-5">
+                <div class="form-card glass-card">
+                    <h2 class="form-title">Postavke putovanja</h2>
+                    <p class="form-intro">
+                        Unesi osnovne informacije i generiraj prijedlog plana koji se prilagođava tvom stilu putovanja.
+                    </p>
+
+                    <form id="tripPlannerForm">
+                        <div class="mb-3">
+                            <label class="form-label" for="plannerDestination">Destinacija</label>
+                            <select class="form-select" id="plannerDestination">
+                                <option value="Dubrovnik">Dubrovnik</option>
+                                <option value="Plitvička jezera">Plitvička jezera</option>
+                                <option value="Venecija">Venecija</option>
+                                <option value="Istra">Istra</option>
+                                <option value="Zagreb">Zagreb</option>
+                                <option value="Split">Split</option>
+                                <option value="Velebit">Velebit</option>
+                                <option value="Ljubljana">Ljubljana</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="plannerDays">Broj dana</label>
+                            <input type="number" class="form-control" id="plannerDays" min="1" max="14" value="3" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="plannerStyle">Stil putovanja</label>
+                            <select class="form-select" id="plannerStyle">
+                                <option value="opušteno">Opušteno</option>
+                                <option value="aktivno">Aktivno</option>
+                                <option value="romantično">Romantično</option>
+                                <option value="kulturno">Kulturno</option>
+                                <option value="avanturistički">Avanturistički</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="plannerTempo">Tempo</label>
+                            <select class="form-select" id="plannerTempo">
+                                <option value="lagani">Lagani tempo</option>
+                                <option value="normalni">Normalni tempo</option>
+                                <option value="intenzivni">Intenzivni tempo</option>
+                            </select>
+                        </div>
+
+                        <button type="button" class="btn-main w-100" id="generatePlanBtn">
+                            Generiraj plan putovanja
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="planner-preview card-premium">
+                    <div class="planner-preview-header">
+                        <span>Pregled plana</span>
+                        <strong id="planDestinationTitle">Dubrovnik</strong>
+                    </div>
+
+                    <div id="plannerResult" class="planner-result">
+                        <div class="empty-plan">
+                            <div class="empty-icon">🧭</div>
+                            <h3>Tvoj plan će se prikazati ovdje</h3>
+                            <p>
+                                Odaberi opcije s lijeve strane i klikni na gumb za generiranje prijedloga plana.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="planner-tips">
+                    <div class="tip-card">
+                        <strong>💡 Savjet</strong>
+                        <p>Za kraća putovanja odaberi normalni ili lagani tempo kako bi plan ostao realan.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <strong>🎒 Preporuka</strong>
+                        <p>Plan kombiniraj s kalkulatorom budžeta kako bi odmah procijenio ukupne troškove.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-highlight">
+    <div class="container text-center">
+        <span class="eyebrow">Što planer pokazuje?</span>
+        <h2 class="section-title">Plan nije samo popis, nego pregled cijelog putovanja</h2>
+        <p class="section-subtitle">
+            Svaki generirani prijedlog prikazuje dnevne aktivnosti, tempo putovanja, korisne napomene
+            i ideju kako rasporediti vrijeme.
+        </p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">📍</div>
+                    <h3 class="feature-title">Destinacija</h3>
+                    <p class="feature-text">
+                        Plan se prilagođava odabranom mjestu i prikazuje aktivnosti koje odgovaraju tipu putovanja.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">⏱️</div>
+                    <h3 class="feature-title">Tempo</h3>
+                    <p class="feature-text">
+                        Korisnik bira želi li lagani, normalni ili intenzivni ritam obilaska i aktivnosti.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">🧳</div>
+                    <h3 class="feature-title">Organizacija</h3>
+                    <p class="feature-text">
+                        Prikazani prijedlog pomaže korisniku lakše rasporediti dane i izbjeći neorganizirano putovanje.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

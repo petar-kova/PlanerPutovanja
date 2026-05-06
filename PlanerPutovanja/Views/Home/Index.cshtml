@@ -1,98 +1,265 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using PlanerPutovanja.Models
-@inject SignInManager<User> SignInManager
-
-@{
-    ViewData["Title"] = "Home";
-    var isSignedIn = SignInManager.IsSignedIn(User);
+﻿@{
+    ViewData["Title"] = "Početna";
 }
 
-<section class="py-5 mb-5">
+<section class="hero">
     <div class="container">
-        <div class="p-5 p-md-6 text-white rounded-4 position-relative overflow-hidden"
-             style="
-                background-image: linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35)), url('/img/projekt.png');
-                background-size: cover;
-                background-position: center;
-                min-height: 480px;">
-            <div class="row align-items-center h-100">
-                <div class="col-lg-7">
-                    <h1 class="display-5 fw-bold mb-3">Travel Planner</h1>
-                    <p class="lead mb-4">
-                        Plan your trips, activities and expenses in one place — fast, clean and easy to use.
-                    </p>
+        <div class="hero-content">
+            <span class="eyebrow">Pametno planiranje putovanja</span>
 
-                    @if (!isSignedIn)
-                    {
-                        <div class="d-flex flex-wrap gap-2">
-                            <a class="btn btn-primary btn-lg"
-                               asp-area="Identity"
-                               asp-page="/Account/Login">
-                                Log in
-                            </a>
+            <h1>
+                Isplaniraj putovanje koje ćeš stvarno pamtiti.
+            </h1>
 
-                            <a class="btn btn-outline-light btn-lg"
-                               asp-area="Identity"
-                               asp-page="/Account/Register">
-                                Register
-                            </a>
-                        </div>
+            <p>
+                Planer Putovanja pomaže ti istražiti destinacije, složiti plan aktivnosti,
+                procijeniti troškove i organizirati savršen odmor na jednom mjestu.
+            </p>
 
-                        <p class="mt-3 small text-white-50 mb-0">
-                            Already have an account? Log in and continue where you left off.
-                        </p>
-                    }
-                    else
-                    {
-                        <div class="d-flex flex-wrap gap-2">
-                            <a class="btn btn-primary btn-lg"
-                               asp-controller="Trips"
-                               asp-action="Index">
-                                My trips
-                            </a>
+            <div class="hero-actions">
+                <a class="btn-main" asp-controller="Home" asp-action="Destinacije">
+                    Istraži destinacije
+                </a>
 
-                            <a class="btn btn-outline-light btn-lg"
-                               asp-area="Identity"
-                               asp-page="/Account/Manage/Index">
-                                Profile
-                            </a>
-                        </div>
-                    }
+                <a class="btn-ghost" asp-controller="Home" asp-action="Planer">
+                    Napravi plan
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-box">
+                    <strong>12+</strong>
+                    <span>predloženih destinacija</span>
+                </div>
+
+                <div class="stat-box">
+                    <strong>4</strong>
+                    <span>tipa putovanja</span>
+                </div>
+
+                <div class="stat-box">
+                    <strong>100%</strong>
+                    <span>responzivan dizajn</span>
                 </div>
             </div>
         </div>
+    </div>
+</section>
 
-        <div class="row mt-4 g-3 mb-6">
+<section class="section">
+    <div class="container text-center">
+        <span class="eyebrow">Zašto koristiti planer?</span>
+        <h2 class="section-title">Sve za organizaciju putovanja na jednom mjestu</h2>
+        <p class="section-subtitle">
+            Projekt kombinira moderan dizajn, jasnu navigaciju i interaktivne elemente kako bi korisnik brzo pronašao
+            inspiraciju, izradio okvirni plan i dobio bolji osjećaj o troškovima putovanja.
+        </p>
+
+        <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Trips</h5>
-                        <p class="card-text mb-0">
-                            Add destinations, dates and budgets for your trips.
-                        </p>
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">🌍</div>
+                    <h3 class="feature-title">Istraživanje destinacija</h3>
+                    <p class="feature-text">
+                        Pregled popularnih destinacija s kratkim opisima, oznakama i preporukama za različite tipove putnika.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">🗓️</div>
+                    <h3 class="feature-title">Plan aktivnosti</h3>
+                    <p class="feature-text">
+                        Korisnik može odabrati destinaciju, trajanje i stil putovanja te dobiti prijedlog organizacije dana.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">💶</div>
+                    <h3 class="feature-title">Izračun budžeta</h3>
+                    <p class="feature-text">
+                        Interaktivni kalkulator omogućuje okvirnu procjenu troškova smještaja, hrane, prijevoza i dodatnih aktivnosti.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-highlight">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <span class="eyebrow">Popularno</span>
+                <h2 class="section-title">Destinacije koje korisnici najčešće biraju</h2>
+                <p class="section-description">
+                    Od vikend izleta do velikih ljetnih putovanja, stranica prikazuje raznolike destinacije
+                    koje se mogu filtrirati prema tipu putovanja.
+                </p>
+
+                <a class="btn-main mt-3" asp-controller="Home" asp-action="Destinacije">
+                    Pogledaj sve destinacije
+                </a>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="mini-destination-card">
+                            <div class="mini-destination-image" style="background-image: url('https://images.unsplash.com/photo-1555990538-c48b0f0e0f85?auto=format&fit=crop&w=900&q=80');"></div>
+                            <div>
+                                <h4>Dubrovnik</h4>
+                                <p>Povijest, more i jedinstvena atmosfera starog grada.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mini-destination-card">
+                            <div class="mini-destination-image" style="background-image: url('https://images.unsplash.com/photo-1565992441121-4367c2967103?auto=format&fit=crop&w=900&q=80');"></div>
+                            <div>
+                                <h4>Plitvička jezera</h4>
+                                <p>Priroda, šetnice i jezera idealna za jednodnevni izlet.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mini-destination-card">
+                            <div class="mini-destination-image" style="background-image: url('https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=900&q=80');"></div>
+                            <div>
+                                <h4>Venecija</h4>
+                                <p>Romantično putovanje kroz kanale, mostove i male trgove.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mini-destination-card">
+                            <div class="mini-destination-image" style="background-image: url('https://images.unsplash.com/photo-1605649461784-98f3f8e31b4f?auto=format&fit=crop&w=900&q=80');"></div>
+                            <div>
+                                <h4>Istra</h4>
+                                <p>More, gastronomija, mali gradovi i opušten vikend odmor.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container text-center">
+        <span class="eyebrow">Kako radi?</span>
+        <h2 class="section-title">Od ideje do plana u tri koraka</h2>
+        <p class="section-subtitle">
+            Stranica je zamišljena tako da korisnik brzo prođe kroz inspiraciju, planiranje i procjenu troškova.
+        </p>
+
+        <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Activities</h5>
-                        <p class="card-text mb-0">
-                            Plan your days and manage all trip activities.
-                        </p>
-                    </div>
+                <div class="step-card">
+                    <span>01</span>
+                    <h3>Odaberi destinaciju</h3>
+                    <p>Pregledaj ponuđene destinacije i filtriraj ih prema stilu putovanja koji ti odgovara.</p>
                 </div>
             </div>
+
             <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Expenses</h5>
-                        <p class="card-text mb-0">
-                            Track your expenses and keep your budget under control.
-                        </p>
-                    </div>
+                <div class="step-card">
+                    <span>02</span>
+                    <h3>Složi plan</h3>
+                    <p>Unesi trajanje putovanja i odaberi tempo aktivnosti kako bi dobio prijedlog organizacije.</p>
                 </div>
             </div>
+
+            <div class="col-md-4">
+                <div class="step-card">
+                    <span>03</span>
+                    <h3>Izračunaj budžet</h3>
+                    <p>Procijeni troškove smještaja, hrane, prijevoza i dodatnih aktivnosti prije polaska.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="login-section" class="section login-section">
+    <div class="container">
+        <div class="login-wrapper">
+            <div class="login-info">
+                <span class="eyebrow">Korisnički kutak</span>
+                <h2>Prijava u planer</h2>
+                <p>
+                    Ova sekcija prikazuje zamišljeni korisnički pristup. U budućoj verziji korisnik bi mogao spremati
+                    vlastite planove putovanja, omiljene destinacije i izračune budžeta.
+                </p>
+
+                <div class="login-benefits">
+                    <div>✓ Spremanje omiljenih destinacija</div>
+                    <div>✓ Pregled prethodnih planova</div>
+                    <div>✓ Brži izračun troškova</div>
+                </div>
+            </div>
+
+            <div class="login-card">
+                <h3>Dobrodošao natrag</h3>
+                <small>Unesi podatke za prijavu u svoj putni profil.</small>
+
+                <form class="mt-4">
+                    <div class="mb-3">
+                        <label class="form-label" for="loginEmail">Email adresa</label>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="ime@email.com" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="loginPassword">Lozinka</label>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="Unesi lozinku" />
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe" />
+                            <label class="form-check-label" for="rememberMe">
+                                Zapamti me
+                            </label>
+                        </div>
+
+                        <a href="#" class="small-link">Zaboravljena lozinka?</a>
+                    </div>
+
+                    <button type="button" class="btn-main w-100">
+                        Prijavi se
+                    </button>
+
+                    <p class="login-note">
+                        Nemaš račun? <a href="#">Registriraj se</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section cta-section">
+    <div class="container text-center">
+        <h2>Spreman za svoje sljedeće putovanje?</h2>
+        <p>
+            Istraži destinacije, napravi plan i izračunaj budžet kroz nekoliko jednostavnih koraka.
+        </p>
+
+        <div class="hero-actions justify-content-center">
+            <a class="btn-main" asp-controller="Home" asp-action="Planer">
+                Pokreni planer
+            </a>
+
+            <a class="btn-ghost" asp-controller="Home" asp-action="Budzet">
+                Izračunaj budžet
+            </a>
         </div>
     </div>
 </section>

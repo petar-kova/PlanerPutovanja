@@ -1,0 +1,161 @@
+﻿@{
+    ViewData["Title"] = "Kontakt";
+}
+
+<section class="page-hero contact-hero">
+    <div class="container">
+        <div class="page-hero-content text-center">
+            <span class="eyebrow">Kontakt i podrška</span>
+            <h1>Pošalji upit ili prijedlog za putovanje</h1>
+            <p>
+                Kontakt forma omogućuje korisniku slanje upita, prijedloga destinacije ili komentara vezanog uz planiranje putovanja.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-5">
+                <div class="contact-info-card glass-card">
+                    <span class="eyebrow">Informacije</span>
+                    <h2>Tu smo za sva pitanja</h2>
+                    <p>
+                        Ova kontakt stranica pokazuje primjer forme s validacijom i korisničkom porukom nakon uspješnog unosa.
+                    </p>
+
+                    <div class="contact-list">
+                        <div class="contact-list-item">
+                            <span>📍</span>
+                            <div>
+                                <strong>Lokacija</strong>
+                                <p>Zagreb, Hrvatska</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-list-item">
+                            <span>✉️</span>
+                            <div>
+                                <strong>Email</strong>
+                                <p>info@planerputovanja.hr</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-list-item">
+                            <span>🕒</span>
+                            <div>
+                                <strong>Dostupnost</strong>
+                                <p>Pon - Pet, 09:00 - 17:00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="map-placeholder">
+                        <div>
+                            <strong>Interaktivna mapa</strong>
+                            <p>Mjesto predviđeno za kartu ili lokacijski prikaz.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="form-card card-premium">
+                    <h2 class="form-title">Kontakt forma</h2>
+                    <p class="form-intro">
+                        Popuni obrazac. Sva polja su obavezna, a email mora biti u ispravnom formatu.
+                    </p>
+
+                    <form id="contactForm" novalidate>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="contactName">Ime i prezime</label>
+                                <input type="text" class="form-control" id="contactName" placeholder="Unesi ime" />
+                                <small class="form-error" id="nameError"></small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="contactEmail">Email adresa</label>
+                                <input type="email" class="form-control" id="contactEmail" placeholder="ime@email.com" />
+                                <small class="form-error" id="emailError"></small>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label" for="contactSubject">Tema upita</label>
+                                <select class="form-select" id="contactSubject">
+                                    <option value="">Odaberi temu</option>
+                                    <option value="destinacija">Prijedlog destinacije</option>
+                                    <option value="planiranje">Pitanje o planiranju</option>
+                                    <option value="budzet">Pitanje o budžetu</option>
+                                    <option value="ostalo">Ostalo</option>
+                                </select>
+                                <small class="form-error" id="subjectError"></small>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label" for="contactMessage">Poruka</label>
+                                <textarea class="form-control" id="contactMessage" rows="6" placeholder="Napiši svoju poruku..."></textarea>
+                                <small class="form-error" id="messageError"></small>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-main w-100 mt-4" id="sendContactBtn">
+                            Pošalji poruku
+                        </button>
+                    </form>
+
+                    <div id="contactSuccessMessage" class="success-message">
+                        <strong>Poruka je uspješno pripremljena!</strong>
+                        <p>
+                            Ovo je demonstracijska forma, pa se poruka ne šalje na server, ali validacija radi na klijentskoj strani.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-highlight">
+    <div class="container text-center">
+        <span class="eyebrow">Forma i validacija</span>
+        <h2 class="section-title">Kontakt stranica koristi JavaScript provjeru unosa</h2>
+        <p class="section-subtitle">
+            Korisnik dobiva jasne poruke ako polja nisu pravilno popunjena. Time se poboljšava korisničko iskustvo
+            i prikazuje praktična primjena JavaScripta.
+        </p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">✅</div>
+                    <h3 class="feature-title">Provjera polja</h3>
+                    <p class="feature-text">
+                        Forma provjerava ime, email, temu i poruku prije prikaza uspješne poruke.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">📧</div>
+                    <h3 class="feature-title">Email format</h3>
+                    <p class="feature-text">
+                        Email adresa mora sadržavati ispravan oblik kako bi korisnik mogao nastaviti.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">💬</div>
+                    <h3 class="feature-title">Povratna poruka</h3>
+                    <p class="feature-text">
+                        Nakon uspješnog unosa prikazuje se jasna potvrda korisniku.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

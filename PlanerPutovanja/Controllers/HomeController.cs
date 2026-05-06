@@ -18,10 +18,31 @@ namespace PlanerPutovanja.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult Destinacije()
         {
             return View();
         }
+
+        public IActionResult Planer()
+        {
+            return View();
+        }
+
+        public IActionResult Budzet()
+        {
+            return View();
+        }
+
+        public IActionResult Galerija()
+        {
+            return View();
+        }
+
+        public IActionResult Kontakt()
+        {
+            return View();
+        }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

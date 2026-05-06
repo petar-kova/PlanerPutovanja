@@ -1,56 +1,126 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="hr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PlanerPutovanja</title>
+
+    <title>@ViewData["Title"] - Planer Putovanja</title>
+
+    <meta name="description" content="Planer Putovanja je moderna web aplikacija za istraživanje destinacija, planiranje putovanja i izračun budžeta." />
+    <meta name="keywords" content="putovanja, planer putovanja, destinacije, budžet, turizam, odmor" />
+    <meta name="author" content="Planer Putovanja" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PlanerPutovanja.styles.css" asp-append-version="true" />
 </head>
+
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">PlanerPutovanja</a>
+        <nav class="navbar navbar-expand-lg custom-navbar fixed-top">
+            <div class="container">
+                <a class="navbar-brand brand-logo" asp-controller="Home" asp-action="Index">
+                    <span class="brand-icon">✈</span>
+                    <span class="brand-text">Planer Putovanja</span>
+                </a>
 
-                <button class="navbar-toggler" type="button"
-                        data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent" aria-expanded="false"
-                        aria-label="Toggle navigation">
+                <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar" aria-expanded="false" aria-label="Otvori navigaciju">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav ms-auto align-items-lg-center">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Početna</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Trips" asp-action="Index">My trips</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Destinacije">Destinacije</a>
                         </li>
 
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Planer">Planer</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Budzet">Budžet</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Galerija">Galerija</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Kontakt">Kontakt</a>
+                        </li>
+
+                        <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                            <a class="btn btn-login" href="#login-section">
+                                Prijava
+                            </a>
+                        </li>
                     </ul>
-
-                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-brand">
+                        <span class="footer-icon">✈</span>
+                        Planer Putovanja
+                    </div>
+                    <p class="footer-text">
+                        Moderna web aplikacija za istraživanje destinacija, organizaciju putovanja i planiranje budžeta.
+                    </p>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h5>Izbornik</h5>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Home" asp-action="Index">Početna</a></li>
+                        <li><a asp-controller="Home" asp-action="Destinacije">Destinacije</a></li>
+                        <li><a asp-controller="Home" asp-action="Planer">Planer</a></li>
+                        <li><a asp-controller="Home" asp-action="Budzet">Budžet</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5>Projekt</h5>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Home" asp-action="Galerija">Galerija</a></li>
+                        <li><a asp-controller="Home" asp-action="Kontakt">Kontakt</a></li>
+                     
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5>Tehnologije</h5>
+                    <p class="footer-text">
+                        ASP.NET Core MVC, Razor, HTML, CSS, Bootstrap i JavaScript.
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2026 Planer Putovanja. Sva prava pridržana.</p>
+                <p>Projekt izrađen za predmet Oblikovanje web stranica.</p>
+            </div>
+        </div>
+    </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
