@@ -24,41 +24,29 @@ namespace PlanerPutovanja.Controllers
         private string CurrentUserId =>
             User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
-        
         [HttpGet("trip/{tripId:int}/summary")]
         public async Task<IActionResult> GetTripRouteSummary(int tripId)
         {
-            
-            var tripOk = await _db.Trips.AnyAsync(t => t.Id == tripId && t.UserId == CurrentUserId);
-            if (!tripOk) return NotFound();
+            var tripExists = await _db.Trips
+                .AnyAsync(t => t.Id == tripId && t.UserId == CurrentUserId);
 
-            var q = _db.Set<TripDestination>()
-                       .Where(d => d.TripId == tripId);
-
-            List<TripDestination> destinations;
-
-            
-            try
+            if (!tripExists)
             {
-                destinations = await q.OrderBy(d => EF.Property<int>(d, "Order")).ToListAsync();
-            }
-            catch
-            {
-                destinations = await q.OrderBy(d => d.Id).ToListAsync();
-            }
-
-            if (destinations.Count < 2)
-            {
-                return Ok(new GoogleMapsService.RouteSummary
+                return NotFound(new
                 {
-                    TotalDistanceKm = 0,
-                    TotalDurationMinutes = 0
+                    error = "Putovanje nije pronađeno."
                 });
             }
 
+            var destinations = await _db.Set<TripDestination>()
+                .Where(d => d.TripId == tripId)
+                .OrderBy(d => d.Order)
+                .ToListAsync();
+
             var stops = destinations
-                .Select(GetLocationText)
-                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(d => d.City)
+                .Where(city => !string.IsNullOrWhiteSpace(city))
+                .Select(city => city.Trim())
                 .ToList();
 
             if (stops.Count < 2)
@@ -77,32 +65,11 @@ namespace PlanerPutovanja.Controllers
             }
             catch (Exception ex)
             {
-                
-                return BadRequest(new { error = ex.Message });
-            }
-        }
-
-        private static string GetLocationText(TripDestination d)
-        {
-            var candidates = new[]
-            {
-                "Name", "Destination", "DestinationName", "City", "Location", "Naziv", "Mjesto"
-            };
-
-            var type = d.GetType();
-
-            foreach (var propName in candidates)
-            {
-                var prop = type.GetProperty(propName);
-                if (prop != null && prop.PropertyType == typeof(string))
+                return BadRequest(new
                 {
-                    var value = prop.GetValue(d) as string;
-                    if (!string.IsNullOrWhiteSpace(value))
-                        return value!;
-                }
+                    error = ex.Message
+                });
             }
-
-            return d.ToString() ?? "";
         }
     }
 }

@@ -549,10 +549,29 @@
                 const km = Number(kmValue).toFixed(2);
                 const mins = Number(minsValue);
 
-                result.innerHTML = `
-                    <strong>${km} km</strong>
-                    <span>${formatDuration(mins)}</span>
-                `;
+                    result.innerHTML = `
+            <div class="route-card-premium">
+                <div class="route-card-icon">
+                    <span>🛣️</span>
+                </div>
+
+                <div class="route-card-content">
+                    <div class="route-card-label">Procjena rute</div>
+
+                    <div class="route-card-grid">
+                        <div class="route-metric">
+                            <small>Udaljenost</small>
+                            <strong>${km} km</strong>
+                        </div>
+
+                        <div class="route-metric">
+                            <small>Trajanje</small>
+                            <strong>${formatDuration(mins)}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
             } catch (error) {
                 result.innerHTML = `
                     <strong>Greška rute</strong>

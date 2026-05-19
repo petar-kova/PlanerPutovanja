@@ -8,17 +8,20 @@
     ViewData["Title"] = "Dashboard";
 
     var usageColorClass = "dashboard-danger";
-    var usageTextClass = "text-danger";
+    var usageText = "Previsoka potrošnja";
+    var usageIcon = "🚨";
 
     if (Model.BudgetUsagePercent < 70m)
     {
         usageColorClass = "dashboard-success";
-        usageTextClass = "text-success";
+        usageText = "Budžet je pod kontrolom";
+        usageIcon = "✅";
     }
     else if (Model.BudgetUsagePercent <= 90m)
     {
         usageColorClass = "dashboard-warning";
-        usageTextClass = "text-warning";
+        usageText = "Približavaš se limitu";
+        usageIcon = "⚠️";
     }
 
     var widthValue = Math.Min(Model.BudgetUsagePercent, 100m)
@@ -30,124 +33,159 @@
 
     var destinationLabelsJson = JsonSerializer.Serialize(Model.TopDestinations.Select(x => x.City).ToList());
     var destinationCountsJson = JsonSerializer.Serialize(Model.TopDestinations.Select(x => x.Count).ToList());
+
+    var remainingBudget = Model.TotalBudget - Model.TotalExpenses;
+    var remainingBudgetText = remainingBudget >= 0
+        ? remainingBudget.ToString("N2") + " € preostalo"
+        : Math.Abs(remainingBudget).ToString("N2") + " € preko budžeta";
 }
 
-<section class="dashboard-hero">
+<section class="dashboard-command-hero">
+    <div class="dashboard-command-bg"></div>
+
     <div class="container">
-        <div class="dashboard-hero-content">
-            <div>
-                <span class="eyebrow">Pregled planiranja</span>
-                <h1>Dashboard</h1>
+        <div class="dashboard-command-grid">
+            <div class="dashboard-command-main">
+                <span class="eyebrow">Travel control center</span>
+                <h1>Tvoj centar za planiranje putovanja</h1>
                 <p>
-                    Brzi pregled putovanja, budžeta, troškova i najčešćih destinacija na jednom mjestu.
+                    Prati troškove, budžet, najčešće destinacije i nadolazeće planove kroz jedan pregledan dashboard.
                 </p>
+
+                <div class="dashboard-command-actions">
+                    <a asp-controller="Trips" asp-action="Create" class="btn-main">
+                        + Novo putovanje
+                    </a>
+
+                    <a asp-controller="Trips" asp-action="Index" class="btn-ghost light">
+                        Moja putovanja
+                    </a>
+                </div>
             </div>
 
-            <div class="dashboard-actions">
-                <a asp-controller="Trips" asp-action="Create" class="btn-main">
-                    + Novo putovanje
-                </a>
+            <div class="dashboard-command-panel">
+                <div class="command-panel-top">
+                    <span>@usageIcon</span>
+                    <div>
+                        <strong>@usageText</strong>
+                        <p>@Model.BudgetUsagePercent.ToString("0.##")% iskorišteno</p>
+                    </div>
+                </div>
 
-                <a asp-controller="Dashboard" asp-action="Index" class="btn-ghost">
-                    Osvježi
-                </a>
+                <div class="command-budget-ring">
+                    <div class="budget-ring-core">
+                        <strong>@Model.BudgetUsagePercent.ToString("0.#")%</strong>
+                        <span>budžeta</span>
+                    </div>
+                </div>
+
+                <div class="command-mini-stats">
+                    <div>
+                        <small>Troškovi</small>
+                        <strong>@Model.TotalExpenses.ToString("N2") €</strong>
+                    </div>
+
+                    <div>
+                        <small>Budžet</small>
+                        <strong>@Model.TotalBudget.ToString("N2") €</strong>
+                    </div>
+                </div>
+
+                <div class="command-progress">
+                    <div class="@usageColorClass" style="@($"width: {usageWidth};")"></div>
+                </div>
+
+                <p class="command-remaining">@remainingBudgetText</p>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section-sm">
+<section class="dashboard-command-section">
     <div class="container">
 
-        <div class="dashboard-stats-grid">
-            <div class="dashboard-stat-card">
-                <div class="dashboard-stat-top">
-                    <span>Ukupno putovanja</span>
-                    <em>🧳</em>
-                </div>
+        <div class="dashboard-command-stats">
+            <div class="command-stat-card">
+                <span>🧳</span>
+                <small>Ukupno putovanja</small>
                 <strong>@Model.TotalTrips</strong>
                 <p>Sva spremljena putovanja</p>
             </div>
 
-            <div class="dashboard-stat-card">
-                <div class="dashboard-stat-top">
-                    <span>Ukupni troškovi</span>
-                    <em>💸</em>
-                </div>
+            <div class="command-stat-card">
+                <span>💸</span>
+                <small>Ukupni troškovi</small>
                 <strong>@Model.TotalExpenses.ToString("N2") €</strong>
-                <p>Ukupno uneseno kroz planove</p>
+                <p>Uneseni troškovi kroz planove</p>
             </div>
 
-            <div class="dashboard-stat-card">
-                <div class="dashboard-stat-top">
-                    <span>Ukupni budžet</span>
-                    <em>💰</em>
-                </div>
+            <div class="command-stat-card">
+                <span>💰</span>
+                <small>Ukupni budžet</small>
                 <strong>@Model.TotalBudget.ToString("N2") €</strong>
                 <p>Zbroj planiranih budžeta</p>
             </div>
 
-            <div class="dashboard-stat-card">
-                <div class="dashboard-stat-top">
-                    <span>Iskorištenost</span>
-                    <em>📊</em>
-                </div>
-
-                <strong class="@usageTextClass">@Model.BudgetUsagePercent.ToString("0.##")%</strong>
-
-                <div class="dashboard-progress">
-                    <div class="@usageColorClass" style="width:@usageWidth"></div>
-                </div>
-
-                <p>@Model.TotalExpenses.ToString("N2") € / @Model.TotalBudget.ToString("N2") €</p>
+            <div class="command-stat-card">
+                <span>📊</span>
+                <small>Iskorištenost</small>
+                <strong>@(Model.BudgetUsagePercent.ToString("0.##"))%</strong>
+                <p>@remainingBudgetText</p>
             </div>
         </div>
 
-        <div class="dashboard-grid">
-            <div class="dashboard-card dashboard-card-large">
-                <div class="dashboard-card-header">
+        <div class="dashboard-command-layout">
+            <div class="command-card command-card-large">
+                <div class="command-card-header">
                     <div>
-                        <span class="eyebrow">Analitika</span>
+                        <span class="eyebrow">Analitika troškova</span>
                         <h2>Troškovi po putovanju</h2>
+                        <p>Vizualni prikaz unesenih troškova za tvoje planove.</p>
                     </div>
-                    <span class="dashboard-card-icon">📈</span>
+
+                    <div class="command-card-icon">📈</div>
                 </div>
 
-                <div class="chart-box">
+                <div class="command-chart-box">
                     <canvas id="monthlyExpensesChart"></canvas>
                 </div>
             </div>
 
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
+            <div class="command-card">
+                <div class="command-card-header">
                     <div>
                         <span class="eyebrow">Destinacije</span>
                         <h2>Top destinacije</h2>
+                        <p>Destinacije koje se najčešće pojavljuju u tvojim planovima.</p>
                     </div>
-                    <span class="dashboard-card-icon">📍</span>
+
+                    <div class="command-card-icon">📍</div>
                 </div>
 
-                <div class="chart-box">
+                <div class="command-chart-box compact">
                     <canvas id="topDestinationsChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="dashboard-grid dashboard-grid-bottom">
-            <div class="dashboard-card dashboard-card-large">
-                <div class="dashboard-card-header">
+        <div class="dashboard-command-layout bottom">
+            <div class="command-card command-card-large">
+                <div class="command-card-header">
                     <div>
                         <span class="eyebrow">Planovi</span>
                         <h2>Nadolazeća putovanja</h2>
+                        <p>Putovanja koja uskoro kreću.</p>
                     </div>
-                    <a asp-controller="Trips" asp-action="Index" class="mini-link">
+
+                    <a asp-controller="Trips" asp-action="Index" class="command-link">
                         Vidi sve
                     </a>
                 </div>
 
                 @if (Model.UpcomingTrips == null || Model.UpcomingTrips.Count == 0)
                 {
-                    <div class="dashboard-empty">
+                    <div class="command-empty">
+                        <div class="command-empty-icon">🗺️</div>
                         <strong>Nema nadolazećih putovanja</strong>
                         <p>Kreiraj novo putovanje i ovdje će se prikazati tvoji sljedeći planovi.</p>
                         <a asp-controller="Trips" asp-action="Create" class="btn-main btn-small">
@@ -157,14 +195,16 @@
                 }
                 else
                 {
-                    <div class="dashboard-trip-list">
+                    <div class="command-trip-timeline">
                         @foreach (var trip in Model.UpcomingTrips)
                         {
                             <a asp-controller="Trips"
                                asp-action="Details"
                                asp-route-id="@trip.TripId"
-                               class="dashboard-trip-item">
-                                <div>
+                               class="command-trip-row">
+                                <div class="timeline-dot"></div>
+
+                                <div class="timeline-content">
                                     <strong>@trip.Name</strong>
                                     <span>@trip.Destination</span>
                                 </div>
@@ -178,25 +218,28 @@
                 }
             </div>
 
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
+            <div class="command-card">
+                <div class="command-card-header">
                     <div>
-                        <span class="eyebrow">Upozorenja</span>
-                        <h2>Budžet</h2>
+                        <span class="eyebrow">Budžet</span>
+                        <h2>Upozorenja</h2>
+                        <p>Putovanja koja su blizu ili iznad budžeta.</p>
                     </div>
-                    <span class="dashboard-card-icon">⚠️</span>
+
+                    <div class="command-card-icon">⚠️</div>
                 </div>
 
                 @if (Model.OverBudgetTrips == null || Model.OverBudgetTrips.Count == 0)
                 {
-                    <div class="dashboard-empty compact">
+                    <div class="command-empty compact">
+                        <div class="command-empty-icon">✅</div>
                         <strong>Sve izgleda dobro</strong>
                         <p>Nema putovanja koja su blizu ili iznad planiranog budžeta.</p>
                     </div>
                 }
                 else
                 {
-                    <div class="budget-warning-list">
+                    <div class="command-warning-list">
                         @foreach (var trip in Model.OverBudgetTrips)
                         {
                             var badgeClass = trip.UsagePercent >= 100m ? "danger" : "warning";
@@ -205,7 +248,7 @@
                             <a asp-controller="Trips"
                                asp-action="Details"
                                asp-route-id="@trip.TripId"
-                               class="budget-warning-item">
+                               class="command-warning-row">
                                 <div>
                                     <strong>@trip.Name</strong>
                                     <span>@trip.Expenses.ToString("N2") € / @trip.Budget.ToString("N2") €</span>
@@ -233,6 +276,9 @@
         const destinationLabels = JSON.parse('@JavaScriptEncoder.Default.Encode(destinationLabelsJson)');
         const destinationCounts = JSON.parse('@JavaScriptEncoder.Default.Encode(destinationCountsJson)');
 
+        const chartTextColor = '#64748b';
+        const chartGridColor = 'rgba(148, 163, 184, 0.22)';
+
         const monthlyCtx = document.getElementById('monthlyExpensesChart');
         const topCtx = document.getElementById('topDestinationsChart');
 
@@ -244,21 +290,45 @@
                     datasets: [{
                         label: 'Troškovi',
                         data: monthlyTotals,
-                        tension: 0.35,
+                        tension: 0.42,
                         fill: true,
                         borderWidth: 3,
-                        pointRadius: 4
+                        pointRadius: 4,
+                        pointHoverRadius: 7,
+                        borderColor: '#14b8a6',
+                        backgroundColor: 'rgba(20, 184, 166, 0.12)',
+                        pointBackgroundColor: '#14b8a6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#020617',
+                            titleColor: '#ffffff',
+                            bodyColor: '#e2e8f0',
+                            padding: 12,
+                            cornerRadius: 12
+                        }
                     },
                     scales: {
-                        y: { beginAtZero: true },
-                        x: { grid: { display: false } }
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: chartTextColor },
+                            grid: { color: chartGridColor }
+                        },
+                        x: {
+                            ticks: { color: chartTextColor },
+                            grid: { display: false }
+                        }
                     }
                 }
             });
@@ -272,8 +342,10 @@
                     datasets: [{
                         label: 'Putovanja',
                         data: destinationCounts,
-                        borderWidth: 1,
-                        borderRadius: 8
+                        borderWidth: 0,
+                        borderRadius: 12,
+                        backgroundColor: 'rgba(56, 189, 248, 0.78)',
+                        hoverBackgroundColor: '#14b8a6'
                     }]
                 },
                 options: {
@@ -281,11 +353,28 @@
                     maintainAspectRatio: false,
                     indexAxis: 'y',
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#020617',
+                            titleColor: '#ffffff',
+                            bodyColor: '#e2e8f0',
+                            padding: 12,
+                            cornerRadius: 12
+                        }
                     },
                     scales: {
-                        x: { beginAtZero: true, ticks: { precision: 0 } },
-                        y: { grid: { display: false } }
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                color: chartTextColor
+                            },
+                            grid: { color: chartGridColor }
+                        },
+                        y: {
+                            ticks: { color: chartTextColor },
+                            grid: { display: false }
+                        }
                     }
                 }
             });
