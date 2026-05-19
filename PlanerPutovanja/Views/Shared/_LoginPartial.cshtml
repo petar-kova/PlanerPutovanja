@@ -4,16 +4,21 @@
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
 
-<ul class="navbar-nav align-items-lg-center auth-nav">
+<ul class="navbar-nav align-items-lg-center auth-nav premium-auth-nav">
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a class="nav-link user-link"
+            <a class="nav-link user-link premium-user-link"
                asp-area="Identity"
                asp-page="/Account/Manage/Index"
                title="Moj profil">
-                <span class="user-dot"></span>
-                @UserManager.GetUserName(User)
+                <span class="user-avatar">
+                    @((UserManager.GetUserName(User) ?? "K").Substring(0, 1).ToUpper())
+                </span>
+
+                <span class="user-name">
+                    @UserManager.GetUserName(User)
+                </span>
             </a>
         </li>
 
@@ -23,7 +28,7 @@
                   asp-area="Identity"
                   asp-page="/Account/Logout"
                   asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button id="logout" type="submit" class="btn btn-logout">
+                <button id="logout" type="submit" class="btn btn-logout premium-logout">
                     Odjava
                 </button>
             </form>
@@ -32,7 +37,7 @@
     else
     {
         <li class="nav-item me-lg-2 mt-2 mt-lg-0">
-            <a class="btn btn-register"
+            <a class="btn btn-register premium-register"
                asp-area="Identity"
                asp-page="/Account/Register">
                 Registracija
@@ -40,7 +45,7 @@
         </li>
 
         <li class="nav-item mt-2 mt-lg-0">
-            <a class="btn btn-login"
+            <a class="btn btn-login premium-login"
                asp-area="Identity"
                asp-page="/Account/Login">
                 Prijava
