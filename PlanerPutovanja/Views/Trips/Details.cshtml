@@ -511,29 +511,55 @@
             return h > 0 ? `${h} h ${m} min` : `${m} min`;
         }
 
-        async function calcRoute(tripId) {
+                async function calcRoute(tripId) {
             const loading = document.getElementById("routeLoading");
             const result = document.getElementById("routeResult");
             if (!loading || !result) return;
 
             loading.style.display = "block";
-            result.textContent = "";
+            result.innerHTML = "";
 
             try {
-                const res = await fetch(`/api/routes/trip/${tripId}/summary`, { credentials: "include" });
-                if (!res.ok) throw new Error("Route API failed");
+                const res = await fetch(`/api/routes/trip/${tripId}/summary`, {
+                    credentials: "include"
+                });
 
-                const data = await res.json();
+                const rawText = await res.text();
 
-                const km = (data.totalDistanceKm ?? 0).toFixed(2);
-                const mins = data.totalDurationMinutes ?? 0;
+                let data = null;
+                try {
+                    data = rawText ? JSON.parse(rawText) : null;
+                } catch {
+                    data = null;
+                }
+
+                if (!res.ok) {
+                    const errorMessage =
+                        data?.error ||
+                        data?.message ||
+                        rawText ||
+                        `HTTP greška: ${res.status}`;
+
+                    throw new Error(errorMessage);
+                }
+
+                const kmValue = data?.totalDistanceKm ?? data?.TotalDistanceKm ?? 0;
+                const minsValue = data?.totalDurationMinutes ?? data?.TotalDurationMinutes ?? 0;
+
+                const km = Number(kmValue).toFixed(2);
+                const mins = Number(minsValue);
 
                 result.innerHTML = `
                     <strong>${km} km</strong>
                     <span>${formatDuration(mins)}</span>
                 `;
-            } catch {
-                result.textContent = "Ruta se trenutno ne može izračunati.";
+            } catch (error) {
+                result.innerHTML = `
+                    <strong>Greška rute</strong>
+                    <span>${error.message}</span>
+                `;
+
+                console.error("Route error:", error);
             } finally {
                 loading.style.display = "none";
             }
