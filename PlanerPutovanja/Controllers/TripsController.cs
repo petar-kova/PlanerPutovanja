@@ -85,13 +85,21 @@ namespace PlanerPutovanja.Controllers
             return View(trip);
         }
 
-        public IActionResult Create()
+        public IActionResult Create(string? destination = null)
         {
-            return View(new Trip
+            var trip = new Trip
             {
                 StartDate = DateTime.Today,
                 EndDate = DateTime.Today.AddDays(1)
-            });
+            };
+
+            if (!string.IsNullOrWhiteSpace(destination))
+            {
+                trip.Destination = destination.Trim();
+                trip.Name = $"Putovanje u {destination.Trim()}";
+            }
+
+            return View(trip);
         }
 
         [HttpPost]
@@ -168,48 +176,339 @@ namespace PlanerPutovanja.Controllers
 
             if (trip == null) return NotFound();
 
+            var destinations = trip.Destinations
+                .OrderBy(d => d.Order)
+                .ToList();
+
+            var activities = trip.Activities.ToList();
+            var expenses = trip.Expenses
+                .OrderByDescending(e => e.Id)
+                .ToList();
+
+            var totalExpenses = expenses.Sum(e => e.Amount);
+            var tripDays = (trip.EndDate.Date - trip.StartDate.Date).Days + 1;
+            if (tripDays < 1) tripDays = 1;
+
+            var costPerDay = tripDays > 0 ? totalExpenses / tripDays : totalExpenses;
+
+            var budgetText = trip.Budget.HasValue
+                ? $"{trip.Budget.Value:0.00} €"
+                : "Nije uneseno";
+
+            var budgetStatus = "Budžet nije unesen";
+
+            if (trip.Budget.HasValue && trip.Budget.Value > 0)
+            {
+                var percent = (totalExpenses / trip.Budget.Value) * 100m;
+                budgetStatus = percent <= 100
+                    ? $"Iskorišteno {percent:0.##}% budžeta"
+                    : $"Budžet premašen za {(percent - 100):0.##}%";
+            }
+
+            var transportText = trip.Transport switch
+            {
+                Trip.TransportMode.Car => "Auto",
+                Trip.TransportMode.Plane => "Avion",
+                Trip.TransportMode.Train => "Vlak",
+                Trip.TransportMode.Bus => "Autobus",
+                Trip.TransportMode.CruiseShip => "Brod",
+                _ => "Nije odabrano"
+            };
+
             var pdf = Document.Create(container =>
             {
                 container.Page(page =>
                 {
-                    page.Margin(30);
                     page.Size(PageSizes.A4);
-                    page.DefaultTextStyle(x => x.FontSize(11));
+                    page.Margin(32);
+                    page.PageColor(Colors.White);
 
-                    page.Header()
-                        .Text($"Trip report: {trip.Name}")
-                        .SemiBold().FontSize(18).FontColor(Colors.Blue.Medium);
+                    page.DefaultTextStyle(x => x
+                        .FontSize(10)
+                        .FontColor(Colors.Grey.Darken3));
 
-                    page.Content().Column(col =>
+                    page.Header().Element(header =>
                     {
-                        col.Spacing(8);
-                        col.Item().Text($"Destination: {trip.Destination}");
-                        col.Item().Text($"Dates: {trip.StartDate:dd.MM.yyyy} - {trip.EndDate:dd.MM.yyyy}");
-                        col.Item().Text($"Budget: {(trip.Budget.HasValue ? $"{trip.Budget:0.00} €" : "n/a")}");
-                        col.Item().Text($"Total expenses: {trip.Expenses.Sum(e => e.Amount):0.00} €");
+                        header.Column(col =>
+                        {
+                            col.Item()
+                                .Background(Colors.Blue.Darken4)
+                                .Padding(22)
+                                .Column(inner =>
+                                {
+                                    inner.Spacing(6);
 
-                        col.Item().PaddingTop(8).Text("Destinations").SemiBold();
-                        foreach (var d in trip.Destinations.OrderBy(d => d.Order))
-                            col.Item().Text($"• {d.City}");
+                                    inner.Item().Text("PLANER PUTOVANJA")
+                                        .FontSize(10)
+                                        .FontColor(Colors.Teal.Lighten3)
+                                        .SemiBold()
+                                        .LetterSpacing(1.4f);
 
-                        col.Item().PaddingTop(8).Text("Activities").SemiBold();
-                        foreach (var a in trip.Activities)
-                            col.Item().Text($"• {a.Name}" + (string.IsNullOrWhiteSpace(a.Notes) ? string.Empty : $" - {a.Notes}"));
+                                    inner.Item().Text(trip.Name)
+                                        .FontSize(26)
+                                        .FontColor(Colors.White)
+                                        .Bold();
 
-                        col.Item().PaddingTop(8).Text("Expenses").SemiBold();
-                        foreach (var e in trip.Expenses.OrderByDescending(e => e.Id))
-                            col.Item().Text($"• {e.Name}: {e.Amount:0.00} €");
+                                    inner.Item().Text($"{trip.Destination}  |  {trip.StartDate:dd.MM.yyyy} - {trip.EndDate:dd.MM.yyyy}")
+                                        .FontSize(11)
+                                        .FontColor(Colors.Grey.Lighten2);
+                                });
+                        });
                     });
 
-                    page.Footer().AlignRight().Text(x =>
+                    page.Content().PaddingVertical(18).Column(col =>
                     {
-                        x.Span("Generated: ");
-                        x.Span(DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
+                        col.Spacing(16);
+
+                        col.Item().Row(row =>
+                        {
+                            row.Spacing(10);
+
+                            row.RelativeItem().Element(c => StatCard(c, "Trajanje", $"{tripDays}", tripDays == 1 ? "dan" : "dana"));
+                            row.RelativeItem().Element(c => StatCard(c, "Prijevoz", transportText, "način putovanja"));
+                            row.RelativeItem().Element(c => StatCard(c, "Budžet", budgetText, budgetStatus));
+                        });
+
+                        col.Item().Row(row =>
+                        {
+                            row.Spacing(10);
+
+                            row.RelativeItem().Element(c => StatCard(c, "Ukupni troškovi", $"{totalExpenses:0.00} €", "uneseno u plan"));
+                            row.RelativeItem().Element(c => StatCard(c, "Trošak po danu", $"{costPerDay:0.00} €", "prosječno"));
+                            row.RelativeItem().Element(c => StatCard(c, "Destinacije", $"{destinations.Count}", "točke putovanja"));
+                        });
+
+                        col.Item().Element(SectionTitle).Text("Pregled putovanja");
+
+                        col.Item()
+                            .Background(Colors.Grey.Lighten4)
+                            .Border(1)
+                            .BorderColor(Colors.Grey.Lighten2)
+                            .Padding(14)
+                            .Column(info =>
+                            {
+                                info.Spacing(6);
+                                info.Item().Text($"Naziv putovanja: {trip.Name}").SemiBold();
+                                info.Item().Text($"Glavna destinacija: {trip.Destination}");
+                                info.Item().Text($"Razdoblje: {trip.StartDate:dd.MM.yyyy} - {trip.EndDate:dd.MM.yyyy}");
+                                info.Item().Text($"Način prijevoza: {transportText}");
+                            });
+
+                        col.Item().Element(SectionTitle).Text("Destinacije");
+
+                        if (destinations.Any())
+                        {
+                            col.Item().Column(list =>
+                            {
+                                list.Spacing(6);
+
+                                var counter = 1;
+                                foreach (var destination in destinations)
+                                {
+                                    list.Item()
+                                        .Background(Colors.Teal.Lighten5)
+                                        .BorderLeft(4)
+                                        .BorderColor(Colors.Teal.Medium)
+                                        .Padding(10)
+                                        .Text($"{counter}. {destination.City}")
+                                        .SemiBold();
+
+                                    counter++;
+                                }
+                            });
+                        }
+                        else
+                        {
+                            col.Item().Element(EmptyBox).Text("Nema dodanih destinacija.");
+                        }
+
+                        col.Item().Element(SectionTitle).Text("Aktivnosti");
+
+                        if (activities.Any())
+                        {
+                            col.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.RelativeColumn(2);
+                                    columns.RelativeColumn(3);
+                                });
+
+                                table.Header(header =>
+                                {
+                                    header.Cell().Element(TableHeaderCell).Text("Naziv");
+                                    header.Cell().Element(TableHeaderCell).Text("Napomena");
+                                });
+
+                                foreach (var activity in activities)
+                                {
+                                    table.Cell().Element(TableCell).Text(activity.Name);
+                                    table.Cell().Element(TableCell).Text(string.IsNullOrWhiteSpace(activity.Notes) ? "-" : activity.Notes);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            col.Item().Element(EmptyBox).Text("Nema dodanih aktivnosti.");
+                        }
+
+                        col.Item().Element(SectionTitle).Text("Troškovi");
+
+                        if (expenses.Any())
+                        {
+                            col.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.RelativeColumn(2);
+                                    columns.RelativeColumn(3);
+                                    columns.RelativeColumn(1);
+                                });
+
+                                table.Header(header =>
+                                {
+                                    header.Cell().Element(TableHeaderCell).Text("Naziv");
+                                    header.Cell().Element(TableHeaderCell).Text("Opis");
+                                    header.Cell().Element(TableHeaderCell).AlignRight().Text("Iznos");
+                                });
+
+                                foreach (var expense in expenses)
+                                {
+                                    table.Cell().Element(TableCell).Text(expense.Name);
+                                    table.Cell().Element(TableCell).Text(string.IsNullOrWhiteSpace(expense.Description) ? "-" : expense.Description);
+                                    table.Cell().Element(TableCell).AlignRight().Text($"{expense.Amount:0.00} €");
+                                }
+
+                                table.Cell().ColumnSpan(2).Element(TotalCell).AlignRight().Text("Ukupno");
+                                table.Cell().Element(TotalCell).AlignRight().Text($"{totalExpenses:0.00} €");
+                            });
+                        }
+                        else
+                        {
+                            col.Item().Element(EmptyBox).Text("Nema dodanih troškova.");
+                        }
+
+                        col.Item()
+                            .Background(Colors.Blue.Lighten5)
+                            .Border(1)
+                            .BorderColor(Colors.Blue.Lighten3)
+                            .Padding(12)
+                            .Column(note =>
+                            {
+                                note.Spacing(4);
+
+                                note.Item().Text("Napomena")
+                                    .FontSize(11)
+                                    .FontColor(Colors.Blue.Darken3)
+                                    .SemiBold();
+
+                                note.Item().Text("Ovaj dokument je automatski generiran iz aplikacije Planer Putovanja i služi kao sažetak spremljenog plana.")
+                                    .FontSize(9)
+                                    .FontColor(Colors.Grey.Darken2);
+                            });
                     });
+
+                    page.Footer()
+                        .BorderTop(1)
+                        .BorderColor(Colors.Grey.Lighten2)
+                        .PaddingTop(10)
+                        .Row(row =>
+                        {
+                            row.RelativeItem().Text($"Generirano: {DateTime.Now:dd.MM.yyyy HH:mm}")
+                                .FontSize(9)
+                                .FontColor(Colors.Grey.Medium);
+
+                            row.RelativeItem().AlignRight().Text(text =>
+                            {
+                                text.Span("Stranica ").FontSize(9).FontColor(Colors.Grey.Medium);
+                                text.CurrentPageNumber().FontSize(9).FontColor(Colors.Grey.Medium);
+                                text.Span(" / ").FontSize(9).FontColor(Colors.Grey.Medium);
+                                text.TotalPages().FontSize(9).FontColor(Colors.Grey.Medium);
+                            });
+                        });
                 });
             }).GeneratePdf();
 
-            return File(pdf, "application/pdf", $"trip-{trip.Id}.pdf");
+            var safeName = string.Join("-", trip.Name.Split(Path.GetInvalidFileNameChars()));
+            if (string.IsNullOrWhiteSpace(safeName))
+                safeName = $"putovanje-{trip.Id}";
+
+            return File(pdf, "application/pdf", $"{safeName}-plan-putovanja.pdf");
+
+            static void StatCard(IContainer container, string label, string value, string description)
+            {
+                container
+                    .Background(Colors.Grey.Lighten4)
+                    .Border(1)
+                    .BorderColor(Colors.Grey.Lighten2)
+                    .Padding(12)
+                    .Column(col =>
+                    {
+                        col.Spacing(4);
+
+                        col.Item().Text(label)
+                            .FontSize(8)
+                            .FontColor(Colors.Grey.Darken1)
+                            .SemiBold();
+
+                        col.Item().Text(value)
+                            .FontSize(15)
+                            .FontColor(Colors.Blue.Darken4)
+                            .Bold();
+
+                        col.Item().Text(description)
+                            .FontSize(8)
+                            .FontColor(Colors.Grey.Medium);
+                    });
+            }
+
+            static IContainer SectionTitle(IContainer container)
+            {
+                return container
+                    .PaddingTop(4)
+                    .PaddingBottom(6)
+                    .BorderBottom(1)
+                    .BorderColor(Colors.Teal.Medium);
+            }
+
+            static IContainer EmptyBox(IContainer container)
+            {
+                return container
+                    .Background(Colors.Grey.Lighten4)
+                    .Border(1)
+                    .BorderColor(Colors.Grey.Lighten2)
+                    .Padding(12)
+                    .DefaultTextStyle(x => x.FontColor(Colors.Grey.Medium).Italic());
+            }
+
+            static IContainer TableHeaderCell(IContainer container)
+            {
+                return container
+                    .Background(Colors.Blue.Darken4)
+                    .PaddingVertical(8)
+                    .PaddingHorizontal(8)
+                    .DefaultTextStyle(x => x.FontColor(Colors.White).SemiBold());
+            }
+
+            static IContainer TableCell(IContainer container)
+            {
+                return container
+                    .BorderBottom(1)
+                    .BorderColor(Colors.Grey.Lighten3)
+                    .PaddingVertical(8)
+                    .PaddingHorizontal(8);
+            }
+
+            static IContainer TotalCell(IContainer container)
+            {
+                return container
+                    .Background(Colors.Teal.Lighten5)
+                    .BorderTop(1)
+                    .BorderColor(Colors.Teal.Medium)
+                    .PaddingVertical(9)
+                    .PaddingHorizontal(8)
+                    .DefaultTextStyle(x => x.SemiBold().FontColor(Colors.Blue.Darken4));
+            }
         }
 
         [HttpPost, ActionName("Delete")]

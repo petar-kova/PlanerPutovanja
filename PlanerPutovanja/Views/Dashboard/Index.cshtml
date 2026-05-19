@@ -7,17 +7,17 @@
 @{
     ViewData["Title"] = "Dashboard";
 
-    var usageColorClass = "bg-danger";
+    var usageColorClass = "dashboard-danger";
     var usageTextClass = "text-danger";
 
     if (Model.BudgetUsagePercent < 70m)
     {
-        usageColorClass = "bg-success";
+        usageColorClass = "dashboard-success";
         usageTextClass = "text-success";
     }
     else if (Model.BudgetUsagePercent <= 90m)
     {
-        usageColorClass = "bg-warning";
+        usageColorClass = "dashboard-warning";
         usageTextClass = "text-warning";
     }
 
@@ -32,193 +32,203 @@
     var destinationCountsJson = JsonSerializer.Serialize(Model.TopDestinations.Select(x => x.Count).ToList());
 }
 
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-    <h1 class="h2 mb-0">Dashboard</h1>
-    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary">Refresh</a>
-</div>
+<section class="dashboard-hero">
+    <div class="container">
+        <div class="dashboard-hero-content">
+            <div>
+                <span class="eyebrow">Pregled planiranja</span>
+                <h1>Dashboard</h1>
+                <p>
+                    Brzi pregled putovanja, budžeta, troškova i najčešćih destinacija na jednom mjestu.
+                </p>
+            </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-sm-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted text-uppercase small fw-semibold">Total trips</span>
-                    <span aria-hidden="true">🧳</span>
-                </div>
-                <div class="display-6 fw-bold">@Model.TotalTrips</div>
+            <div class="dashboard-actions">
+                <a asp-controller="Trips" asp-action="Create" class="btn-main">
+                    + Novo putovanje
+                </a>
+
+                <a asp-controller="Dashboard" asp-action="Index" class="btn-ghost">
+                    Osvježi
+                </a>
             </div>
         </div>
     </div>
+</section>
 
-    <div class="col-sm-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted text-uppercase small fw-semibold">Total expenses</span>
-                    <span aria-hidden="true">💸</span>
+<section class="section-sm">
+    <div class="container">
+
+        <div class="dashboard-stats-grid">
+            <div class="dashboard-stat-card">
+                <div class="dashboard-stat-top">
+                    <span>Ukupno putovanja</span>
+                    <em>🧳</em>
                 </div>
-                <div class="display-6 fw-bold">@Model.TotalExpenses.ToString("N2")</div>
+                <strong>@Model.TotalTrips</strong>
+                <p>Sva spremljena putovanja</p>
+            </div>
+
+            <div class="dashboard-stat-card">
+                <div class="dashboard-stat-top">
+                    <span>Ukupni troškovi</span>
+                    <em>💸</em>
+                </div>
+                <strong>@Model.TotalExpenses.ToString("N2") €</strong>
+                <p>Ukupno uneseno kroz planove</p>
+            </div>
+
+            <div class="dashboard-stat-card">
+                <div class="dashboard-stat-top">
+                    <span>Ukupni budžet</span>
+                    <em>💰</em>
+                </div>
+                <strong>@Model.TotalBudget.ToString("N2") €</strong>
+                <p>Zbroj planiranih budžeta</p>
+            </div>
+
+            <div class="dashboard-stat-card">
+                <div class="dashboard-stat-top">
+                    <span>Iskorištenost</span>
+                    <em>📊</em>
+                </div>
+
+                <strong class="@usageTextClass">@Model.BudgetUsagePercent.ToString("0.##")%</strong>
+
+                <div class="dashboard-progress">
+                    <div class="@usageColorClass" style="width:@usageWidth"></div>
+                </div>
+
+                <p>@Model.TotalExpenses.ToString("N2") € / @Model.TotalBudget.ToString("N2") €</p>
             </div>
         </div>
-    </div>
 
-    <div class="col-sm-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted text-uppercase small fw-semibold">Total budget</span>
-                    <span aria-hidden="true">💰</span>
-                </div>
-                <div class="display-6 fw-bold">@Model.TotalBudget.ToString("N2")</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted text-uppercase small fw-semibold">Budget usage</span>
-                    <span aria-hidden="true">📊</span>
+        <div class="dashboard-grid">
+            <div class="dashboard-card dashboard-card-large">
+                <div class="dashboard-card-header">
+                    <div>
+                        <span class="eyebrow">Analitika</span>
+                        <h2>Troškovi po putovanju</h2>
+                    </div>
+                    <span class="dashboard-card-icon">📈</span>
                 </div>
 
-                <div class="display-6 fw-bold @usageTextClass">
-                    @Model.BudgetUsagePercent.ToString("0.##")%
-                </div>
-
-                <div class="progress mt-3" role="progressbar"
-                     aria-label="Budget usage"
-                     aria-valuenow="@Model.BudgetUsagePercent"
-                     aria-valuemin="0"
-                     aria-valuemax="100">
-                    <div class="progress-bar @usageColorClass" style="width: @usageWidth"></div>
-                </div>
-
-                <div class="small text-muted mt-2">
-                    @Model.TotalExpenses.ToString("N2") / @Model.TotalBudget.ToString("N2")
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-3 mb-4">
-    <div class="col-lg-8">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h2 class="h5 mb-3">Top expenses by trip</h2>
-                <div style="height:260px;">
+                <div class="chart-box">
                     <canvas id="monthlyExpensesChart"></canvas>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="col-lg-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h2 class="h5 mb-3">Top destinations</h2>
-                <div style="height:260px;">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <div>
+                        <span class="eyebrow">Destinacije</span>
+                        <h2>Top destinacije</h2>
+                    </div>
+                    <span class="dashboard-card-icon">📍</span>
+                </div>
+
+                <div class="chart-box">
                     <canvas id="topDestinationsChart"></canvas>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="row g-3">
-    <div class="col-lg-7">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h2 class="h5 mb-3">Upcoming trips</h2>
+        <div class="dashboard-grid dashboard-grid-bottom">
+            <div class="dashboard-card dashboard-card-large">
+                <div class="dashboard-card-header">
+                    <div>
+                        <span class="eyebrow">Planovi</span>
+                        <h2>Nadolazeća putovanja</h2>
+                    </div>
+                    <a asp-controller="Trips" asp-action="Index" class="mini-link">
+                        Vidi sve
+                    </a>
+                </div>
 
                 @if (Model.UpcomingTrips == null || Model.UpcomingTrips.Count == 0)
                 {
-                    <p class="text-muted mb-0">No upcoming trips yet.</p>
+                    <div class="dashboard-empty">
+                        <strong>Nema nadolazećih putovanja</strong>
+                        <p>Kreiraj novo putovanje i ovdje će se prikazati tvoji sljedeći planovi.</p>
+                        <a asp-controller="Trips" asp-action="Create" class="btn-main btn-small">
+                            Kreiraj putovanje
+                        </a>
+                    </div>
                 }
                 else
                 {
-                    <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Trip</th>
-                                    <th>Destination</th>
-                                    <th>Dates</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var trip in Model.UpcomingTrips)
-                                {
-                                    <tr>
-                                        <td>
-                                            <a asp-controller="Trips"
-                                               asp-action="Details"
-                                               asp-route-id="@trip.TripId"
-                                               class="text-decoration-none fw-semibold">
-                                                @trip.Name
-                                            </a>
-                                        </td>
-                                        <td>@trip.Destination</td>
-                                        <td>@trip.StartDate.ToString("dd MMM yyyy") - @trip.EndDate.ToString("dd MMM yyyy")</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                    <div class="dashboard-trip-list">
+                        @foreach (var trip in Model.UpcomingTrips)
+                        {
+                            <a asp-controller="Trips"
+                               asp-action="Details"
+                               asp-route-id="@trip.TripId"
+                               class="dashboard-trip-item">
+                                <div>
+                                    <strong>@trip.Name</strong>
+                                    <span>@trip.Destination</span>
+                                </div>
+
+                                <em>
+                                    @trip.StartDate.ToString("dd.MM.yyyy") - @trip.EndDate.ToString("dd.MM.yyyy")
+                                </em>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <div>
+                        <span class="eyebrow">Upozorenja</span>
+                        <h2>Budžet</h2>
+                    </div>
+                    <span class="dashboard-card-icon">⚠️</span>
+                </div>
+
+                @if (Model.OverBudgetTrips == null || Model.OverBudgetTrips.Count == 0)
+                {
+                    <div class="dashboard-empty compact">
+                        <strong>Sve izgleda dobro</strong>
+                        <p>Nema putovanja koja su blizu ili iznad planiranog budžeta.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="budget-warning-list">
+                        @foreach (var trip in Model.OverBudgetTrips)
+                        {
+                            var badgeClass = trip.UsagePercent >= 100m ? "danger" : "warning";
+                            var badgeText = trip.UsagePercent >= 100m ? "Prekoračeno" : "Upozorenje";
+
+                            <a asp-controller="Trips"
+                               asp-action="Details"
+                               asp-route-id="@trip.TripId"
+                               class="budget-warning-item">
+                                <div>
+                                    <strong>@trip.Name</strong>
+                                    <span>@trip.Expenses.ToString("N2") € / @trip.Budget.ToString("N2") €</span>
+                                </div>
+
+                                <em class="@badgeClass">
+                                    @badgeText @trip.UsagePercent.ToString("0.#")%
+                                </em>
+                            </a>
+                        }
                     </div>
                 }
             </div>
         </div>
+
     </div>
-
-    <div class="col-lg-5">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h2 class="h5 mb-3">Over budget / Warning</h2>
-
-                @if (Model.OverBudgetTrips == null || Model.OverBudgetTrips.Count == 0)
-                {
-                    <p class="text-muted mb-0">Great! No trips above 90% budget usage.</p>
-                }
-                else
-                {
-                    <ul class="list-group list-group-flush">
-                        @foreach (var trip in Model.OverBudgetTrips)
-                        {
-                            var badgeClass = trip.UsagePercent >= 100m ? "bg-danger" : "bg-warning text-dark";
-                            var badgeText = trip.UsagePercent >= 100m ? "Over budget" : "Warning";
-
-                            <li class="list-group-item px-0">
-                                <div class="d-flex justify-content-between align-items-start gap-2">
-                                    <div>
-                                        <a asp-controller="Trips"
-                                           asp-action="Details"
-                                           asp-route-id="@trip.TripId"
-                                           class="fw-semibold text-decoration-none">
-                                            @trip.Name
-                                        </a>
-                                        <div class="small text-muted">
-                                            @trip.Expenses.ToString("N2") / @trip.Budget.ToString("N2")
-                                        </div>
-                                    </div>
-                                    <span class="badge @badgeClass">
-                                        @badgeText (@trip.UsagePercent.ToString("0.#")%)
-                                    </span>
-                                </div>
-                            </li>
-                        }
-                    </ul>
-                }
-            </div>
-        </div>
-    </div>
-</div>
+</section>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-               const monthlyLabels = JSON.parse('@JavaScriptEncoder.Default.Encode(monthlyLabelsJson)');
+        const monthlyLabels = JSON.parse('@JavaScriptEncoder.Default.Encode(monthlyLabelsJson)');
         const monthlyTotals = JSON.parse('@JavaScriptEncoder.Default.Encode(monthlyTotalsJson)');
         const destinationLabels = JSON.parse('@JavaScriptEncoder.Default.Encode(destinationLabelsJson)');
         const destinationCounts = JSON.parse('@JavaScriptEncoder.Default.Encode(destinationCountsJson)');
@@ -226,44 +236,59 @@
         const monthlyCtx = document.getElementById('monthlyExpensesChart');
         const topCtx = document.getElementById('topDestinationsChart');
 
-        new Chart(monthlyCtx, {
-            type: 'line',
-            data: {
-                labels: monthlyLabels,
-                datasets: [{
-                    label: 'Expenses',
-                    data: monthlyTotals,
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
-
-        new Chart(topCtx, {
-            type: 'bar',
-            data: {
-                labels: destinationLabels,
-                datasets: [{
-                    label: 'Trips',
-                    data: destinationCounts
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y',
-                scales: {
-                    x: { beginAtZero: true, ticks: { precision: 0 } }
+        if (monthlyCtx) {
+            new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: monthlyLabels,
+                    datasets: [{
+                        label: 'Troškovi',
+                        data: monthlyTotals,
+                        tension: 0.35,
+                        fill: true,
+                        borderWidth: 3,
+                        pointRadius: 4
+                    }]
                 },
-                plugins: { legend: { display: false } }
-            }
-        });
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        if (topCtx) {
+            new Chart(topCtx, {
+                type: 'bar',
+                data: {
+                    labels: destinationLabels,
+                    datasets: [{
+                        label: 'Putovanja',
+                        data: destinationCounts,
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, ticks: { precision: 0 } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+        }
     </script>
 }

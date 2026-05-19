@@ -2,31 +2,74 @@
     ViewData["Title"] = "Destinacije";
 }
 
-<section class="page-hero destinations-hero">
+<section class="destinations-3d-hero">
+    <div class="dest-orb dest-orb-one"></div>
+    <div class="dest-orb dest-orb-two"></div>
+
     <div class="container">
-        <div class="page-hero-content text-center">
-            <span class="eyebrow">Inspiracija za putovanje</span>
-            <h1>Pronađi destinaciju koja odgovara tvom stilu putovanja</h1>
-            <p>
-                Pretraži i filtriraj destinacije prema vrsti putovanja. Bilo da želiš more, prirodu,
-                gradsku avanturu ili romantični vikend, planer ti pomaže pronaći idealan izbor.
-            </p>
+        <div class="destinations-hero-grid">
+            <div>
+                <span class="eyebrow">Inspiracija za putovanje</span>
+                <h1>Pronađi destinaciju za sljedeću avanturu.</h1>
+                <p>
+                    Pretraži ideje za more, gradove, prirodu, romantiku i aktivna putovanja.
+                    Kad pronađeš inspiraciju, odmah možeš kreirati vlastiti plan.
+                </p>
+
+                <div class="hero-actions">
+                    <a class="btn-main" asp-controller="Trips" asp-action="Create">
+                        Kreiraj putovanje
+                    </a>
+
+                    <a class="btn-ghost" asp-controller="Trips" asp-action="Index">
+                        Moja putovanja
+                    </a>
+                </div>
+            </div>
+
+            <div class="destinations-mini-board">
+                <div class="mini-board-card card-main">
+                    <span>Top prijedlog</span>
+                    <strong>Split roadtrip</strong>
+                    <small>more • grad • ljeto</small>
+                </div>
+
+                <div class="mini-board-card card-small card-small-one">
+                    <strong>8</strong>
+                    <span>destinacija</span>
+                </div>
+
+                <div class="mini-board-card card-small card-small-two">
+                    <strong>5</strong>
+                    <span>filtera</span>
+                </div>
+
+                <div class="mini-board-map">
+                    <div class="mini-path"></div>
+                    <i class="mini-dot dot-one"></i>
+                    <i class="mini-dot dot-two"></i>
+                    <i class="mini-dot dot-three"></i>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="section-sm">
+<section class="section-sm destinations-content-section">
     <div class="container">
-        <div class="filter-panel glass-card">
-            <div class="row g-3 align-items-center">
+        <div class="destination-filter-3d">
+            <div class="row g-3 align-items-end">
                 <div class="col-lg-5">
-                    <label class="form-label" for="destinationSearch">Pretraživanje destinacija</label>
-                    <input type="text" id="destinationSearch" class="form-control"
+                    <label class="form-label" for="destinationSearch">Pretraži destinacije</label>
+                    <input type="text"
+                           id="destinationSearch"
+                           class="form-control"
                            placeholder="Upiši npr. Dubrovnik, Istra, Plitvice..." />
                 </div>
 
                 <div class="col-lg-7">
-                    <label class="form-label d-block">Filtriraj prema tipu</label>
+                    <label class="form-label d-block">Odaberi tip putovanja</label>
+
                     <div class="filter-buttons">
                         <button class="filter-btn active" data-filter="sve">Sve</button>
                         <button class="filter-btn" data-filter="more">More</button>
@@ -39,184 +82,258 @@
             </div>
         </div>
 
-        <div id="destinationCounter" class="destination-counter">
-            Prikazano je 8 destinacija.
+        <div class="destination-top-row">
+            <div id="destinationCounter" class="destination-counter">
+                Prikazano je 8 destinacija.
+            </div>
+
+            <span class="destination-hint">
+                Klikni “Kreiraj plan” i pretvori inspiraciju u putovanje.
+            </span>
         </div>
 
         <div class="row g-4 destination-list">
+
             <div class="col-lg-4 col-md-6 destination-item" data-category="more romantika" data-name="dubrovnik">
-                <div class="card-premium destination-card">
-                    <div class="destination-image" style="background-image: url('https://images.unsplash.com/photo-1555990538-c48b0f0e0f85?auto=format&fit=crop&w=900&q=80');"></div>
-                    <div class="destination-body">
+                <div class="destination-3d-card">
+                    <div class="destination-3d-image" style="background-image: url('https://images.unsplash.com/photo-1555990538-c48b0f0e0f85?auto=format&fit=crop&w=900&q=80');">
+                        <span class="destination-badge">Top izbor</span>
+                    </div>
+
+                    <div class="destination-3d-body">
                         <span class="destination-tag">More • Romantika</span>
                         <h3>Dubrovnik</h3>
-                        <p>
-                            Povijesne zidine, kristalno more i posebna atmosfera čine Dubrovnik idealnim izborom
-                            za romantično i kulturno putovanje.
-                        </p>
+                        <p>Povijesne zidine, kristalno more i posebna atmosfera za romantično i kulturno putovanje.</p>
+
                         <div class="destination-meta">
                             <span>3-5 dana</span>
                             <span>Srednji budžet</span>
-                            <span>Top izbor</span>
+                            <span>Kultura</span>
                         </div>
+
+                        <a asp-controller="Trips"
+                           asp-action="Create"
+                           asp-route-destination="Dubrovnik"
+                           class="destination-plan-link">
+                            Kreiraj plan →
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 col-md-6 destination-item" data-category="priroda avantura" data-name="plitvicka jezera plitvice">
-                <div class="card-premium destination-card">
-                    <div class="destination-image" style="background-image: url('https://images.unsplash.com/photo-1565992441121-4367c2967103?auto=format&fit=crop&w=900&q=80');"></div>
-                    <div class="destination-body">
+                <div class="destination-3d-card">
+                    <div class="destination-3d-image" style="background-image: url('https://images.unsplash.com/photo-1565992441121-4367c2967103?auto=format&fit=crop&w=900&q=80');">
+                        <span class="destination-badge">Priroda</span>
+                    </div>
+
+                    <div class="destination-3d-body">
                         <span class="destination-tag">Priroda • Avantura</span>
                         <h3>Plitvička jezera</h3>
-                        <p>
-                            Nacionalni park s jezerima i slapovima savršen je za jednodnevni izlet,
-                            šetnju prirodom i fotografiranje.
-                        </p>
+                        <p>Jezera, slapovi i uređene staze za jednodnevni izlet, šetnju i fotografiranje.</p>
+
                         <div class="destination-meta">
                             <span>1-2 dana</span>
                             <span>Niski budžet</span>
-                            <span>Priroda</span>
+                            <span>Aktivno</span>
                         </div>
+
+                        <a asp-controller="Trips"
+                           asp-action="Create"
+                           asp-route-destination="Plitvička jezera"
+                           class="destination-plan-link">
+                            Kreiraj plan →
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 col-md-6 destination-item" data-category="grad romantika" data-name="venecija">
-                <div class="card-premium destination-card">
-                    <div class="destination-image" style="background-image: url('https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=900&q=80');"></div>
-                    <div class="destination-body">
+                <div class="destination-3d-card">
+                    <div class="destination-3d-image" style="background-image: url('https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=900&q=80');">
+                        <span class="destination-badge">Vikend</span>
+                    </div>
+
+                    <div class="destination-3d-body">
                         <span class="destination-tag">Grad • Romantika</span>
                         <h3>Venecija</h3>
-                        <p>
-                            Kanali, mostovi, gondole i mali trgovi stvaraju atmosferu savršenu za vikend putovanje
-                            i istraživanje grada.
-                        </p>
+                        <p>Kanali, mostovi i mali trgovi stvaraju atmosferu savršenu za vikend putovanje.</p>
+
                         <div class="destination-meta">
                             <span>2-4 dana</span>
                             <span>Srednji budžet</span>
                             <span>Romantika</span>
                         </div>
+
+                        <a asp-controller="Trips"
+                           asp-action="Create"
+                           asp-route-destination="Venecija"
+                           class="destination-plan-link">
+                            Kreiraj plan →
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 col-md-6 destination-item" data-category="more priroda romantika" data-name="istra rovinj pula motovun">
-                <div class="card-premium destination-card">
-                    <div class="destination-image" style="background-image: url('https://images.unsplash.com/photo-1605649461784-98f3f8e31b4f?auto=format&fit=crop&w=900&q=80');"></div>
-                    <div class="destination-body">
+                <div class="destination-3d-card">
+                    <div class="destination-3d-image" style="background-image: url('https://images.unsplash.com/photo-1605649461784-98f3f8e31b4f?auto=format&fit=crop&w=900&q=80');">
+                        <span class="destination-badge">Gastro</span>
+                    </div>
+
+                    <div class="destination-3d-body">
                         <span class="destination-tag">More • Priroda</span>
                         <h3>Istra</h3>
-                        <p>
-                            Spoj obale, kamenih gradića, odlične hrane i opuštene atmosfere čini Istru odličnom
-                            za kraći odmor.
-                        </p>
+                        <p>Obala, kameni gradići, odlična hrana i opuštena atmosfera za kraći odmor.</p>
+
                         <div class="destination-meta">
                             <span>3-6 dana</span>
                             <span>Srednji budžet</span>
                             <span>Gastro</span>
                         </div>
+
+                        <a asp-controller="Trips"
+                           asp-action="Create"
+                           asp-route-destination="Istra"
+                           class="destination-plan-link">
+                            Kreiraj plan →
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 col-md-6 destination-item" data-category="grad" data-name="zagreb">
-                <div class="card-premium destination-card">
-                    <div class="destination-image" style="background-image: url('https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=900&q=80');"></div>
-                    <div class="destination-body">
+                <div class="destination-3d-card">
+                    <div class="destination-3d-image" style="background-image: url('https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=900&q=80');">
+                        <span class="destination-badge">City break</span>
+                    </div>
+
+                    <div class="destination-3d-body">
                         <span class="destination-tag">Grad</span>
                         <h3>Zagreb</h3>
-                        <p>
-                            Glavni grad Hrvatske idealan je za city break, muzeje, parkove, advent,
-                            restorane i opuštene šetnje centrom.
-                        </p>
+                        <p>City break, muzeji, parkovi, advent, restorani i opuštene šetnje centrom.</p>
+
                         <div class="destination-meta">
                             <span>1-3 dana</span>
                             <span>Niski budžet</span>
-                            <span>City break</span>
+                            <span>Grad</span>
                         </div>
+
+                        <a asp-controller="Trips"
+                           asp-action="Create"
+                           asp-route-destination="Zagreb"
+                           class="destination-plan-link">
+                            Kreiraj plan →
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 col-md-6 destination-item" data-category="more grad" data-name="split dalmacija">
-                <div class="card-premium destination-card">
-                    <div class="destination-image" style="background-image: url('https://images.unsplash.com/photo-1603565815976-1b68349f4c9b?auto=format&fit=crop&w=900&q=80');"></div>
-                    <div class="destination-body">
+                <div class="destination-3d-card">
+                    <div class="destination-3d-image" style="background-image: url('https://images.unsplash.com/photo-1603565815976-1b68349f4c9b?auto=format&fit=crop&w=900&q=80');">
+                        <span class="destination-badge">Ljeto</span>
+                    </div>
+
+                    <div class="destination-3d-body">
                         <span class="destination-tag">More • Grad</span>
                         <h3>Split</h3>
-                        <p>
-                            Split spaja more, povijest i urbani ritam. Odličan je izbor za ljeto,
-                            šetnju rivom i izlete prema otocima.
-                        </p>
+                        <p>More, povijest i urbana atmosfera. Odličan izbor za ljeto i izlete prema otocima.</p>
+
                         <div class="destination-meta">
                             <span>3-7 dana</span>
                             <span>Srednji budžet</span>
-                            <span>Ljeto</span>
+                            <span>More</span>
                         </div>
+
+                        <a asp-controller="Trips"
+                           asp-action="Create"
+                           asp-route-destination="Split"
+                           class="destination-plan-link">
+                            Kreiraj plan →
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 col-md-6 destination-item" data-category="priroda avantura" data-name="velebit paklenica">
-                <div class="card-premium destination-card">
-                    <div class="destination-image" style="background-image: url('https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80');"></div>
-                    <div class="destination-body">
+                <div class="destination-3d-card">
+                    <div class="destination-3d-image" style="background-image: url('https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80');">
+                        <span class="destination-badge">Aktivno</span>
+                    </div>
+
+                    <div class="destination-3d-body">
                         <span class="destination-tag">Priroda • Avantura</span>
                         <h3>Velebit</h3>
-                        <p>
-                            Planinarske staze, vidikovci i osjećaj slobode čine Velebit odličnim izborom za aktivne putnike.
-                        </p>
+                        <p>Planinarske staze, vidikovci i osjećaj slobode za aktivne putnike.</p>
+
                         <div class="destination-meta">
                             <span>2-5 dana</span>
                             <span>Niski budžet</span>
-                            <span>Aktivno</span>
+                            <span>Planina</span>
                         </div>
+
+                        <a asp-controller="Trips"
+                           asp-action="Create"
+                           asp-route-destination="Velebit"
+                           class="destination-plan-link">
+                            Kreiraj plan →
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 col-md-6 destination-item" data-category="grad romantika" data-name="ljubljana slovenija">
-                <div class="card-premium destination-card">
-                    <div class="destination-image" style="background-image: url('https://images.unsplash.com/photo-1598890777032-bde835ba27c7?auto=format&fit=crop&w=900&q=80');"></div>
-                    <div class="destination-body">
+                <div class="destination-3d-card">
+                    <div class="destination-3d-image" style="background-image: url('https://images.unsplash.com/photo-1598890777032-bde835ba27c7?auto=format&fit=crop&w=900&q=80');">
+                        <span class="destination-badge">Vikend</span>
+                    </div>
+
+                    <div class="destination-3d-body">
                         <span class="destination-tag">Grad • Romantika</span>
                         <h3>Ljubljana</h3>
-                        <p>
-                            Uređen centar, rijeka, mostovi i blizina Zagreba čine Ljubljanu odličnim izborom za vikend putovanje.
-                        </p>
+                        <p>Uređen centar, rijeka, mostovi i blizina Zagreba za odlično vikend putovanje.</p>
+
                         <div class="destination-meta">
                             <span>1-2 dana</span>
                             <span>Niski budžet</span>
-                            <span>Vikend</span>
+                            <span>Blizu</span>
                         </div>
+
+                        <a asp-controller="Trips"
+                           asp-action="Create"
+                           asp-route-destination="Ljubljana"
+                           class="destination-plan-link">
+                            Kreiraj plan →
+                        </a>
                     </div>
                 </div>
             </div>
+
         </div>
 
-        <div id="noDestinationsMessage" class="no-results glass-card">
+        <div id="noDestinationsMessage" class="no-results destination-no-results">
             <h3>Nema pronađenih destinacija</h3>
             <p>Pokušaj promijeniti pojam pretraživanja ili odabrati drugi filter.</p>
         </div>
     </div>
 </section>
 
-<section class="section cta-section">
+<section class="section destinations-cta">
     <div class="container text-center">
+        <span class="eyebrow">Sljedeći korak</span>
         <h2>Pronašao si inspiraciju?</h2>
         <p>
-            Sljedeći korak je izrada vlastitog plana putovanja prema odabranoj destinaciji,
-            trajanju i tipu odmora.
+            Kreiraj vlastito putovanje, dodaj destinacije, aktivnosti, troškove i kasnije izvezi plan u PDF.
         </p>
 
         <div class="hero-actions justify-content-center">
-            <a class="btn-main" asp-controller="Home" asp-action="Planer">
-                Napravi plan putovanja
+            <a class="btn-main" asp-controller="Trips" asp-action="Create">
+                Kreiraj putovanje
             </a>
 
-            <a class="btn-ghost" asp-controller="Home" asp-action="Budzet">
-                Izračunaj budžet
+            <a class="btn-ghost" asp-controller="Dashboard" asp-action="Index">
+                Otvori dashboard
             </a>
         </div>
     </div>

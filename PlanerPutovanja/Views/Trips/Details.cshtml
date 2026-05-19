@@ -5,7 +5,7 @@
 @inject IConfiguration Configuration
 
 @{
-    ViewData["Title"] = "Trip details";
+    ViewData["Title"] = "Detalji putovanja";
 
     var destinations = Model.Destinations?.OrderBy(d => d.Order).ToList()
                       ?? new List<PlanerPutovanja.Models.TripDestination>();
@@ -40,17 +40,17 @@
         PlanerPutovanja.Models.Trip.TransportMode.Train => "🚆",
         PlanerPutovanja.Models.Trip.TransportMode.Bus => "🚌",
         PlanerPutovanja.Models.Trip.TransportMode.CruiseShip => "🛳️",
-        _ => "❓"
+        _ => "🧭"
     };
 
     var transportText = Model.Transport switch
     {
-        PlanerPutovanja.Models.Trip.TransportMode.Car => "Car",
-        PlanerPutovanja.Models.Trip.TransportMode.Plane => "Plane",
-        PlanerPutovanja.Models.Trip.TransportMode.Train => "Train",
-        PlanerPutovanja.Models.Trip.TransportMode.Bus => "Bus",
-        PlanerPutovanja.Models.Trip.TransportMode.CruiseShip => "Cruise ship",
-        _ => "Not specified"
+        PlanerPutovanja.Models.Trip.TransportMode.Car => "Auto",
+        PlanerPutovanja.Models.Trip.TransportMode.Plane => "Avion",
+        PlanerPutovanja.Models.Trip.TransportMode.Train => "Vlak",
+        PlanerPutovanja.Models.Trip.TransportMode.Bus => "Autobus",
+        PlanerPutovanja.Models.Trip.TransportMode.CruiseShip => "Brod",
+        _ => "Nije odabrano"
     };
 
     var mapsKey = (Configuration["GoogleMaps:ApiKey"] ?? "").Trim();
@@ -68,105 +68,155 @@
     var firstId = destinations.FirstOrDefault()?.Id ?? 0;
     var lastId = destinations.LastOrDefault()?.Id ?? 0;
 
-    var weather = ViewBag.Weather as PlanerPutovanja.Services.WeatherService.WeatherInfo;
+    var weatherByCity = ViewBag.WeatherByCity as IDictionary<string, PlanerPutovanja.Services.WeatherService.WeatherInfo?>;
 }
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-        <div>
-            <h1 class="mb-1">@Model.Name</h1>
-            <div class="text-muted">@Model.Destination</div>
-        </div>
-        <div class="d-flex gap-2">
-            <a asp-controller="Trips" asp-action="Index" class="btn btn-outline-secondary">Back to trips</a>
-            <a asp-controller="Trips" asp-action="ExportPdf" asp-route-id="@Model.Id" class="btn btn-outline-primary">Export PDF</a>
-            <a asp-controller="Trips" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit trip</a>
-        </div>
-    </div>
+<section class="details-hero">
+    <div class="container">
+        <div class="details-hero-content">
+            <div>
+                <span class="eyebrow">Detalji plana</span>
+                <h1>@Model.Name</h1>
+                <p>
+                    @Model.Destination
+                </p>
 
-    <hr />
-
-    <div class="row g-3">
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5>Overview</h5>
-
-                    <dl class="row mb-0">
-                        <dt class="col-5">Transport</dt>
-                        <dd class="col-7"><span class="me-1">@transportIcon</span>@transportText</dd>
-
-                        <dt class="col-5">Start date</dt>
-                        <dd class="col-7">@Model.StartDate.ToString("dd.MM.yyyy")</dd>
-
-                        <dt class="col-5">End date</dt>
-                        <dd class="col-7">@Model.EndDate.ToString("dd.MM.yyyy")</dd>
-
-                        <dt class="col-5">Trip length</dt>
-                        <dd class="col-7">@tripDays day@(tripDays > 1 ? "s" : "")</dd>
-
-                        <dt class="col-5">Cost / day</dt>
-                        <dd class="col-7">@costPerDay.ToString("0.00", CultureInfo.InvariantCulture) €</dd>
-
-                        <dt class="col-5">Total expenses</dt>
-                        <dd class="col-7">@total.ToString("0.00", CultureInfo.InvariantCulture) €</dd>
-
-                        @if (budget.HasValue)
-                        {
-                            <dt class="col-5">Budget</dt>
-                            <dd class="col-7">@budget.Value.ToString("0.00", CultureInfo.InvariantCulture) €</dd>
-
-                            <dt class="col-5">Budget usage</dt>
-                            <dd class="col-7">
-                                @if (percentUsedRaw.HasValue && percentUsedWidth.HasValue)
-                                {
-                                    var raw = percentUsedRaw.Value;
-                                    var width = percentUsedWidth.Value;
-                                    var barClass = raw < 70 ? "bg-success" : raw <= 100 ? "bg-warning" : "bg-danger";
-
-                                    <div class="progress" style="height:0.9rem;">
-                                        <div class="progress-bar @barClass"
-                                             style="width:@width.ToString("0.##", CultureInfo.InvariantCulture)%;"
-                                             aria-valuenow="@raw.ToString("0.##", CultureInfo.InvariantCulture)"
-                                             aria-valuemin="0" aria-valuemax="100">
-                                            @raw.ToString("0.##", CultureInfo.InvariantCulture)%
-                                        </div>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">No budget set.</span>
-                                }
-                            </dd>
-                        }
-                    </dl>
+                <div class="details-hero-meta">
+                    <span>@transportIcon @transportText</span>
+                    <span>@Model.StartDate.ToString("dd.MM.yyyy") - @Model.EndDate.ToString("dd.MM.yyyy")</span>
+                    <span>@tripDays dan@(tripDays == 1 ? "" : "a")</span>
                 </div>
             </div>
 
+            <div class="details-actions">
+                <a asp-controller="Trips" asp-action="Index" class="btn-ghost">
+                    ← Moja putovanja
+                </a>
 
-            <div class="card shadow-sm mt-3">
-                <div class="card-body">
-                    <h5 class="mb-3">Weather</h5>
+                <a asp-controller="Trips" asp-action="ExportPdf" asp-route-id="@Model.Id" class="btn-ghost">
+                    PDF
+                </a>
 
-                    @{
-                        var weatherByCity = ViewBag.WeatherByCity as IDictionary<string, PlanerPutovanja.Services.WeatherService.WeatherInfo?>;
+                <a asp-controller="Trips" asp-action="Edit" asp-route-id="@Model.Id" class="btn-main">
+                    Uredi putovanje
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+
+        <div class="details-stats-grid">
+            <div class="details-stat-card">
+                <span>Trajanje</span>
+                <strong>@tripDays</strong>
+                <p>dan@(tripDays == 1 ? "" : "a") putovanja</p>
+            </div>
+
+            <div class="details-stat-card">
+                <span>Destinacije</span>
+                <strong>@destinations.Count</strong>
+                <p>točk@(destinations.Count == 1 ? "a" : "e") plana</p>
+            </div>
+
+            <div class="details-stat-card">
+                <span>Aktivnosti</span>
+                <strong>@activities.Count</strong>
+                <p>planiran@(activities.Count == 1 ? "a" : "ih") aktivnosti</p>
+            </div>
+
+            <div class="details-stat-card">
+                <span>Troškovi</span>
+                <strong>@total.ToString("0.00", CultureInfo.InvariantCulture) €</strong>
+                <p>ukupno uneseno</p>
+            </div>
+        </div>
+
+        <div class="details-layout">
+            <aside class="details-sidebar">
+
+                <div class="details-panel">
+                    <div class="panel-title">
+                        <span>📌</span>
+                        <h2>Pregled</h2>
+                    </div>
+
+                    <div class="info-list">
+                        <div>
+                            <span>Prijevoz</span>
+                            <strong>@transportIcon @transportText</strong>
+                        </div>
+
+                        <div>
+                            <span>Početak</span>
+                            <strong>@Model.StartDate.ToString("dd.MM.yyyy")</strong>
+                        </div>
+
+                        <div>
+                            <span>Završetak</span>
+                            <strong>@Model.EndDate.ToString("dd.MM.yyyy")</strong>
+                        </div>
+
+                        <div>
+                            <span>Trošak po danu</span>
+                            <strong>@costPerDay.ToString("0.00", CultureInfo.InvariantCulture) €</strong>
+                        </div>
+
+                        <div>
+                            <span>Ukupni troškovi</span>
+                            <strong>@total.ToString("0.00", CultureInfo.InvariantCulture) €</strong>
+                        </div>
+
+                        @if (budget.HasValue)
+                        {
+                            <div>
+                                <span>Budžet</span>
+                                <strong>@budget.Value.ToString("0.00", CultureInfo.InvariantCulture) €</strong>
+                            </div>
+                        }
+                    </div>
+
+                    @if (budget.HasValue && percentUsedRaw.HasValue && percentUsedWidth.HasValue)
+                    {
+                        var raw = percentUsedRaw.Value;
+                        var width = percentUsedWidth.Value;
+
+                        <div class="budget-progress-box">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Iskorištenost budžeta</span>
+                                <strong>@raw.ToString("0.##", CultureInfo.InvariantCulture)%</strong>
+                            </div>
+
+                            <div class="premium-progress">
+                                <div style="width:@width.ToString("0.##", CultureInfo.InvariantCulture)%;"></div>
+                            </div>
+                        </div>
                     }
+                </div>
+
+                <div class="details-panel">
+                    <div class="panel-title">
+                        <span>🌤️</span>
+                        <h2>Vrijeme</h2>
+                    </div>
 
                     @if (destinations.Count == 0)
                     {
-                        <div class="alert alert-info mb-0">
-                            Add destination to show weather info
+                        <div class="soft-message">
+                            Dodaj destinaciju za prikaz vremenske prognoze.
                         </div>
                     }
                     else if (weatherByCity == null || weatherByCity.Count == 0)
                     {
-                        <div class="alert alert-warning mb-0">
-                            At the moment weather info is not available
+                        <div class="soft-message warning">
+                            Trenutno nema dostupnih podataka o vremenu.
                         </div>
                     }
                     else
                     {
-                        <div class="list-group list-group-flush">
+                        <div class="weather-list">
                             @foreach (var d in destinations)
                             {
                                 var city = (d.City ?? "").Trim();
@@ -174,241 +224,283 @@
 
                                 weatherByCity.TryGetValue(city, out var w);
 
-                                <div class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="fw-semibold">@city</div>
-
-                                        @if (w == null)
-                                        {
-                                            <span class="text-muted small">No value</span>
-                                        }
-                                        else
-                                        {
-                                            dynamic wd = w;
-
-                                            <div class="text-end">
-                                                <div class="fw-semibold">
-                                                    @(wd?.TemperatureC ?? wd?.Temp ?? wd?.Temperature ?? "?")°C
-                                                </div>
-                                                <div class="text-muted small">
-                                                    @(wd?.Description ?? wd?.Summary ?? "")
-                                                </div>
-                                            </div>
-                                        }
+                                <div class="weather-item">
+                                    <div>
+                                        <strong>@city</strong>
+                                        <span>Vremenska prognoza</span>
                                     </div>
+
+                                    @if (w == null)
+                                    {
+                                        <em>Nema podataka</em>
+                                    }
+                                    else
+                                    {
+                                        dynamic wd = w;
+
+                                        <div class="weather-temp">
+                                            @(wd?.TemperatureC ?? wd?.Temp ?? wd?.Temperature ?? "?")°C
+                                            <small>@(wd?.Description ?? wd?.Summary ?? "")</small>
+                                        </div>
+                                    }
                                 </div>
                             }
                         </div>
                     }
                 </div>
-            </div>
 
-            <div class="card shadow-sm mt-3">
-                <div class="card-body">
-                    <h5>Route</h5>
+                <div class="details-panel">
+                    <div class="panel-title">
+                        <span>🛣️</span>
+                        <h2>Ruta</h2>
+                    </div>
 
                     @if (isCarTrip)
                     {
                         <button id="btnCalcRoute"
-                                class="btn btn-primary btn-sm"
+                                class="btn-main w-100"
                                 type="button"
                                 data-trip-id="@Model.Id"
                         @(canCalcRoute ? null : "disabled")>
-                            Refresh route
+                            Osvježi rutu
                         </button>
 
-                        <span id="routeLoading" class="text-muted ms-2" style="display:none;">Calculating...</span>
-                        <div id="routeResult" class="fw-semibold mt-2"></div>
+                        <span id="routeLoading" class="route-loading" style="display:none;">
+                            Računam rutu...
+                        </span>
+
+                        <div id="routeResult" class="route-result"></div>
 
                         @if (!canCalcRoute)
                         {
-                            <div class="text-muted mt-2">Add at least 2 destinations to calculate route.</div>
+                            <div class="soft-message mt-3">
+                                Dodaj barem 2 destinacije za izračun rute.
+                            </div>
                         }
                     }
                     else
                     {
-                        <p class="text-muted mb-0">Route calculation is available only for car trips.</p>
+                        <div class="soft-message">
+                            Izračun rute dostupan je samo za putovanja autom.
+                        </div>
                     }
                 </div>
-            </div>
 
-            @if (hasMap)
-            {
-                <div class="card shadow-sm mt-3">
-                    <div class="card-body">
-                        <h5>Map</h5>
+                @if (hasMap)
+                {
+                    <div class="details-panel">
+                        <div class="panel-title">
+                            <span>🗺️</span>
+                            <h2>Karta</h2>
+                        </div>
+
                         <div id="map"
-                             data-locations='@Html.Raw(locationsJson)'
-                             style="height:300px;width:100%;border-radius:8px;"></div>
-
-                       
+                             class="premium-map"
+                             data-locations='@Html.Raw(locationsJson)'></div>
                     </div>
-                </div>
-            }
-        </div>
+                }
 
-        <div class="col-lg-8">
+            </aside>
 
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h4 class="mb-0">Destinations</h4>
+            <main class="details-main">
+
+                <div class="details-panel">
+                    <div class="section-panel-header">
+                        <div class="panel-title">
+                            <span>📍</span>
+                            <h2>Destinacije</h2>
+                        </div>
                     </div>
 
-                    <form asp-controller="TripDestinations" asp-action="Add" method="post" class="d-flex gap-2 mb-3">
+                    <form asp-controller="TripDestinations" asp-action="Add" method="post" class="add-destination-form">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="tripId" value="@Model.Id" />
-                        <input type="text" name="destination" class="form-control" required maxlength="80"
-                               placeholder="Add destination (e.g. Zagreb, Split, Rome, Italy)" />
-                        <button type="submit" class="btn btn-primary">Add</button>
+
+                        <input type="text"
+                               name="destination"
+                               class="form-control"
+                               required
+                               maxlength="80"
+                               placeholder="Dodaj destinaciju, npr. Zagreb, Split, Rim..." />
+
+                        <button type="submit" class="btn-main">
+                            Dodaj
+                        </button>
                     </form>
 
                     @if (!destinations.Any())
                     {
-                        <div class="text-muted">No destinations yet.</div>
+                        <div class="empty-mini">
+                            Nema dodanih destinacija. Dodaj prvu destinaciju za početak planiranja.
+                        </div>
                     }
                     else
                     {
-                        <ul class="list-group">
+                        <div class="destination-timeline">
                             @foreach (var d in destinations)
                             {
                                 var isFirst = d.Id == firstId;
                                 var isLast = d.Id == lastId;
 
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <strong>@d.City</strong>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
 
-                                    <div class="d-flex gap-1">
+                                    <div class="timeline-content">
+                                        <strong>@d.City</strong>
+                                        <span>Destinacija putovanja</span>
+                                    </div>
+
+                                    <div class="timeline-actions">
                                         <form asp-controller="TripDestinations" asp-action="MoveUp" method="post" class="m-0">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@d.Id" />
                                             <input type="hidden" name="tripId" value="@Model.Id" />
-                                            <button class="btn btn-sm btn-outline-secondary" title="Move up" @(isFirst ? "disabled" : null)>↑</button>
+                                            <button class="mini-btn" title="Pomakni gore" @(isFirst ? "disabled" : null)>↑</button>
                                         </form>
 
                                         <form asp-controller="TripDestinations" asp-action="MoveDown" method="post" class="m-0">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@d.Id" />
                                             <input type="hidden" name="tripId" value="@Model.Id" />
-                                            <button class="btn btn-sm btn-outline-secondary" title="Move down" @(isLast ? "disabled" : null)>↓</button>
+                                            <button class="mini-btn" title="Pomakni dolje" @(isLast ? "disabled" : null)>↓</button>
                                         </form>
 
                                         <form asp-controller="TripDestinations" asp-action="Delete" method="post" class="m-0"
-                                              onsubmit="return confirm('Delete this destination?');">
+                                              onsubmit="return confirm('Želiš obrisati ovu destinaciju?');">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@d.Id" />
                                             <input type="hidden" name="tripId" value="@Model.Id" />
-                                            <button class="btn btn-sm btn-outline-danger" title="Delete">✕</button>
+                                            <button class="mini-btn danger" title="Obriši">✕</button>
                                         </form>
                                     </div>
-                                </li>
+                                </div>
                             }
-                        </ul>
+                        </div>
                     }
                 </div>
-            </div>
 
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h4 class="mb-0">Activities</h4>
+                <div class="details-panel">
+                    <div class="section-panel-header">
+                        <div class="panel-title">
+                            <span>🎯</span>
+                            <h2>Aktivnosti</h2>
+                        </div>
+
                         <a asp-controller="TripActivities" asp-action="Create" asp-route-tripId="@Model.Id"
-                           class="btn btn-sm btn-primary">Add activity</a>
+                           class="btn-main btn-small">
+                            Dodaj aktivnost
+                        </a>
                     </div>
 
                     @if (!activities.Any())
                     {
-                        <div class="text-muted">No activities yet.</div>
+                        <div class="empty-mini">
+                            Još nema aktivnosti. Dodaj izlete, obilaske, rezervacije ili planirane događaje.
+                        </div>
                     }
                     else
                     {
-                        <ul class="list-group">
+                        <div class="clean-list">
                             @foreach (var a in activities)
                             {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="clean-list-item">
                                     <div>
-                                        <div class="fw-semibold">@a.Name</div>
+                                        <strong>@a.Name</strong>
                                         @if (!string.IsNullOrWhiteSpace(a.Notes))
                                         {
-                                            <div class="text-muted">@a.Notes</div>
+                                            <span>@a.Notes</span>
                                         }
                                     </div>
 
-                                    <div class="d-flex gap-1">
+                                    <div class="clean-actions">
                                         <a asp-controller="TripActivities" asp-action="Edit" asp-route-id="@a.Id"
-                                           class="btn btn-sm btn-outline-secondary">Edit</a>
+                                           class="mini-link">
+                                            Uredi
+                                        </a>
 
                                         <form asp-controller="TripActivities" asp-action="Delete" asp-route-id="@a.Id"
-                                              method="post" class="m-0" onsubmit="return confirm('Delete this activity?');">
+                                              method="post" class="m-0" onsubmit="return confirm('Želiš obrisati ovu aktivnost?');">
                                             @Html.AntiForgeryToken()
-                                            <button class="btn btn-sm btn-outline-danger">✕</button>
+                                            <button class="mini-btn danger">✕</button>
                                         </form>
                                     </div>
-                                </li>
+                                </div>
                             }
-                        </ul>
+                        </div>
                     }
                 </div>
-            </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h4 class="mb-0">Expenses</h4>
+                <div class="details-panel">
+                    <div class="section-panel-header">
+                        <div class="panel-title">
+                            <span>💶</span>
+                            <h2>Troškovi</h2>
+                        </div>
+
                         <a asp-controller="Expenses" asp-action="Create" asp-route-tripId="@Model.Id"
-                           class="btn btn-sm btn-primary">Add expense</a>
+                           class="btn-main btn-small">
+                            Dodaj trošak
+                        </a>
                     </div>
 
                     @if (!expenses.Any())
                     {
-                        <div class="text-muted">No expenses yet.</div>
+                        <div class="empty-mini">
+                            Još nema troškova. Dodaj smještaj, prijevoz, hranu ili ulaznice.
+                        </div>
                     }
                     else
                     {
-                        <table class="table table-striped mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th class="text-end">Amount</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var e in expenses.OrderByDescending(x => x.Id))
-                                {
+                        <div class="expense-table-wrap">
+                            <table class="premium-table">
+                                <thead>
                                     <tr>
-                                        <td>@e.Name</td>
-                                        <td>@e.Description</td>
-                                        <td class="text-end">@e.Amount.ToString("0.00", CultureInfo.InvariantCulture) €</td>
-                                        <td class="text-end">
-                                            <a asp-controller="Expenses" asp-action="Edit" asp-route-id="@e.Id"
-                                               class="btn btn-sm btn-outline-secondary">Edit</a>
-
-                                            <form asp-controller="Expenses" asp-action="Delete" asp-route-id="@e.Id"
-                                                  method="post" class="d-inline" onsubmit="return confirm('Delete this expense?');">
-                                                @Html.AntiForgeryToken()
-                                                <button class="btn btn-sm btn-outline-danger">Delete</button>
-                                            </form>
-                                        </td>
+                                        <th>Naziv</th>
+                                        <th>Opis</th>
+                                        <th class="text-end">Iznos</th>
+                                        <th></th>
                                     </tr>
-                                }
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="2" class="text-end">Total</th>
-                                    <th class="text-end">@total.ToString("0.00", CultureInfo.InvariantCulture) €</th>
-                                    <th></th>
-                                </tr>
-                            </tfoot>
-                        </table>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var e in expenses.OrderByDescending(x => x.Id))
+                                    {
+                                        <tr>
+                                            <td>@e.Name</td>
+                                            <td>@e.Description</td>
+                                            <td class="text-end">@e.Amount.ToString("0.00", CultureInfo.InvariantCulture) €</td>
+                                            <td class="text-end">
+                                                <a asp-controller="Expenses" asp-action="Edit" asp-route-id="@e.Id"
+                                                   class="mini-link">
+                                                    Uredi
+                                                </a>
+
+                                                <form asp-controller="Expenses" asp-action="Delete" asp-route-id="@e.Id"
+                                                      method="post" class="d-inline" onsubmit="return confirm('Želiš obrisati ovaj trošak?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button class="mini-btn danger">✕</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="2" class="text-end">Ukupno</th>
+                                        <th class="text-end">@total.ToString("0.00", CultureInfo.InvariantCulture) €</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     }
                 </div>
-            </div>
 
+            </main>
         </div>
     </div>
-</div>
+</section>
 
 @section Scripts {
     <script>
@@ -424,20 +516,24 @@
             const result = document.getElementById("routeResult");
             if (!loading || !result) return;
 
-            loading.style.display = "inline";
+            loading.style.display = "block";
             result.textContent = "";
 
             try {
                 const res = await fetch(`/api/routes/trip/${tripId}/summary`, { credentials: "include" });
                 if (!res.ok) throw new Error("Route API failed");
+
                 const data = await res.json();
 
                 const km = (data.totalDistanceKm ?? 0).toFixed(2);
                 const mins = data.totalDurationMinutes ?? 0;
 
-                result.textContent = `Total: ${km} km • ${formatDuration(mins)}`;
+                result.innerHTML = `
+                    <strong>${km} km</strong>
+                    <span>${formatDuration(mins)}</span>
+                `;
             } catch {
-                result.textContent = "Route failed.";
+                result.textContent = "Ruta se trenutno ne može izračunati.";
             } finally {
                 loading.style.display = "none";
             }

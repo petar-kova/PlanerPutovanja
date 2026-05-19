@@ -40,11 +40,15 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Planer">Planer</a>
+                            <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Budzet">Budžet</a>
+                            <a class="nav-link" asp-controller="Trips" asp-action="Index">Moja putovanja</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-highlight" asp-controller="Trips" asp-action="Create">Novo putovanje</a>
                         </li>
 
                         <li class="nav-item">
@@ -55,10 +59,8 @@
                             <a class="nav-link" asp-controller="Home" asp-action="Kontakt">Kontakt</a>
                         </li>
 
-                        <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
-                            <a class="btn btn-login" href="#login-section">
-                                Prijava
-                            </a>
+                        <li class="nav-item ms-lg-3">
+                            <partial name="_LoginPartial" />
                         </li>
                     </ul>
                 </div>
@@ -88,8 +90,9 @@
                     <ul class="footer-links">
                         <li><a asp-controller="Home" asp-action="Index">Početna</a></li>
                         <li><a asp-controller="Home" asp-action="Destinacije">Destinacije</a></li>
-                        <li><a asp-controller="Home" asp-action="Planer">Planer</a></li>
-                        <li><a asp-controller="Home" asp-action="Budzet">Budžet</a></li>
+                        <li><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                        <li><a asp-controller="Trips" asp-action="Index">Moja putovanja</a></li>
+                        <li><a asp-controller="Trips" asp-action="Create">Novo putovanje</a></li>
                     </ul>
                 </div>
 

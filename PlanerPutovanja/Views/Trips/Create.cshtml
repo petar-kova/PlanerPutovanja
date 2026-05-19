@@ -2,86 +2,147 @@
 @model PlanerPutovanja.Models.Trip
 
 @{
-    ViewData["Title"] = "Create new trip";
+    ViewData["Title"] = "Novo putovanje";
 }
 
-<h1>Create new trip</h1>
+<section class="app-hero create-trip-hero">
+    <div class="container">
+        <div class="app-hero-content">
+            <div>
+                <span class="eyebrow">Novi plan</span>
+                <h1>Kreiraj novo putovanje</h1>
+                <p>
+                    Unesi osnovne informacije o putovanju. Nakon spremanja moći ćeš dodavati više destinacija,
+                    aktivnosti, troškove i pregledavati detalje plana.
+                </p>
+            </div>
 
-<form asp-action="Create" method="post">
-    <div asp-validation-summary="All" class="text-danger mb-4"></div>
-
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-6">
-            <label asp-for="Destination" class="form-label">Primary destination</label>
-            <input asp-for="Destination" class="form-control" placeholder="e.g. Split" />
-            <span asp-validation-for="Destination" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-6">
-            <label asp-for="StartDate" class="form-label"></label>
-            <input asp-for="StartDate"
-                   type="text"
-                   class="form-control date-input"
-                   value="@(Model?.StartDate.ToString("dd.MM.yyyy") ?? "")"
-                   placeholder="dd.MM.yyyy"
-                   autocomplete="off" />
-            <span asp-validation-for="StartDate" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-6">
-            <label asp-for="EndDate" class="form-label"></label>
-            <input asp-for="EndDate"
-                   type="text"
-                   class="form-control date-input"
-                   value="@(Model?.EndDate.ToString("dd.MM.yyyy") ?? "")"
-                   placeholder="dd.MM.yyyy"
-                   autocomplete="off" />
-            <span asp-validation-for="EndDate" class="text-danger"></span>
-        </div>
-
-
-
-
-        <div class="col-md-6">
-            <label asp-for="Budget" class="form-label">Budget</label>
-            <input name="Budget"
-                   type="text"
-                   class="form-control"
-                   value="@(Model?.Budget?.ToString("0.##", CultureInfo.InvariantCulture) ?? "")"
-                   placeholder="e.g. 250,00" />
-            <span asp-validation-for="Budget" class="text-danger"></span>
-        </div>
-
-
-
-
-
-
-        <div class="col-md-6">
-            <label class="form-label">Transport</label>
-            <select asp-for="Transport" class="form-select">
-                <option value="">Not selected</option>
-                <option value="1">🚗 Car</option>
-                <option value="2">✈️ Plane</option>
-                <option value="3">🚂 Train</option>
-                <option value="4">🚌 Bus</option>
-                <option value="5">🛳️ Cruise ship</option>
-                <option value="6">Other</option>
-            </select>
+            <a asp-action="Index" class="btn-ghost">
+                ← Moja putovanja
+            </a>
         </div>
     </div>
+</section>
 
-    <div class="mt-4">
-        <button type="submit" class="btn btn-primary me-2">Create trip</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+<section class="section-sm">
+    <div class="container">
+        <div class="create-trip-layout">
+            <div class="create-trip-card">
+                <div class="form-heading">
+                    <span>01</span>
+                    <div>
+                        <h2>Osnovni podaci</h2>
+                        <p>Postavi naziv, glavnu destinaciju, datume, budžet i način prijevoza.</p>
+                    </div>
+                </div>
+
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="All" class="validation-summary mb-4"></div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label asp-for="Name" class="form-label">Naziv putovanja</label>
+                            <input asp-for="Name"
+                                   class="form-control"
+                                   placeholder="npr. Ljetovanje u Dalmaciji" />
+                            <span asp-validation-for="Name" class="text-danger small fw-semibold"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Destination" class="form-label">Glavna destinacija</label>
+                            <input asp-for="Destination"
+                                   class="form-control"
+                                   placeholder="npr. Split" />
+                            <span asp-validation-for="Destination" class="text-danger small fw-semibold"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="StartDate" class="form-label">Datum početka</label>
+                            <input asp-for="StartDate"
+                                   type="text"
+                                   class="form-control date-input"
+                                   value="@(Model?.StartDate.ToString("dd.MM.yyyy") ?? "")"
+                                   placeholder="dd.MM.yyyy"
+                                   autocomplete="off" />
+                            <span asp-validation-for="StartDate" class="text-danger small fw-semibold"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="EndDate" class="form-label">Datum završetka</label>
+                            <input asp-for="EndDate"
+                                   type="text"
+                                   class="form-control date-input"
+                                   value="@(Model?.EndDate.ToString("dd.MM.yyyy") ?? "")"
+                                   placeholder="dd.MM.yyyy"
+                                   autocomplete="off" />
+                            <span asp-validation-for="EndDate" class="text-danger small fw-semibold"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Budget" class="form-label">Planirani budžet (€)</label>
+                            <input name="Budget"
+                                   type="text"
+                                   class="form-control"
+                                   value="@(Model?.Budget?.ToString("0.##", CultureInfo.InvariantCulture) ?? "")"
+                                   placeholder="npr. 250,00" />
+                            <span asp-validation-for="Budget" class="text-danger small fw-semibold"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Način prijevoza</label>
+                            <select asp-for="Transport" class="form-select">
+                                <option value="">Odaberi prijevoz</option>
+                                <option value="1">🚗 Auto</option>
+                                <option value="2">✈️ Avion</option>
+                                <option value="3">🚆 Vlak</option>
+                                <option value="4">🚌 Autobus</option>
+                                <option value="5">🛳️ Brod</option>
+                                <option value="6">Ostalo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-main">
+                            Spremi putovanje
+                        </button>
+
+                        <a asp-action="Index" class="btn-ghost">
+                            Odustani
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <aside class="create-trip-side">
+                <div class="side-card">
+                    <div class="side-icon">🧭</div>
+                    <h3>Što nakon spremanja?</h3>
+                    <p>
+                        Nakon kreiranja putovanja možeš otvoriti detalje i dodati više destinacija,
+                        aktivnosti i troškove.
+                    </p>
+                </div>
+
+                <div class="side-card">
+                    <div class="side-icon">🚗</div>
+                    <h3>Ruta i udaljenost</h3>
+                    <p>
+                        Za putovanja autom moguće je računati udaljenost i trajanje rute između dodanih destinacija.
+                    </p>
+                </div>
+
+                <div class="side-card">
+                    <div class="side-icon">💶</div>
+                    <h3>Budžet</h3>
+                    <p>
+                        Budžet se kasnije uspoređuje s unesenim troškovima kako bi lakše pratio potrošnju.
+                    </p>
+                </div>
+            </aside>
+        </div>
     </div>
-</form>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -103,4 +164,3 @@
         });
     </script>
 }
-
