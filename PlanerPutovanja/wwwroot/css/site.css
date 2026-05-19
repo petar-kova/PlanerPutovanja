@@ -5754,35 +5754,97 @@ img {
         border-radius: 28px;
     }
 }
+
 /* ==============================
-   PREMIUM ANIMACIJE / MICROINTERACTIONS
+   3D KONTAKT - PREMIUM FINAL
 ============================== */
 
-@keyframes fadeUpPremium {
-    from {
-        opacity: 0;
-        transform: translateY(26px);
+.contact-3d-hero {
+    position: relative;
+    padding: 135px 0 96px;
+    overflow: hidden;
+    color: white;
+    background: radial-gradient(circle at 18% 20%, rgba(20, 184, 166, 0.24), transparent 28%), radial-gradient(circle at 85% 18%, rgba(56, 189, 248, 0.2), transparent 30%), linear-gradient(135deg, #020617 0%, #0f172a 55%, #082f49 100%);
+}
+
+    .contact-3d-hero::after {
+        content: "";
+        position: absolute;
+        inset: auto -10% -28% -10%;
+        height: 52%;
+        background: radial-gradient(circle, rgba(20, 184, 166, 0.26), transparent 64%);
+        pointer-events: none;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+.contact-orb {
+    position: absolute;
+    border-radius: 999px;
+    opacity: 0.72;
+    filter: blur(2px);
+    animation: contactOrbFloat 8s ease-in-out infinite;
+}
+
+.contact-orb-one {
+    width: 230px;
+    height: 230px;
+    left: 7%;
+    top: 18%;
+    background: rgba(20, 184, 166, 0.16);
+}
+
+.contact-orb-two {
+    width: 340px;
+    height: 340px;
+    right: -90px;
+    top: 16%;
+    background: rgba(56, 189, 248, 0.13);
+    animation-delay: -2s;
+}
+
+@keyframes contactOrbFloat {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate3d(0, -22px, 0) scale(1.05);
     }
 }
 
-@keyframes softScaleIn {
-    from {
-        opacity: 0;
-        transform: scale(0.96);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+.contact-hero-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 450px;
+    gap: 70px;
+    align-items: center;
 }
 
-@keyframes floatPremium {
+    .contact-hero-grid h1 {
+        max-width: 780px;
+        font-size: clamp(3rem, 6vw, 5.5rem);
+        line-height: 0.96;
+        font-weight: 950;
+        letter-spacing: -3px;
+        margin: 18px 0 24px;
+    }
+
+    .contact-hero-grid p {
+        max-width: 660px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 1.14rem;
+        line-height: 1.85;
+        margin-bottom: 30px;
+    }
+
+.contact-floating-board {
+    position: relative;
+    min-height: 430px;
+    perspective: 1100px;
+    animation: contactBoardFloat 6.5s ease-in-out infinite;
+}
+
+@keyframes contactBoardFloat {
     0%, 100% {
         transform: translateY(0);
     }
@@ -5792,151 +5854,743 @@ img {
     }
 }
 
-@keyframes glowPulse {
+.contact-message-card,
+.contact-mini-card,
+.contact-support-card {
+    position: absolute;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--primary);
+    box-shadow: 0 34px 76px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    backdrop-filter: blur(18px);
+}
+
+.message-main {
+    left: 18px;
+    top: 24px;
+    width: 340px;
+    padding: 28px;
+    transform: rotateY(-18deg) rotateX(8deg) rotateZ(2deg);
+    transition: 0.3s ease;
+}
+
+    .message-main:hover {
+        transform: rotateY(-12deg) rotateX(5deg) rotateZ(1deg) translateY(-8px);
+    }
+
+    .message-main span {
+        display: block;
+        color: var(--muted);
+        font-weight: 850;
+        font-size: 0.88rem;
+    }
+
+    .message-main strong {
+        display: block;
+        font-size: 1.55rem;
+        font-weight: 950;
+        margin: 8px 0 10px;
+    }
+
+    .message-main p {
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+.contact-mini-card {
+    width: 132px;
+    padding: 20px;
+    text-align: center;
+}
+
+    .contact-mini-card strong {
+        display: block;
+        font-size: 2.25rem;
+        font-weight: 950;
+        line-height: 1;
+    }
+
+    .contact-mini-card span {
+        color: var(--muted);
+        font-size: 0.88rem;
+        font-weight: 850;
+    }
+
+.contact-mini-one {
+    right: 10px;
+    top: 142px;
+    transform: rotateY(-14deg) rotateX(5deg) rotateZ(-4deg);
+}
+
+.contact-mini-two {
+    left: 2px;
+    bottom: 58px;
+    transform: rotateY(-18deg) rotateX(7deg) rotateZ(5deg);
+}
+
+.contact-support-card {
+    right: 20px;
+    bottom: 28px;
+    width: 270px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transform: rotateY(-16deg) rotateX(8deg) rotateZ(2deg);
+}
+
+    .contact-support-card > span {
+        width: 54px;
+        height: 54px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(56, 189, 248, 0.15));
+        font-size: 1.5rem;
+    }
+
+    .contact-support-card strong {
+        display: block;
+        font-weight: 950;
+    }
+
+    .contact-support-card small {
+        color: var(--muted);
+        font-weight: 800;
+    }
+
+.contact-3d-section {
+    background: radial-gradient(circle at top left, rgba(20, 184, 166, 0.08), transparent 32%), linear-gradient(180deg, #f8fafc, #ffffff);
+}
+
+.contact-layout-3d {
+    display: grid;
+    grid-template-columns: 420px minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+}
+
+.contact-info-3d-card,
+.contact-form-3d-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 34px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 24px 58px rgba(15, 23, 42, 0.1);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.contact-info-3d-card {
+    padding: 30px;
+}
+
+.contact-form-3d-card {
+    padding: 34px;
+}
+
+    .contact-info-3d-card::before,
+    .contact-form-3d-card::before,
+    .contact-benefit-card::before {
+        content: "";
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        right: -60px;
+        top: -60px;
+        border-radius: 999px;
+        background: rgba(20, 184, 166, 0.08);
+        pointer-events: none;
+    }
+
+.contact-info-3d-card h2,
+.contact-form-header h2 {
+    color: var(--primary);
+    font-weight: 950;
+    letter-spacing: -1px;
+}
+
+.contact-info-3d-card p,
+.contact-form-header p {
+    color: var(--muted);
+    line-height: 1.75;
+}
+
+.premium-contact-list {
+    display: grid;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+    .premium-contact-list .contact-list-item {
+        display: flex;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 22px;
+        background: var(--soft);
+        box-shadow: none;
+        transition: 0.25s ease;
+    }
+
+        .premium-contact-list .contact-list-item:hover {
+            transform: translateX(5px);
+            background: #eefdfb;
+        }
+
+        .premium-contact-list .contact-list-item > span {
+            width: 48px;
+            height: 48px;
+            flex: 0 0 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            background: white;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+        }
+
+    .premium-contact-list strong {
+        color: var(--primary);
+        font-weight: 950;
+    }
+
+    .premium-contact-list p {
+        margin: 2px 0 0;
+        color: var(--muted);
+    }
+
+.contact-map-card {
+    position: relative;
+    min-height: 190px;
+    display: flex;
+    align-items: flex-end;
+    padding: 22px;
+    border-radius: 28px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(56, 189, 248, 0.14)), repeating-linear-gradient(45deg, rgba(15, 23, 42, 0.05) 0 1px, transparent 1px 18px);
+}
+
+.contact-map-path {
+    position: absolute;
+    width: 210px;
+    height: 95px;
+    left: 50px;
+    top: 46px;
+    border-top: 4px dashed rgba(20, 184, 166, 0.78);
+    border-radius: 50%;
+    transform: rotate(-16deg);
+    animation: contactPathFloat 3s ease-in-out infinite;
+}
+
+@keyframes contactPathFloat {
     0%, 100% {
-        box-shadow: 0 14px 30px rgba(20, 184, 166, 0.22);
+        opacity: 0.72;
     }
 
     50% {
-        box-shadow: 0 22px 48px rgba(56, 189, 248, 0.32);
-    }
-}
-
-@keyframes routeDashMove {
-    from {
-        background-position: 0 0;
-    }
-
-    to {
-        background-position: 42px 0;
-    }
-}
-
-/* Scroll reveal */
-.reveal-on-scroll {
-    opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.75s ease, transform 0.75s ease;
-}
-
-    .reveal-on-scroll.is-visible {
         opacity: 1;
-        transform: translateY(0);
     }
-
-/* Malo kašnjenje za kartice da ne ulete sve odjednom */
-.reveal-delay-1 {
-    transition-delay: 0.08s;
 }
 
-.reveal-delay-2 {
-    transition-delay: 0.16s;
-}
-
-.reveal-delay-3 {
-    transition-delay: 0.24s;
-}
-
-.reveal-delay-4 {
-    transition-delay: 0.32s;
-}
-
-/* Premium lebdenje za 3D elemente */
-.dashboard-mockup,
-.destinations-mini-board,
-.gallery-polaroid-stage,
-.contact-floating-board {
-    animation: floatPremium 7s ease-in-out infinite;
-}
-
-/* Kartice dobiju mekši hover */
-.feature-3d-card,
-.destination-3d-card,
-.gallery-tile,
-.contact-benefit-card,
-.details-stat-card,
-.step-3d-card,
-.details-panel {
-    will-change: transform;
-}
-
-/* Sjaj preko glavnih gumba */
-.btn-main {
-    position: relative;
-    overflow: hidden;
-}
-
-    .btn-main::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -120%;
-        width: 70%;
-        height: 100%;
-        background: linear-gradient( 120deg, transparent, rgba(255, 255, 255, 0.35), transparent );
-        transform: skewX(-18deg);
-        transition: 0.6s ease;
-    }
-
-    .btn-main:hover::before {
-        left: 130%;
-    }
-
-/* Premium glow na CTA gumbe */
-.nav-highlight,
-.premium-login,
-.btn-main {
-    animation: glowPulse 4.5s ease-in-out infinite;
-}
-
-/* Animirana ruta u pseudo mapama */
-.map-line,
-.mini-path,
-.contact-map-path {
-    background-image: linear-gradient( 90deg, rgba(20, 184, 166, 0.25) 0, rgba(56, 189, 248, 0.9) 50%, rgba(20, 184, 166, 0.25) 100% );
-    background-size: 42px 4px;
-    animation: routeDashMove 1.8s linear infinite;
-}
-
-/* Pinovi lagano pulsiraju */
-.map-pin,
-.mini-dot,
 .contact-map-dot {
-    animation: pinPulse 2.2s ease-in-out infinite;
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #14b8a6;
+    border: 4px solid white;
+    box-shadow: 0 8px 18px rgba(20, 184, 166, 0.35);
+    animation: contactPinPulse 2.4s ease-in-out infinite;
 }
 
-@keyframes pinPulse {
+@keyframes contactPinPulse {
     0%, 100% {
         transform: scale(1);
         box-shadow: 0 8px 18px rgba(20, 184, 166, 0.35);
     }
 
     50% {
-        transform: scale(1.16);
+        transform: scale(1.15);
         box-shadow: 0 12px 28px rgba(56, 189, 248, 0.46);
     }
 }
 
-/* Input focus animacija */
-.form-control,
-.form-select {
-    transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+.dot-a {
+    left: 46px;
+    top: 102px;
 }
 
-    .form-control:focus,
-    .form-select:focus {
-        transform: translateY(-1px);
-        box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.13);
+.dot-b {
+    left: 146px;
+    top: 64px;
+    animation-delay: -0.6s;
+}
+
+.dot-c {
+    right: 58px;
+    bottom: 62px;
+    animation-delay: -1.2s;
+}
+
+.contact-map-card > div:last-child {
+    position: relative;
+    z-index: 2;
+}
+
+.contact-map-card strong {
+    display: block;
+    color: var(--primary);
+    font-weight: 950;
+}
+
+.contact-map-card p {
+    color: var(--muted);
+    margin: 4px 0 0;
+}
+
+.contact-form-header {
+    margin-bottom: 24px;
+}
+
+.contact-form-3d-card .form-control,
+.contact-form-3d-card .form-select {
+    min-height: 50px;
+    background: #f8fafc;
+    transition: 0.22s ease;
+}
+
+.contact-form-3d-card textarea.form-control {
+    min-height: 150px;
+}
+
+.contact-form-3d-card .form-control:focus,
+.contact-form-3d-card .form-select:focus {
+    background: white;
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.13) !important;
+}
+
+.contact-success-premium {
+    margin-top: 20px;
+}
+
+.contact-benefits-section {
+    background: var(--soft);
+}
+
+.contact-benefit-card {
+    position: relative;
+    height: 100%;
+    padding: 30px;
+    border-radius: 30px;
+    background: white;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+    transition: 0.28s ease;
+}
+
+    .contact-benefit-card:hover {
+        transform: perspective(900px) rotateX(4deg) rotateY(-4deg) translateY(-8px);
+        box-shadow: var(--shadow);
     }
 
-/* Manje animacija za korisnike koji ne žele motion */
+    .contact-benefit-card h3 {
+        color: var(--primary);
+        font-weight: 950;
+        margin: 18px 0 10px;
+    }
+
+    .contact-benefit-card p {
+        color: var(--muted);
+        line-height: 1.75;
+        margin: 0;
+    }
+
+@media (max-width: 1100px) {
+    .contact-hero-grid,
+    .contact-layout-3d {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-floating-board {
+        max-width: 520px;
+        width: 100%;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .contact-3d-hero {
+        padding: 110px 0 72px;
+    }
+
+    .contact-hero-grid h1 {
+        letter-spacing: -2px;
+    }
+
+    .contact-floating-board {
+        display: none;
+    }
+
+    .contact-info-3d-card,
+    .contact-form-3d-card {
+        padding: 24px;
+        border-radius: 28px;
+    }
+}
+/* ==============================
+   MOJA PUTOVANJA - 3D PREMIUM ANIMATED
+============================== */
+
+@keyframes tripsFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(28px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes tripsFloatSoft {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes tripsShine {
+    from {
+        left: -120%;
+    }
+
+    to {
+        left: 130%;
+    }
+}
+
+@keyframes tripsPulseDot {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.35);
+    }
+
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 0 10px rgba(20, 184, 166, 0);
+    }
+}
+
+/* Hero za Moja putovanja */
+.app-hero {
+    position: relative;
+    overflow: hidden;
+}
+
+    .app-hero::before {
+        content: "";
+        position: absolute;
+        width: 340px;
+        height: 340px;
+        right: -120px;
+        top: 30px;
+        border-radius: 999px;
+        background: rgba(56, 189, 248, 0.16);
+        filter: blur(3px);
+        animation: tripsFloatSoft 7s ease-in-out infinite;
+    }
+
+    .app-hero::after {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        left: 8%;
+        bottom: -90px;
+        border-radius: 999px;
+        background: rgba(20, 184, 166, 0.16);
+        filter: blur(3px);
+        animation: tripsFloatSoft 8s ease-in-out infinite;
+        animation-delay: -2s;
+    }
+
+.app-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Stats kartice */
+.trip-stats-grid {
+    perspective: 1200px;
+}
+
+.trip-stat-card {
+    position: relative;
+    overflow: hidden;
+    animation: tripsFadeUp 0.65s ease both;
+}
+
+    .trip-stat-card:nth-child(1) {
+        animation-delay: 0.05s;
+    }
+
+    .trip-stat-card:nth-child(2) {
+        animation-delay: 0.12s;
+    }
+
+    .trip-stat-card:nth-child(3) {
+        animation-delay: 0.19s;
+    }
+
+    .trip-stat-card:nth-child(4) {
+        animation-delay: 0.26s;
+    }
+
+    .trip-stat-card::before {
+        content: "";
+        position: absolute;
+        width: 140px;
+        height: 140px;
+        right: -60px;
+        top: -60px;
+        border-radius: 999px;
+        background: rgba(20, 184, 166, 0.1);
+        pointer-events: none;
+    }
+
+    .trip-stat-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -120%;
+        width: 65%;
+        height: 100%;
+        background: linear-gradient( 120deg, transparent, rgba(255, 255, 255, 0.55), transparent );
+        transform: skewX(-18deg);
+        pointer-events: none;
+    }
+
+    .trip-stat-card:hover::after {
+        animation: tripsShine 0.75s ease;
+    }
+
+    .trip-stat-card:hover {
+        transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) translateY(-8px);
+    }
+
+/* Filter bar */
+.filter-bar {
+    position: relative;
+    padding: 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.09);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    backdrop-filter: blur(16px);
+    animation: tripsFadeUp 0.7s ease both;
+    animation-delay: 0.32s;
+}
+
+.filter-pill {
+    position: relative;
+    overflow: hidden;
+}
+
+    .filter-pill.active {
+        box-shadow: 0 14px 28px rgba(20, 184, 166, 0.22);
+    }
+
+/* Putovanja kartice */
+.trip-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 100%;
+    transform-style: preserve-3d;
+    animation: tripsFadeUp 0.7s ease both;
+    transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+.row .col-md-6:nth-child(1) .trip-card {
+    animation-delay: 0.08s;
+}
+
+.row .col-md-6:nth-child(2) .trip-card {
+    animation-delay: 0.16s;
+}
+
+.row .col-md-6:nth-child(3) .trip-card {
+    animation-delay: 0.24s;
+}
+
+.row .col-md-6:nth-child(4) .trip-card {
+    animation-delay: 0.32s;
+}
+
+.row .col-md-6:nth-child(5) .trip-card {
+    animation-delay: 0.4s;
+}
+
+.row .col-md-6:nth-child(6) .trip-card {
+    animation-delay: 0.48s;
+}
+
+.trip-card::before {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    right: -80px;
+    top: -80px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(20, 184, 166, 0.16), transparent 68%);
+    pointer-events: none;
+    transition: 0.28s ease;
+}
+
+.trip-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.08), transparent 40%), linear-gradient(315deg, rgba(56, 189, 248, 0.08), transparent 45%);
+    opacity: 0;
+    transition: 0.28s ease;
+    pointer-events: none;
+}
+
+.trip-card:hover {
+    transform: perspective(1000px) rotateX(3deg) rotateY(-4deg) translateY(-10px);
+    box-shadow: 0 28px 70px rgba(15, 23, 42, 0.16);
+    border-color: rgba(20, 184, 166, 0.22);
+}
+
+    .trip-card:hover::before {
+        transform: scale(1.18);
+    }
+
+    .trip-card:hover::after {
+        opacity: 1;
+    }
+
+.trip-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Status badge */
+.trip-status {
+    position: relative;
+    isolation: isolate;
+}
+
+    .trip-status::before {
+        content: "";
+        position: absolute;
+        width: 9px;
+        height: 9px;
+        right: 10px;
+        top: 50%;
+        border-radius: 999px;
+        transform: translateY(-50%);
+        background: currentColor;
+        animation: tripsPulseDot 2.2s ease-in-out infinite;
+    }
+
+/* Lokacija */
+.trip-location {
+    transition: 0.24s ease;
+}
+
+.trip-card:hover .trip-location {
+    transform: translateX(4px);
+}
+
+/* Meta boxovi */
+.trip-meta-grid div {
+    transition: transform 0.22s ease, background 0.22s ease;
+}
+
+.trip-card:hover .trip-meta-grid div {
+    transform: translateY(-3px);
+}
+
+/* Transport */
+.trip-transport {
+    position: relative;
+    overflow: hidden;
+    transition: 0.24s ease;
+}
+
+.trip-card:hover .trip-transport {
+    transform: translateX(4px);
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.11), rgba(56, 189, 248, 0.11));
+}
+
+/* Gumbi unutar kartice */
+.trip-actions .btn-card {
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+    .trip-actions .btn-card:hover {
+        transform: translateY(-2px);
+    }
+
+/* Empty state */
+.empty-state-card {
+    position: relative;
+    overflow: hidden;
+    animation: tripsFadeUp 0.7s ease both;
+}
+
+    .empty-state-card::before {
+        content: "";
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        right: -90px;
+        top: -90px;
+        border-radius: 999px;
+        background: rgba(20, 184, 166, 0.1);
+    }
+
+.empty-state-icon {
+    animation: tripsFloatSoft 4s ease-in-out infinite;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .filter-bar {
+        border-radius: 26px;
+    }
+
+    .trip-card:hover,
+    .trip-stat-card:hover {
+        transform: translateY(-5px);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        scroll-behavior: auto !important;
-        transition-duration: 0.01ms !important;
+    .app-hero::before,
+    .app-hero::after,
+    .trip-card,
+    .trip-stat-card,
+    .filter-bar,
+    .empty-state-card,
+    .empty-state-icon,
+    .trip-status::before {
+        animation: none !important;
+    }
+
+    .trip-card,
+    .trip-stat-card {
+        transition: none !important;
     }
 }
