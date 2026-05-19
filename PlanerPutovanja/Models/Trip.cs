@@ -66,6 +66,7 @@ namespace PlanerPutovanja.Models
         public int? DrivingDistanceKm { get; set; }
 
         public bool IsCruise => Transport == TransportMode.CruiseShip;
+        public ICollection<TripAlbum> Albums { get; set; } = new List<TripAlbum>();
     }
 
     public class CompareDatesAttribute : ValidationAttribute
