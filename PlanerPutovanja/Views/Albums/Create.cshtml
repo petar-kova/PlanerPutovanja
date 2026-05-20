@@ -1,0 +1,125 @@
+﻿@model PlanerPutovanja.Models.TripAlbum
+
+@{
+    ViewData["Title"] = "Dodaj uspomene";
+    var tripId = ViewBag.TripId;
+    var tripName = ViewBag.TripName as string ?? "Putovanje";
+}
+
+<section class="memory-create-page">
+    <div class="container">
+
+        <div class="memory-create-hero">
+            <div>
+                <span class="eyebrow">Putni album</span>
+                <h1>Dodaj uspomene</h1>
+                <p>
+                    Pretvori putovanje <strong>@tripName</strong> u osobni album s osvrtom,
+                    ocjenom i slikama u polaroid stilu.
+                </p>
+            </div>
+
+            <a asp-controller="Trips" asp-action="Details" asp-route-id="@tripId" class="btn-ghost light">
+                ← Natrag na putovanje
+            </a>
+        </div>
+
+        <form asp-controller="Albums"
+              asp-action="Create"
+              asp-route-tripId="@tripId"
+              method="post"
+              enctype="multipart/form-data"
+              class="memory-create-layout">
+
+            @Html.AntiForgeryToken()
+
+            <div class="memory-form-card">
+                <div class="form-heading">
+                    <span>📔</span>
+                    <div>
+                        <h2>Detalji albuma</h2>
+                        <p>Napiši kratki osvrt i dodaj ocjenu putovanja.</p>
+                    </div>
+                </div>
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label">Naslov albuma</label>
+                    <input asp-for="Title" class="form-control" placeholder="npr. Ljeto u Splitu" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Review" class="form-label">Osvrt / dojam s putovanja</label>
+                    <textarea asp-for="Review"
+                              class="form-control"
+                              rows="7"
+                              placeholder="Napiši što ti je bilo najbolje, što bi preporučio/la i kakav je bio dojam..."></textarea>
+                    <span asp-validation-for="Review" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Rating" class="form-label">Ocjena putovanja</label>
+                    <select asp-for="Rating" class="form-select">
+                        <option value="5">★★★★★ - Odlično</option>
+                        <option value="4">★★★★☆ - Jako dobro</option>
+                        <option value="3">★★★☆☆ - Dobro</option>
+                        <option value="2">★★☆☆☆ - Moglo je bolje</option>
+                        <option value="1">★☆☆☆☆ - Loše</option>
+                    </select>
+                    <span asp-validation-for="Rating" class="text-danger"></span>
+                </div>
+
+                <div class="memory-upload-box">
+                    <label class="form-label">Slike za album</label>
+                    <input type="file"
+                           name="photos"
+                           class="form-control"
+                           accept=".jpg,.jpeg,.png,.webp"
+                           multiple />
+
+                    <small>
+                        Možeš dodati više slika odjednom. Podržani formati su JPG, PNG i WEBP.
+                    </small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-main">
+                        Spremi album
+                    </button>
+
+                    <a asp-controller="Trips" asp-action="Details" asp-route-id="@tripId" class="btn-ghost">
+                        Odustani
+                    </a>
+                </div>
+            </div>
+
+            <div class="memory-preview-card">
+                <span class="preview-badge">Preview</span>
+
+                <div class="polaroid-preview one">
+                    <div class="polaroid-photo"></div>
+                    <span>more, grad, ljeto</span>
+                </div>
+
+                <div class="polaroid-preview two">
+                    <div class="polaroid-photo"></div>
+                    <span>najdraži trenutak</span>
+                </div>
+
+                <div class="memory-preview-text">
+                    <h3>Polaroid album</h3>
+                    <p>
+                        Slike koje dodaš kasnije će se prikazivati kao mali putni dnevnik,
+                        s opisima i osobnim osvrtom.
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

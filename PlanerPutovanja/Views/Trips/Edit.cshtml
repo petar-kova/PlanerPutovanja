@@ -109,7 +109,7 @@
                             Spremi promjene
                         </button>
 
-                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn-ghost">
+                        <a asp-action="Details" asp-route-id="@(Model?.Id ?? 0)" class="btn-ghost">
                             Odustani
                         </a>
                     </div>

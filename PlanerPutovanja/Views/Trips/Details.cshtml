@@ -12,6 +12,10 @@
 
     var activities = Model.Activities ?? new List<PlanerPutovanja.Models.TripActivity>();
     var expenses = Model.Expenses ?? new List<PlanerPutovanja.Models.Expense>();
+    var albums = Model.Albums?
+    .OrderByDescending(a => a.CreatedAt)
+    .ToList()
+    ?? new List<PlanerPutovanja.Models.TripAlbum>();
 
     var total = expenses.Sum(e => e.Amount);
     decimal? budget = Model.Budget;
@@ -173,7 +177,9 @@
                     <a asp-controller="Trips" asp-action="ExportPdf" asp-route-id="@Model.Id" class="btn-ghost">
                         PDF
                     </a>
-
+                    <a asp-controller="Albums" asp-action="Create" asp-route-tripId="@Model.Id" class="btn-main">
+                        Dodaj uspomene
+                    </a>
                     <a asp-controller="Trips" asp-action="Edit" asp-route-id="@Model.Id" class="btn-main">
                         Uredi putovanje
                     </a>
@@ -579,6 +585,79 @@
                         {
                             <div class="soft-message">
                                 Karta trenutno nije dostupna. Provjeri postoji li API ključ i barem jedna destinacija.
+                            </div>
+                        }
+                    </div>
+                    <div class="details-panel trip-memories-panel">
+                        <div class="section-panel-header">
+                            <div class="panel-title">
+                                <span>📸</span>
+                                <div>
+                                    <h2>Uspomene s putovanja</h2>
+                                    <p>Albumi, osvrti i slike spremljene za ovo putovanje.</p>
+                                </div>
+                            </div>
+
+                            <a asp-controller="Albums" asp-action="Create" asp-route-tripId="@Model.Id"
+                               class="btn-main btn-small">
+                                Dodaj uspomene
+                            </a>
+                        </div>
+
+                        @if (!albums.Any())
+                        {
+                            <div class="memory-strip-empty">
+                                <div>
+                                    <strong>Još nema albuma</strong>
+                                    <p>Dodaj osvrt i slike kako bi ovo putovanje dobilo osobni putni dnevnik.</p>
+                                </div>
+
+                                <a asp-controller="Albums" asp-action="Create" asp-route-tripId="@Model.Id"
+                                   class="btn-ghost">
+                                    Kreiraj prvi album
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="trip-memory-strip">
+                                @foreach (var album in albums)
+                                {
+                                    var cover = !string.IsNullOrWhiteSpace(album.CoverImagePath)
+                                    ? album.CoverImagePath
+                                    : album.Photos?.OrderBy(p => p.DisplayOrder).FirstOrDefault()?.ImagePath;
+
+                                    var rating = new string('★', album.Rating) + new string('☆', 5 - album.Rating);
+
+                                    <a asp-controller="Albums" asp-action="Details" asp-route-id="@album.Id"
+                                       class="trip-memory-card">
+
+                                        <div class="trip-memory-cover">
+                                            @if (!string.IsNullOrWhiteSpace(cover))
+                                            {
+                                                <img src="@cover" alt="@album.Title" />
+                                            }
+                                            else
+                                            {
+                                                <span>📷</span>
+                                            }
+                                        </div>
+
+                                        <div class="trip-memory-content">
+                                            <small>@album.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")</small>
+                                            <strong>@album.Title</strong>
+                                            <span>@rating</span>
+
+                                            <p>
+                                                @(string.IsNullOrWhiteSpace(album.Review)
+                                                    ? "Album nema dodan osvrt."
+                                                    : album.Review.Length > 120
+                                                    ? album.Review.Substring(0, 120) + "..."
+                                                    : album.Review)
+                                            </p>
+                                        </div>
+                                    </a>
+                                }
                             </div>
                         }
                     </div>

@@ -19,6 +19,17 @@ namespace PlanerPutovanja.Controllers
         }
 
         private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        public async Task<IActionResult> Index()
+        {
+            var albums = await _context.TripAlbums
+                .Include(a => a.Trip)
+                .Include(a => a.Photos)
+                .Where(a => a.Trip.UserId == CurrentUserId)
+                .OrderByDescending(a => a.CreatedAt)
+                .ToListAsync();
+
+            return View(albums);
+        }
 
         public async Task<IActionResult> Create(int tripId)
         {

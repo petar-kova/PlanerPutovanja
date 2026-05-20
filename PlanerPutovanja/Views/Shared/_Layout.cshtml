@@ -45,12 +45,10 @@
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Početna</a>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Destinacije">Destinacije</a>
-                        </li>
+                    
 
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Galerija">Galerija</a>
+                            <a class="nav-link" asp-controller="Albums" asp-action="Index">Uspomene</a>
                         </li>
 
                         <li class="nav-item">
@@ -143,8 +141,8 @@
                     <h5>Navigacija</h5>
                     <ul class="footer-links">
                         <li><a asp-controller="Home" asp-action="Index">Početna</a></li>
-                        <li><a asp-controller="Home" asp-action="Destinacije">Destinacije</a></li>
-                        <li><a asp-controller="Home" asp-action="Galerija">Galerija</a></li>
+                        <li><a asp-controller="Albums" asp-action="Index">Uspomene</a></li>
+                        <li><a asp-controller="Trips" asp-action="Index">Moja putovanja</a></li>
                         <li><a asp-controller="Home" asp-action="Kontakt">Kontakt</a></li>
                     </ul>
                 </div>
@@ -162,7 +160,7 @@
                     <h5>Mogućnosti</h5>
                     <ul class="footer-links">
                         <li><a asp-controller="Trips" asp-action="Create">Planiranje putovanja</a></li>
-                        <li><a asp-controller="Home" asp-action="Destinacije">Inspiracija destinacija</a></li>
+                        <li><a asp-controller="Albums" asp-action="Index">Putni albumi i uspomene</a></li>
                         <li><a asp-controller="Dashboard" asp-action="Index">Pregled budžeta</a></li>
                     </ul>
                 </div>

@@ -55,10 +55,12 @@ namespace PlanerPutovanja.Controllers
             if (id == null) return NotFound();
 
             var trip = await _context.Trips
-                .Include(t => t.Activities)
-                .Include(t => t.Expenses)
-                .Include(t => t.Destinations)
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
+    .Include(t => t.Activities)
+    .Include(t => t.Expenses)
+    .Include(t => t.Destinations)
+    .Include(t => t.Albums)
+        .ThenInclude(a => a.Photos)
+    .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
 
             if (trip == null) return NotFound();
 
