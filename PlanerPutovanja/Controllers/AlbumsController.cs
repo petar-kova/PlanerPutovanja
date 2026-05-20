@@ -165,7 +165,52 @@ namespace PlanerPutovanja.Controllers
 
             return View(album);
         }
+        public async Task<IActionResult> Edit(int id)
+        {
+            var album = await _context.TripAlbums
+                .Include(a => a.Trip)
+                .FirstOrDefaultAsync(a => a.Id == id && a.Trip.UserId == CurrentUserId);
 
+            if (album == null) return NotFound();
+
+            return View(album);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, TripAlbum updatedAlbum)
+        {
+            var album = await _context.TripAlbums
+                .Include(a => a.Trip)
+                .FirstOrDefaultAsync(a => a.Id == id && a.Trip.UserId == CurrentUserId);
+
+            if (album == null) return NotFound();
+
+            ModelState.Remove(nameof(TripAlbum.Trip));
+            ModelState.Remove(nameof(TripAlbum.Photos));
+            ModelState.Remove(nameof(TripAlbum.CoverImagePath));
+
+            if (!ModelState.IsValid)
+            {
+                updatedAlbum.Id = album.Id;
+                updatedAlbum.TripId = album.TripId;
+                updatedAlbum.Trip = album.Trip;
+                updatedAlbum.CreatedAt = album.CreatedAt;
+                updatedAlbum.CoverImagePath = album.CoverImagePath;
+
+                return View(updatedAlbum);
+            }
+
+            album.Title = updatedAlbum.Title.Trim();
+            album.Review = string.IsNullOrWhiteSpace(updatedAlbum.Review)
+                ? null
+                : updatedAlbum.Review.Trim();
+            album.Rating = updatedAlbum.Rating;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = album.Id });
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -210,7 +255,87 @@ namespace PlanerPutovanja.Controllers
 
             return RedirectToAction(nameof(Details), new { id = albumId });
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPhotos(int albumId, List<IFormFile>? photos)
+        {
+            var album = await _context.TripAlbums
+                .Include(a => a.Trip)
+                .Include(a => a.Photos)
+                .FirstOrDefaultAsync(a => a.Id == albumId && a.Trip.UserId == CurrentUserId);
 
+            if (album == null) return NotFound();
+
+            if (photos == null || photos.Count == 0)
+            {
+                return RedirectToAction(nameof(Details), new { id = albumId });
+            }
+
+            var uploadFolder = Path.Combine(_environment.WebRootPath, "uploads", "trips", album.TripId.ToString());
+
+            if (!Directory.Exists(uploadFolder))
+            {
+                Directory.CreateDirectory(uploadFolder);
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+            var displayOrder = album.Photos.Any()
+                ? album.Photos.Max(p => p.DisplayOrder) + 1
+                : 1;
+
+            foreach (var photo in photos)
+            {
+                if (photo == null || photo.Length == 0)
+                {
+                    continue;
+                }
+
+                var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    continue;
+                }
+
+                if (photo.Length > 5 * 1024 * 1024)
+                {
+                    continue;
+                }
+
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(uploadFolder, fileName);
+
+                await using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await photo.CopyToAsync(stream);
+                }
+
+                var imagePath = $"/uploads/trips/{album.TripId}/{fileName}";
+
+                var tripPhoto = new TripPhoto
+                {
+                    TripAlbumId = album.Id,
+                    ImagePath = imagePath,
+                    Caption = null,
+                    DisplayOrder = displayOrder,
+                    UploadedAt = DateTime.UtcNow
+                };
+
+                _context.TripPhotos.Add(tripPhoto);
+
+                if (string.IsNullOrWhiteSpace(album.CoverImagePath))
+                {
+                    album.CoverImagePath = imagePath;
+                }
+
+                displayOrder++;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = albumId });
+        }
         private void DeletePhysicalFile(string? imagePath)
         {
             if (string.IsNullOrWhiteSpace(imagePath)) return;

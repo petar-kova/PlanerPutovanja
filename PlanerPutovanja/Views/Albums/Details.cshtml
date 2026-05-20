@@ -28,7 +28,9 @@
                 <a asp-controller="Trips" asp-action="Details" asp-route-id="@Model.TripId" class="btn-ghost light">
                     ← Natrag na putovanje
                 </a>
-
+                <a asp-controller="Albums" asp-action="Edit" asp-route-id="@Model.Id" class="btn-main">
+                    Uredi album
+                </a>
                 <form asp-controller="Albums"
                       asp-action="Delete"
                       asp-route-id="@Model.Id"
@@ -62,7 +64,36 @@
                 }
             </div>
         </div>
+        <div class="memory-add-photos-card">
+            <div>
+                <span class="eyebrow">Dodaj slike</span>
+                <h2>Proširi album novim uspomenama</h2>
+                <p>
+                    Dodaj još fotografija u ovaj album. Slike će se automatski prikazati u polaroid galeriji.
+                </p>
+            </div>
 
+            <form asp-controller="Albums"
+                  asp-action="AddPhotos"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="memory-add-photos-form">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="albumId" value="@Model.Id" />
+
+                <input type="file"
+                       name="photos"
+                       class="form-control"
+                       accept=".jpg,.jpeg,.png,.webp"
+                       multiple />
+
+                <button type="submit" class="btn-main">
+                    Dodaj slike
+                </button>
+            </form>
+        </div>
         @if (Model.Photos == null || !Model.Photos.Any())
         {
             <div class="memory-empty">
