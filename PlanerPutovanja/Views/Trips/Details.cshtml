@@ -5,23 +5,7 @@
 @inject IConfiguration Configuration
 
 @{
-    @{
-    var dayCount = Math.Max((Model.EndDate.Date - Model.StartDate.Date).Days + 1, 1);
-    var destinationCount = Model.Destinations?.Count ?? 0;
-    var plannedBudget = Model.TotalBudget;
 
-    var tripStatus = Model.EndDate.Date < DateTime.Today
-        ? "Završeno"
-        : Model.StartDate.Date > DateTime.Today
-            ? "Planirano"
-            : "U tijeku";
-
-    var tripStatusClass = Model.EndDate.Date < DateTime.Today
-        ? "status-finished"
-        : Model.StartDate.Date > DateTime.Today
-            ? "status-planned"
-            : "status-active";
-}
     ViewData["Title"] = "Detalji putovanja";
 
     var destinations = Model.Destinations?.OrderBy(d => d.Order).ToList()

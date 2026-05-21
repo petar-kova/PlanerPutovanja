@@ -11,7 +11,7 @@
     var pastTrips = trips.Count(t => t.EndDate < DateTime.Today);
 }
 
-<section class="app-hero">
+<section class="app-hero trips-index-hero">
     <div class="container">
         <div class="app-hero-content">
             <div>
@@ -21,15 +21,61 @@
                     Pregledaj sva svoja putovanja, prati destinacije, aktivnosti, troškove i brzo nastavi s planiranjem.
                 </p>
             </div>
+            <div class="trips-hero-clean">
+                <div class="trips-hero-clean-panel">
+                    <div class="trips-hero-clean-top">
+                        <span class="trips-hero-badge">Travel command</span>
+                        <span class="trips-hero-label">premium pregled</span>
+                    </div>
 
-            <a asp-action="Create" class="btn-main">
-                + Novo putovanje
-            </a>
+                    <h3>Planiraj pametnije.</h3>
+
+                    <p>
+                        Prati statuse putovanja, aktivnosti i troškove u jednom elegantnom prikazu.
+                    </p>
+
+                    <div class="trips-hero-clean-stats">
+                        <div class="clean-stat-card">
+                            <strong>@totalTrips</strong>
+                            <span>planova</span>
+                        </div>
+                        <div class="clean-stat-card">
+                            <strong>@activeTrips</strong>
+                            <span>aktivna</span>
+                        </div>
+                    </div>
+
+                    <div class="trips-hero-clean-metrics">
+                        <div>
+                            <strong>@upcomingTrips</strong>
+                            <span>nadolazeća</span>
+                        </div>
+                        <div>
+                            <strong>@activeTrips</strong>
+                            <span>u tijeku</span>
+                        </div>
+                        <div>
+                            <strong>@pastTrips</strong>
+                            <span>završena</span>
+                        </div>
+                    </div>
+
+                    <div class="trips-hero-clean-route">
+                        <span class="clean-route-pin pin-1"></span>
+                        <span class="clean-route-pin pin-2"></span>
+                        <span class="clean-route-pin pin-3"></span>
+                    </div>
+
+                    <a asp-action="Create" class="btn-main trips-hero-clean-cta">
+                        + Novo putovanje
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="section-sm">
+<section class="section-sm trips-index-page">
     <div class="container">
 
         <div class="trip-stats-grid">
