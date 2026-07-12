@@ -1,0 +1,949 @@
+From 05fae217c05f5234ac2de69f5901634aecfa8084 Mon Sep 17 00:00:00 2001
+From: Codex <codex@openai.com>
+Date: Tue, 3 Feb 2026 16:56:41 +0000
+Subject: [PATCH] Multi-destination trip form and dashboard spending insights
+
+### Motivation
+
+- Allow trips to contain multiple destinations and improve the create/edit UX so users can add/remove stops without external APIs.
+- Normalize and persist multi-stop data safely so the first stop becomes the primary destination when a primary is not provided.
+- Provide useful spending insights on the dashboard (total expenses, budgets, savings, highest/lowest spend) to help users manage trip costs.
+
+### Description
+
+- Added `TripFormViewModel` and `TripDestinationInput` in `ViewModels/TripFormViewModel.cs` and switched trip create/edit flows to use this view model.
+- Updated `TripsController` to accept the view model, populated trip objects from the form via `BuildDestinations`, and added helpers `NormalizePrimaryDestination` and `EnsureDestinationRow` to keep `ModelState` valid and support multiple destinations.
+- Reworked create/edit views (`Views/Trips/Create.cshtml`, `Views/Trips/Edit.cshtml`) to render a dynamic destinations table with client-side JS to add/remove rows and to bind `Destinations[index].City`/`Nights`.
+- Updated trip details (`Views/Trips/Details.cshtml`) to display stops and driving distance, and refined the trips list filter label to use `current` (controller logic already supports it).
+- Replaced/rewrote the dashboard controller to `DashboardController` and introduced `DashboardViewModel` (`ViewModels/DashboardViewModel.cs`) to compute per-trip spend summaries, total budget, and estimated savings; updated `Views/Dashboard/Index.cshtml` to present these insights.
+
+### Testing
+
+- No automated tests were run because the `dotnet` SDK was not available in the environment so `dotnet build`/test could not be executed.
+---
+ .../Controllers/DashboardController.cs        |  60 ++++--
+ .../Controllers/TripsController.cs            | 176 ++++++++++++++----
+ .../ViewModels/DashboardViewModel.cs          |  27 +++
+ .../ViewModels/TripFormViewModel.cs           |  50 +++++
+ PlanerPutovanja/Views/Dashboard/Index.cshtml  | 147 +++++++++++++--
+ PlanerPutovanja/Views/Trips/Create.cshtml     |  96 +++++++++-
+ PlanerPutovanja/Views/Trips/Details.cshtml    |  19 ++
+ PlanerPutovanja/Views/Trips/Edit.cshtml       | 106 +++++++++--
+ PlanerPutovanja/Views/Trips/Index.cshtml      |   4 +-
+ 9 files changed, 590 insertions(+), 95 deletions(-)
+ create mode 100644 PlanerPutovanja/ViewModels/DashboardViewModel.cs
+ create mode 100644 PlanerPutovanja/ViewModels/TripFormViewModel.cs
+
+diff --git a/PlanerPutovanja/Controllers/DashboardController.cs b/PlanerPutovanja/Controllers/DashboardController.cs
+index 96e7fde..9c1417d 100644
+--- a/PlanerPutovanja/Controllers/DashboardController.cs
++++ b/PlanerPutovanja/Controllers/DashboardController.cs
+@@ -1,9 +1,9 @@
+-﻿using System;
+-using System.Linq;
+ using Microsoft.AspNetCore.Authorization;
+ using Microsoft.AspNetCore.Identity;
+ using Microsoft.AspNetCore.Mvc;
++using Microsoft.EntityFrameworkCore;
+ using PlanerPutovanja.Models;
++using PlanerPutovanja.ViewModels;
+ 
+ namespace PlanerPutovanja.Controllers
+ {
+@@ -19,36 +19,64 @@ namespace PlanerPutovanja.Controllers
+             _userManager = userManager;
+         }
+ 
+-        public IActionResult Index()
++        public async Task<IActionResult> Index()
+         {
+             var userId = _userManager.GetUserId(User);
+ 
+-            var trips = _context.Trips
++            var trips = await _context.Trips
++                .AsNoTracking()
++                .Include(t => t.Expenses)
+                 .Where(t => t.UserId == userId)
++                .ToListAsync();
++
++            var summaries = trips
++                .Select(t =>
++                {
++                    var total = t.Expenses.Sum(e => e.Amount);
++                    var savings = t.Budget.HasValue ? t.Budget.Value - total : (decimal?)null;
++
++                    return new TripSpendSummary
++                    {
++                        TripId = t.Id,
++                        Name = t.Name,
++                        Destination = t.Destination,
++                        Currency = t.Currency,
++                        TotalExpenses = total,
++                        Budget = t.Budget,
++                        Savings = savings
++                    };
++                })
++                .OrderByDescending(s => s.TotalExpenses)
+                 .ToList();
+ 
+-            var totalTrips = trips.Count;
++            var highestSpend = summaries.FirstOrDefault();
++            var lowestSpend = summaries.LastOrDefault();
++
++            var totalExpenses = summaries.Sum(s => s.TotalExpenses);
++            var totalTrips = summaries.Count;
+             var upcomingTrips = trips.Count(t => t.StartDate > DateTime.Today);
+ 
+-            var totalExpenses = _context.Expenses
+-                .Where(e => e.Trip.UserId == userId)
+-                .Sum(e => (decimal?)e.Amount) ?? 0m;
++            var totalBudget = summaries
++                .Where(s => s.Budget.HasValue)
++                .Sum(s => s.Budget!.Value);
++
++            var totalSavings = summaries
++                .Where(s => s.Savings.HasValue && s.Savings.Value > 0)
++                .Sum(s => s.Savings!.Value);
+ 
+             var model = new DashboardViewModel
+             {
+                 TotalTrips = totalTrips,
+                 UpcomingTrips = upcomingTrips,
+-                TotalExpenses = totalExpenses
++                TotalExpenses = totalExpenses,
++                TotalBudget = totalBudget,
++                TotalSavings = totalSavings,
++                HighestSpendTrip = highestSpend,
++                LowestSpendTrip = lowestSpend,
++                Trips = summaries
+             };
+ 
+             return View(model);
+         }
+     }
+-
+-    public class DashboardViewModel
+-    {
+-        public int TotalTrips { get; set; }
+-        public int UpcomingTrips { get; set; }
+-        public decimal TotalExpenses { get; set; }
+-    }
+ }
+diff --git a/PlanerPutovanja/Controllers/TripsController.cs b/PlanerPutovanja/Controllers/TripsController.cs
+index 98bfdf7..63cae6f 100644
+--- a/PlanerPutovanja/Controllers/TripsController.cs
++++ b/PlanerPutovanja/Controllers/TripsController.cs
+@@ -1,8 +1,10 @@
+ ﻿using System.Security.Claims;
+ using Microsoft.AspNetCore.Authorization;
+ using Microsoft.AspNetCore.Mvc;
++using Microsoft.AspNetCore.Mvc.ModelBinding;
+ using Microsoft.EntityFrameworkCore;
+ using PlanerPutovanja.Models;
++using PlanerPutovanja.ViewModels;
+ 
+ namespace PlanerPutovanja.Controllers
+ {
+@@ -44,7 +46,7 @@ namespace PlanerPutovanja.Controllers
+                 .OrderByDescending(t => t.StartDate)
+                 .ToListAsync();
+ 
+-            ViewBag.Filter = filter;
++            ViewBag.CurrentFilter = filter;
+             return View(trips);
+         }
+ 
+@@ -63,25 +65,45 @@ namespace PlanerPutovanja.Controllers
+ 
+         public IActionResult Create()
+         {
+-            return View();
++            return View(new TripFormViewModel
++            {
++                Destinations = new List<TripDestinationInput>
++                {
++                    new TripDestinationInput()
++                }
++            });
+         }
+ 
+         [HttpPost]
+         [ValidateAntiForgeryToken]
+-        public async Task<IActionResult> Create([Bind("Name,Location,StartDate,EndDate,Transport,Accommodation,Budget")] Trip trip)
++        public async Task<IActionResult> Create(TripFormViewModel model)
+         {
+-            trip.UserId = CurrentUserId;
++            NormalizePrimaryDestination(model, ModelState);
++            if (!ModelState.IsValid)
++            {
++                EnsureDestinationRow(model);
++                return View(model);
++            }
+ 
+-            // IGNORIRAJ validaciju za Budget
+-            ModelState.Remove("Budget");
++            var destinations = BuildDestinations(model);
+ 
+-            if (ModelState.IsValid)
++            var trip = new Trip
+             {
+-                _context.Add(trip);
+-                await _context.SaveChangesAsync();
+-                return RedirectToAction(nameof(Index));
+-            }
+-            return View(trip);
++                Name = model.Name,
++                Destination = destinations.First().City,
++                StartDate = model.StartDate,
++                EndDate = model.EndDate,
++                Budget = model.Budget,
++                Currency = model.Currency,
++                Transport = model.Transport,
++                DrivingDistanceKm = model.DrivingDistanceKm,
++                UserId = CurrentUserId,
++                Destinations = destinations
++            };
++
++            _context.Add(trip);
++            await _context.SaveChangesAsync();
++            return RedirectToAction(nameof(Index));
+         }
+ 
+@@ -90,38 +112,74 @@ namespace PlanerPutovanja.Controllers
+         {
+             if (id == null) return NotFound();
+ 
+-            var trip = await _context.Trips.FindAsync(id);
++            var trip = await _context.Trips
++                .Include(t => t.Destinations)
++                .FirstOrDefaultAsync(t => t.Id == id);
+             if (trip == null || trip.UserId != CurrentUserId) return NotFound();
+ 
+-            return View(trip);
++            var model = new TripFormViewModel
++            {
++                Id = trip.Id,
++                Name = trip.Name,
++                Destination = trip.Destination,
++                StartDate = trip.StartDate,
++                EndDate = trip.EndDate,
++                Budget = trip.Budget,
++                Currency = trip.Currency,
++                Transport = trip.Transport,
++                DrivingDistanceKm = trip.DrivingDistanceKm,
++                Destinations = trip.Destinations
++                    .OrderBy(d => d.Order)
++                    .Select(d => new TripDestinationInput
++                    {
++                        City = d.City,
++                        Nights = d.Nights
++                    })
++                    .ToList()
++            };
++
++            EnsureDestinationRow(model);
++
++            return View(model);
+         }
+ 
+         [HttpPost]
+         [ValidateAntiForgeryToken]
+-        public async Task<IActionResult> Edit(int id, Trip trip)
++        public async Task<IActionResult> Edit(int id, TripFormViewModel model)
+         {
+-            if (id != trip.Id) return NotFound();
++            if (model.Id == null || id != model.Id.Value) return NotFound();
+ 
+-            if (ModelState.IsValid)
++            NormalizePrimaryDestination(model, ModelState);
++            if (!ModelState.IsValid)
+             {
+-                try
+-                {
+-                    var existingTrip = await _context.Trips.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
+-                    if (existingTrip == null || existingTrip.UserId != CurrentUserId)
+-                        return NotFound();
+-
+-                    _context.Update(trip);
+-                    await _context.SaveChangesAsync();
+-                }
+-                catch (DbUpdateConcurrencyException)
+-                {
+-                    if (!_context.Trips.Any(e => e.Id == trip.Id))
+-                        return NotFound();
+-                    throw;
+-                }
+-                return RedirectToAction(nameof(Index));
++                EnsureDestinationRow(model);
++                return View(model);
+             }
+-            return View(trip);
++
++            var trip = await _context.Trips
++                .Include(t => t.Destinations)
++                .FirstOrDefaultAsync(t => t.Id == id);
++
++            if (trip == null || trip.UserId != CurrentUserId)
++                return NotFound();
++
++            var destinations = BuildDestinations(model);
++
++            trip.Name = model.Name;
++            trip.Destination = destinations.First().City;
++            trip.StartDate = model.StartDate;
++            trip.EndDate = model.EndDate;
++            trip.Budget = model.Budget;
++            trip.Currency = model.Currency;
++            trip.Transport = model.Transport;
++            trip.DrivingDistanceKm = model.DrivingDistanceKm;
++
++            _context.TripDestinations.RemoveRange(trip.Destinations);
++            trip.Destinations = destinations;
++
++            await _context.SaveChangesAsync();
++
++            return RedirectToAction(nameof(Index));
+         }
+ 
+         public async Task<IActionResult> Delete(int? id)
+@@ -156,5 +214,55 @@ namespace PlanerPutovanja.Controllers
+ 
+             return RedirectToAction(nameof(Index));
+         }
++
++        private static List<TripDestination> BuildDestinations(TripFormViewModel model)
++        {
++            var destinations = model.Destinations
++                .Where(d => !string.IsNullOrWhiteSpace(d.City))
++                .Select((d, index) => new TripDestination
++                {
++                    City = d.City!.Trim(),
++                    Nights = d.Nights,
++                    Order = index + 1
++                })
++                .ToList();
++
++            if (!destinations.Any() && !string.IsNullOrWhiteSpace(model.Destination))
++            {
++                destinations.Add(new TripDestination
++                {
++                    City = model.Destination.Trim(),
++                    Nights = 0,
++                    Order = 1
++                });
++            }
++
++            return destinations;
++        }
++
++        private static void EnsureDestinationRow(TripFormViewModel model)
++        {
++            if (model.Destinations.Count == 0)
++            {
++                model.Destinations.Add(new TripDestinationInput());
++            }
++        }
++
++        private static void NormalizePrimaryDestination(TripFormViewModel model, ModelStateDictionary modelState)
++        {
++            if (!string.IsNullOrWhiteSpace(model.Destination))
++            {
++                return;
++            }
++
++            var firstDestination = model.Destinations.FirstOrDefault(d => !string.IsNullOrWhiteSpace(d.City));
++            if (firstDestination == null)
++            {
++                return;
++            }
++
++            model.Destination = firstDestination.City!.Trim();
++            modelState.Remove(nameof(model.Destination));
++        }
+     }
+ }
+diff --git a/PlanerPutovanja/ViewModels/DashboardViewModel.cs b/PlanerPutovanja/ViewModels/DashboardViewModel.cs
+new file mode 100644
+index 0000000..ae14046
+--- /dev/null
++++ b/PlanerPutovanja/ViewModels/DashboardViewModel.cs
+@@ -0,0 +1,27 @@
++namespace PlanerPutovanja.ViewModels
++{
++    public class DashboardViewModel
++    {
++        public int TotalTrips { get; set; }
++        public int UpcomingTrips { get; set; }
++        public decimal TotalExpenses { get; set; }
++        public decimal TotalBudget { get; set; }
++        public decimal TotalSavings { get; set; }
++
++        public TripSpendSummary? HighestSpendTrip { get; set; }
++        public TripSpendSummary? LowestSpendTrip { get; set; }
++
++        public List<TripSpendSummary> Trips { get; set; } = new();
++    }
++
++    public class TripSpendSummary
++    {
++        public int TripId { get; set; }
++        public string Name { get; set; } = string.Empty;
++        public string Destination { get; set; } = string.Empty;
++        public string Currency { get; set; } = "EUR";
++        public decimal TotalExpenses { get; set; }
++        public decimal? Budget { get; set; }
++        public decimal? Savings { get; set; }
++    }
++}
+diff --git a/PlanerPutovanja/ViewModels/TripFormViewModel.cs b/PlanerPutovanja/ViewModels/TripFormViewModel.cs
+new file mode 100644
+index 0000000..1791529
+--- /dev/null
++++ b/PlanerPutovanja/ViewModels/TripFormViewModel.cs
+@@ -0,0 +1,50 @@
++using System.ComponentModel.DataAnnotations;
++using PlanerPutovanja.Models;
++
++namespace PlanerPutovanja.ViewModels
++{
++    public class TripFormViewModel
++    {
++        public int? Id { get; set; }
++
++        [Required(ErrorMessage = "Trip name is required.")]
++        [StringLength(100, ErrorMessage = "Trip name must be at most 100 characters long.")]
++        public string Name { get; set; } = string.Empty;
++
++        [Required(ErrorMessage = "Primary destination is required.")]
++        [StringLength(100, ErrorMessage = "Destination must be at most 100 characters long.")]
++        public string Destination { get; set; } = string.Empty;
++
++        [DataType(DataType.Date)]
++        [Display(Name = "Start date")]
++        public DateTime StartDate { get; set; }
++
++        [DataType(DataType.Date)]
++        [Display(Name = "End date")]
++        public DateTime EndDate { get; set; }
++
++        [Range(0, 1_000_000_000, ErrorMessage = "Budget must be a positive number.")]
++        public decimal? Budget { get; set; }
++
++        [Required(ErrorMessage = "Currency is required.")]
++        [StringLength(3, ErrorMessage = "Currency code must be 3 characters.")]
++        public string Currency { get; set; } = "EUR";
++
++        public Trip.TransportMode Transport { get; set; }
++
++        [Display(Name = "Distance (km)")]
++        [Range(0, 1_000_000, ErrorMessage = "Distance must be positive.")]
++        public int? DrivingDistanceKm { get; set; }
++
++        public List<TripDestinationInput> Destinations { get; set; } = new();
++    }
++
++    public class TripDestinationInput
++    {
++        [StringLength(120, ErrorMessage = "City name must be at most 120 characters long.")]
++        public string? City { get; set; }
++
++        [Range(0, 30, ErrorMessage = "Nights must be between 0 and 30.")]
++        public int Nights { get; set; }
++    }
++}
+diff --git a/PlanerPutovanja/Views/Dashboard/Index.cshtml b/PlanerPutovanja/Views/Dashboard/Index.cshtml
+index cc09c93..484f63e 100644
+--- a/PlanerPutovanja/Views/Dashboard/Index.cshtml
++++ b/PlanerPutovanja/Views/Dashboard/Index.cshtml
+@@ -1,4 +1,4 @@
+-﻿@model PlanerPutovanja.Controllers.DashboardViewModel
++﻿@model PlanerPutovanja.ViewModels.DashboardViewModel
+ 
+ @{
+     ViewData["Title"] = "Dashboard";
+@@ -6,41 +6,154 @@
+ 
+ <section class="py-5">
+     <div class="container">
+-        <h1 class="h2 mb-4">Dashboard</h1>
++        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
++            <div>
++                <h1 class="h2 mb-1">Dashboard</h1>
++                <p class="text-muted mb-0">Quick overview of your travel plans and spending.</p>
++            </div>
++            <a asp-controller="Trips" asp-action="Index" class="btn btn-primary">Go to trips</a>
++        </div>
+ 
+         <div class="row g-3 mb-4">
+-            <div class="col-md-4">
+-                <div class="card shadow-sm text-center">
++            <div class="col-md-6 col-lg-3">
++                <div class="card shadow-sm text-center h-100">
+                     <div class="card-body">
+                         <h6 class="text-muted text-uppercase mb-2">Total trips</h6>
+-                        <div class="display-5 fw-bold">@Model.TotalTrips</div>
++                        <div class="display-6 fw-bold">@Model.TotalTrips</div>
+                     </div>
+                 </div>
+             </div>
+-            <div class="col-md-4">
+-                <div class="card shadow-sm text-center">
++            <div class="col-md-6 col-lg-3">
++                <div class="card shadow-sm text-center h-100">
+                     <div class="card-body">
+                         <h6 class="text-muted text-uppercase mb-2">Upcoming trips</h6>
+-                        <div class="display-5 fw-bold">@Model.UpcomingTrips</div>
++                        <div class="display-6 fw-bold">@Model.UpcomingTrips</div>
+                     </div>
+                 </div>
+             </div>
+-            <div class="col-md-4">
+-                <div class="card shadow-sm text-center">
++            <div class="col-md-6 col-lg-3">
++                <div class="card shadow-sm text-center h-100">
+                     <div class="card-body">
+                         <h6 class="text-muted text-uppercase mb-2">Total expenses</h6>
+-                        <div class="display-5 fw-bold">@Model.TotalExpenses.ToString("0.00")</div>
++                        <div class="display-6 fw-bold">@Model.TotalExpenses.ToString("0.00")</div>
+                     </div>
+                 </div>
+             </div>
++            <div class="col-md-6 col-lg-3">
++                <div class="card shadow-sm text-center h-100">
++                    <div class="card-body">
++                        <h6 class="text-muted text-uppercase mb-2">Estimated savings</h6>
++                        <div class="display-6 fw-bold">@Model.TotalSavings.ToString("0.00")</div>
++                        <div class="text-muted small">vs total budgets</div>
++                    </div>
++                </div>
++            </div>
+         </div>
+ 
+-        <div>
+-            <a asp-controller="Trips" asp-action="Index" class="btn btn-primary">
+-                Go to trips
+-            </a>
++        <div class="row g-3 mb-4">
++            <div class="col-lg-6">
++                <div class="card shadow-sm h-100">
++                    <div class="card-body">
++                        <h5 class="card-title mb-3">Highest spend</h5>
++                        @if (Model.HighestSpendTrip == null)
++                        {
++                            <div class="text-muted">No expenses yet.</div>
++                        }
++                        else
++                        {
++                            <div class="d-flex justify-content-between align-items-center">
++                                <div>
++                                    <div class="fw-semibold">@Model.HighestSpendTrip.Name</div>
++                                    <div class="text-muted small">📍 @Model.HighestSpendTrip.Destination</div>
++                                </div>
++                                <div class="text-end">
++                                    <div class="fw-bold">@Model.HighestSpendTrip.TotalExpenses.ToString("0.00")</div>
++                                    <div class="text-muted small">@Model.HighestSpendTrip.Currency</div>
++                                </div>
++                            </div>
++                        }
++                    </div>
++                </div>
++            </div>
++            <div class="col-lg-6">
++                <div class="card shadow-sm h-100">
++                    <div class="card-body">
++                        <h5 class="card-title mb-3">Lowest spend</h5>
++                        @if (Model.LowestSpendTrip == null)
++                        {
++                            <div class="text-muted">No expenses yet.</div>
++                        }
++                        else
++                        {
++                            <div class="d-flex justify-content-between align-items-center">
++                                <div>
++                                    <div class="fw-semibold">@Model.LowestSpendTrip.Name</div>
++                                    <div class="text-muted small">📍 @Model.LowestSpendTrip.Destination</div>
++                                </div>
++                                <div class="text-end">
++                                    <div class="fw-bold">@Model.LowestSpendTrip.TotalExpenses.ToString("0.00")</div>
++                                    <div class="text-muted small">@Model.LowestSpendTrip.Currency</div>
++                                </div>
++                            </div>
++                        }
++                    </div>
++                </div>
++            </div>
++        </div>
++
++        <div class="card shadow-sm">
++            <div class="card-body">
++                <h5 class="card-title mb-3">Trip spending overview</h5>
++                @if (!Model.Trips.Any())
++                {
++                    <div class="text-muted">Add trips and expenses to see insights.</div>
++                }
++                else
++                {
++                    <div class="table-responsive">
++                        <table class="table table-striped align-middle mb-0">
++                            <thead>
++                                <tr>
++                                    <th>Trip</th>
++                                    <th>Destination</th>
++                                    <th class="text-end">Total expenses</th>
++                                    <th class="text-end">Budget</th>
++                                    <th class="text-end">Savings</th>
++                                </tr>
++                            </thead>
++                            <tbody>
++                                @foreach (var trip in Model.Trips)
++                                {
++                                    <tr>
++                                        <td>
++                                            <a asp-controller="Trips" asp-action="Details" asp-route-id="@trip.TripId">
++                                                @trip.Name
++                                            </a>
++                                        </td>
++                                        <td class="text-muted">📍 @trip.Destination</td>
++                                        <td class="text-end">@trip.TotalExpenses.ToString("0.00") @trip.Currency</td>
++                                        <td class="text-end">
++                                            @(trip.Budget.HasValue ? $"{trip.Budget.Value:0.00} {trip.Currency}" : "—")
++                                        </td>
++                                        <td class="text-end">
++                                            @if (trip.Savings.HasValue)
++                                            {
++                                                <span class="@(trip.Savings.Value >= 0 ? "text-success" : "text-danger")">
++                                                    @trip.Savings.Value.ToString("0.00") @trip.Currency
++                                                </span>
++                                            }
++                                            else
++                                            {
++                                                <span class="text-muted">—</span>
++                                            }
++                                        </td>
++                                    </tr>
++                                }
++                            </tbody>
++                        </table>
++                    </div>
++                }
++            </div>
+         </div>
+     </div>
+ </section>
+diff --git a/PlanerPutovanja/Views/Trips/Create.cshtml b/PlanerPutovanja/Views/Trips/Create.cshtml
+index 22daee7..a62db58 100644
+--- a/PlanerPutovanja/Views/Trips/Create.cshtml
++++ b/PlanerPutovanja/Views/Trips/Create.cshtml
+@@ -1,4 +1,4 @@
+-﻿@model PlanerPutovanja.Models.Trip
++﻿@model PlanerPutovanja.ViewModels.TripFormViewModel
+ 
+ @{
+     ViewData["Title"] = "Create new trip";
+@@ -35,13 +35,12 @@
+             <span asp-validation-for="EndDate" class="text-danger"></span>
+         </div>
+ 
+-        <div class="form-group mb-3">
+-            <label class="form-label">Budžet (opcionalno)</label>
+-            <input name="Budget" class="form-control" type="number" step="0.01" min="0" value="0" />
++        <div class="col-md-6">
++            <label asp-for="Budget" class="form-label">Budget (optional)</label>
++            <input asp-for="Budget" class="form-control" type="number" step="0.01" min="0" />
++            <span asp-validation-for="Budget" class="text-danger"></span>
+         </div>
+ 
+-
+-
+         <div class="col-md-6">
+             <label asp-for="Currency" class="form-label"></label>
+             <select asp-for="Currency" class="form-select">
+@@ -69,7 +68,54 @@
+             <label asp-for="DrivingDistanceKm" class="form-label">Distance (km)</label>
+             <input asp-for="DrivingDistanceKm" class="form-control" type="number" placeholder="e.g. 450" />
+             <span asp-validation-for="DrivingDistanceKm" class="text-danger"></span>
+-            <div class="form-text">Only for car trips</div>
++            <div class="form-text">Manual entry (no external map API yet)</div>
++        </div>
++    </div>
++
++    <div class="card border-0 shadow-sm mt-4">
++        <div class="card-body">
++            <div class="d-flex justify-content-between align-items-center mb-3">
++                <h5 class="mb-0">Destinations</h5>
++                <button class="btn btn-sm btn-outline-primary" type="button" id="add-destination">
++                    + Add destination
++                </button>
++            </div>
++            <p class="text-muted small mb-3">Add multiple stops to your trip. The first destination is used as the main one.</p>
++
++            <div class="table-responsive">
++                <table class="table align-middle mb-0" id="destinations-table">
++                    <thead>
++                        <tr>
++                            <th style="width: 60%;">City</th>
++                            <th style="width: 25%;">Nights</th>
++                            <th style="width: 15%;"></th>
++                        </tr>
++                    </thead>
++                    <tbody>
++                        @for (var i = 0; i < Model.Destinations.Count; i++)
++                        {
++                            <tr>
++                                <td>
++                                    <input class="form-control"
++                                           name="Destinations[@i].City"
++                                           value="@Model.Destinations[i].City"
++                                           placeholder="e.g. Split" />
++                                </td>
++                                <td>
++                                    <input class="form-control"
++                                           type="number"
++                                           min="0"
++                                           name="Destinations[@i].Nights"
++                                           value="@Model.Destinations[i].Nights" />
++                                </td>
++                                <td class="text-end">
++                                    <button class="btn btn-sm btn-outline-danger remove-destination" type="button">Remove</button>
++                                </td>
++                            </tr>
++                        }
++                    </tbody>
++                </table>
++            </div>
+         </div>
+     </div>
+ 
+@@ -81,4 +127,40 @@
+ 
+ @section Scripts {
+     <partial name="_ValidationScriptsPartial" />
++    <script>
++        const tableBody = document.querySelector("#destinations-table tbody");
++        const addButton = document.getElementById("add-destination");
++
++        const rebuildIndexes = () => {
++            [...tableBody.querySelectorAll("tr")].forEach((row, index) => {
++                row.querySelectorAll("input").forEach(input => {
++                    input.name = input.name.replace(/Destinations\[\d+\]/, `Destinations[${index}]`);
++                });
++            });
++        };
++
++        addButton.addEventListener("click", () => {
++            const row = document.createElement("tr");
++            row.innerHTML = `
++                <td>
++                    <input class="form-control" name="Destinations[0].City" placeholder="e.g. Dubrovnik" />
++                </td>
++                <td>
++                    <input class="form-control" type="number" min="0" name="Destinations[0].Nights" value="0" />
++                </td>
++                <td class="text-end">
++                    <button class="btn btn-sm btn-outline-danger remove-destination" type="button">Remove</button>
++                </td>
++            `;
++            tableBody.appendChild(row);
++            rebuildIndexes();
++        });
++
++        tableBody.addEventListener("click", (event) => {
++            if (event.target.classList.contains("remove-destination")) {
++                event.target.closest("tr").remove();
++                rebuildIndexes();
++            }
++        });
++    </script>
+ }
+diff --git a/PlanerPutovanja/Views/Trips/Details.cshtml b/PlanerPutovanja/Views/Trips/Details.cshtml
+index 629a4e0..f1fadc8 100644
+--- a/PlanerPutovanja/Views/Trips/Details.cshtml
++++ b/PlanerPutovanja/Views/Trips/Details.cshtml
+@@ -46,6 +46,19 @@
+                         <dt class="col-5">Destination</dt>
+                         <dd class="col-7">@Model.Destination</dd>
+ 
++                        @if (Model.Destinations.Any())
++                        {
++                            <dt class="col-5">Stops</dt>
++                            <dd class="col-7">
++                                <ul class="list-unstyled mb-0">
++                                    @foreach (var dest in Model.Destinations.OrderBy(d => d.Order))
++                                    {
++                                        <li>📍 @dest.City (@dest.Nights night@(dest.Nights == 1 ? "" : "s"))</li>
++                                    }
++                                </ul>
++                            </dd>
++                        }
++
+                         <dt class="col-5">Start date</dt>
+                         <dd class="col-7">@Model.StartDate.ToString("dd.MM.yyyy")</dd>
+ 
+@@ -85,6 +98,12 @@
+                                 }
+                             </dd>
+                         }
++
++                        @if (Model.DrivingDistanceKm.HasValue)
++                        {
++                            <dt class="col-5">Distance</dt>
++                            <dd class="col-7">@Model.DrivingDistanceKm.Value km</dd>
++                        }
+                     </dl>
+                 </div>
+             </div>
+diff --git a/PlanerPutovanja/Views/Trips/Edit.cshtml b/PlanerPutovanja/Views/Trips/Edit.cshtml
+index de65cc0..ab2b875 100644
+--- a/PlanerPutovanja/Views/Trips/Edit.cshtml
++++ b/PlanerPutovanja/Views/Trips/Edit.cshtml
+@@ -1,4 +1,4 @@
+-﻿@model PlanerPutovanja.Models.Trip
++﻿@model PlanerPutovanja.ViewModels.TripFormViewModel
+ 
+ @{
+     ViewData["Title"] = "Edit trip";
+@@ -37,9 +37,9 @@
+ 
+         <div class="col-md-6">
+             <label asp-for="Budget" class="form-label">Budget (optional)</label>
+-            <input asp-for="Budget" class="form-control" type="text" />
++            <input asp-for="Budget" class="form-control" type="number" step="0.01" min="0" />
+             <span asp-validation-for="Budget" class="text-danger"></span>
+-            <div class="form-text">e.g. 1234,56</div>
++            <div class="form-text">Leave empty if you don't want to track a budget.</div>
+         </div>
+ 
+         <div class="col-md-6">
+@@ -64,26 +64,58 @@
+             </select>
+ 
+         </div>
+-        @if (Model.Destinations.Any())
+-        {
+-            <div class="col-12 mb-3">
+-                <h6>Destinations (@Model.Destinations.Count)</h6>
+-                <ul class="list-unstyled">
+-                    @foreach (var dest in Model.Destinations.OrderBy(d => d.Order))
+-                    {
+-                        <li>📍 @dest.City (@dest.Nights noćenja)</li>
+-                    }
+-                </ul>
+-                <a href="#" class="btn btn-sm btn-outline-primary">Manage destinations</a>
+-            </div>
+-        }
+-
+-
+         <div class="col-md-6">
+             <label asp-for="DrivingDistanceKm" class="form-label">Distance (km)</label>
+             <input asp-for="DrivingDistanceKm" class="form-control" type="number" />
+             <span asp-validation-for="DrivingDistanceKm" class="text-danger"></span>
+-            <div class="form-text">Only for car trips</div>
++            <div class="form-text">Manual entry (no external map API yet)</div>
++        </div>
++    </div>
++
++    <div class="card border-0 shadow-sm mt-4">
++        <div class="card-body">
++            <div class="d-flex justify-content-between align-items-center mb-3">
++                <h5 class="mb-0">Destinations</h5>
++                <button class="btn btn-sm btn-outline-primary" type="button" id="add-destination">
++                    + Add destination
++                </button>
++            </div>
++            <p class="text-muted small mb-3">Reorder by editing the list. The first destination is used as the main one.</p>
++
++            <div class="table-responsive">
++                <table class="table align-middle mb-0" id="destinations-table">
++                    <thead>
++                        <tr>
++                            <th style="width: 60%;">City</th>
++                            <th style="width: 25%;">Nights</th>
++                            <th style="width: 15%;"></th>
++                        </tr>
++                    </thead>
++                    <tbody>
++                        @for (var i = 0; i < Model.Destinations.Count; i++)
++                        {
++                            <tr>
++                                <td>
++                                    <input class="form-control"
++                                           name="Destinations[@i].City"
++                                           value="@Model.Destinations[i].City"
++                                           placeholder="e.g. Split" />
++                                </td>
++                                <td>
++                                    <input class="form-control"
++                                           type="number"
++                                           min="0"
++                                           name="Destinations[@i].Nights"
++                                           value="@Model.Destinations[i].Nights" />
++                                </td>
++                                <td class="text-end">
++                                    <button class="btn btn-sm btn-outline-danger remove-destination" type="button">Remove</button>
++                                </td>
++                            </tr>
++                        }
++                    </tbody>
++                </table>
++            </div>
+         </div>
+     </div>
+ 
+@@ -95,4 +127,40 @@
+ 
+ @section Scripts {
+     <partial name="_ValidationScriptsPartial" />
++    <script>
++        const tableBody = document.querySelector("#destinations-table tbody");
++        const addButton = document.getElementById("add-destination");
++
++        const rebuildIndexes = () => {
++            [...tableBody.querySelectorAll("tr")].forEach((row, index) => {
++                row.querySelectorAll("input").forEach(input => {
++                    input.name = input.name.replace(/Destinations\[\d+\]/, `Destinations[${index}]`);
++                });
++            });
++        };
++
++        addButton.addEventListener("click", () => {
++            const row = document.createElement("tr");
++            row.innerHTML = `
++                <td>
++                    <input class="form-control" name="Destinations[0].City" placeholder="e.g. Dubrovnik" />
++                </td>
++                <td>
++                    <input class="form-control" type="number" min="0" name="Destinations[0].Nights" value="0" />
++                </td>
++                <td class="text-end">
++                    <button class="btn btn-sm btn-outline-danger remove-destination" type="button">Remove</button>
++                </td>
++            `;
++            tableBody.appendChild(row);
++            rebuildIndexes();
++        });
++
++        tableBody.addEventListener("click", (event) => {
++            if (event.target.classList.contains("remove-destination")) {
++                event.target.closest("tr").remove();
++                rebuildIndexes();
++            }
++        });
++    </script>
+ }
+diff --git a/PlanerPutovanja/Views/Trips/Index.cshtml b/PlanerPutovanja/Views/Trips/Index.cshtml
+index 942d669..033b0ec 100644
+--- a/PlanerPutovanja/Views/Trips/Index.cshtml
++++ b/PlanerPutovanja/Views/Trips/Index.cshtml
+@@ -34,8 +34,8 @@
+                    class="btn btn-sm btn-outline-secondary @(currentFilter == "upcoming" ? "active" : "")">
+                     Upcoming
+                 </a>
+-                <a asp-action="Index" asp-route-filter="inprogress"
+-                   class="btn btn-sm btn-outline-secondary @(currentFilter == "inprogress" ? "active" : "")">
++                <a asp-action="Index" asp-route-filter="current"
++                   class="btn btn-sm btn-outline-secondary @(currentFilter == "current" ? "active" : "")">
+                     In progress
+                 </a>
+                 <a asp-action="Index" asp-route-filter="past"
+-- 
+2.43.0

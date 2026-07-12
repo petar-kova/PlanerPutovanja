@@ -7,6 +7,16 @@ namespace PlanerPutovanja.Models
 {
     public class Trip
     {
+        [NotMapped]
+        public int TotalNights
+        {
+            get
+            {
+                var nights = (EndDate.Date - StartDate.Date).Days;
+                return nights < 0 ? 0 : nights;
+            }
+        }
+
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Trip name is required.")]
@@ -23,25 +33,22 @@ namespace PlanerPutovanja.Models
 
         [DataType(DataType.Date)]
         [Display(Name = "End date")]
+        [CompareDates("StartDate", ErrorMessage = "End date cannot be earlier than start date.")]
         public DateTime EndDate { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         [Range(0, 1_000_000_000, ErrorMessage = "Budget must be a positive number.")]
         public decimal? Budget { get; set; }
 
-        [Required(ErrorMessage = "Currency is required.")]
-        [StringLength(3, ErrorMessage = "Currency code must be 3 characters.")]
         public string Currency { get; set; } = "EUR";
 
         public ICollection<TripActivity> Activities { get; set; } = new List<TripActivity>();
         public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
 
- 
         [Required]
-        public string UserId { get; set; } = null!;
-
-
+        public string UserId { get; set; } = string.Empty;
         public User? User { get; set; }
+
         public List<TripDestination> Destinations { get; set; } = new();
 
         public enum TransportMode
@@ -59,6 +66,29 @@ namespace PlanerPutovanja.Models
         public int? DrivingDistanceKm { get; set; }
 
         public bool IsCruise => Transport == TransportMode.CruiseShip;
+        public ICollection<TripAlbum> Albums { get; set; } = new List<TripAlbum>();
+    }
+
+    public class CompareDatesAttribute : ValidationAttribute
+    {
+        private readonly string _startDateProperty;
+        public CompareDatesAttribute(string startDateProperty)
+        {
+            _startDateProperty = startDateProperty;
+        }
+
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        {
+            var startDateProp = validationContext.ObjectType.GetProperty(_startDateProperty);
+            if (startDateProp == null) return ValidationResult.Success;
+
+            var startDate = (DateTime)startDateProp.GetValue(validationContext.ObjectInstance)!;
+            var endDate = (DateTime)value!;
+
+            if (endDate < startDate)
+                return new ValidationResult(ErrorMessage);
+
+            return ValidationResult.Success;
+        }
     }
 }
-

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PlanerPutovanja.Models;
 
 namespace PlanerPutovanja.Models
 {
@@ -34,6 +35,21 @@ namespace PlanerPutovanja.Models
                 .WithOne(e => e.Trip)
                 .HasForeignKey(e => e.TripId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Trip>()
+                .HasMany(t => t.Albums)
+                .WithOne(a => a.Trip)
+                .HasForeignKey(a => a.TripId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<TripAlbum>()
+                .HasMany(a => a.Photos)
+                .WithOne(p => p.TripAlbum)
+                .HasForeignKey(p => p.TripAlbumId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
+        public DbSet<TripAlbum> TripAlbums { get; set; }
+        public DbSet<TripPhoto> TripPhotos { get; set; }
+        public DbSet<ContactMessage> ContactMessages { get; set; }
     }
 }

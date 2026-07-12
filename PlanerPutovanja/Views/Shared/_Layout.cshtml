@@ -1,56 +1,190 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="hr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PlanerPutovanja</title>
+
+    <title>@ViewData["Title"] - Planer Putovanja</title>
+
+    <meta name="description" content="Planer Putovanja je moderna web aplikacija za istraživanje destinacija, planiranje putovanja i izračun budžeta." />
+    <meta name="keywords" content="putovanja, planer putovanja, destinacije, budžet, turizam, odmor" />
+    <meta name="author" content="Planer Putovanja" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PlanerPutovanja.styles.css" asp-append-version="true" />
 </head>
+
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">PlanerPutovanja</a>
+        <nav class="navbar navbar-expand-lg custom-navbar premium-navbar fixed-top">
+            <div class="container">
+                <a class="navbar-brand brand-logo premium-brand" asp-controller="Home" asp-action="Index">
+                    <span class="brand-icon">✈</span>
+                    <span class="brand-text">
+                        Planer
+                        <strong>Putovanja</strong>
+                    </span>
+                </a>
 
-                <button class="navbar-toggler" type="button"
-                        data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent" aria-expanded="false"
-                        aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                <button class="navbar-toggler custom-toggler premium-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Otvori navigaciju">
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse premium-collapse" id="mainNavbar">
+                    <ul class="navbar-nav ms-auto align-items-lg-center premium-nav-links">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Početna</a>
+                        </li>
+
+                    
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Albums" asp-action="Index">Uspomene</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Trips" asp-action="Index">My trips</a>
+                            <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-controller="Trips" asp-action="Index">Moja putovanja</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-highlight" asp-controller="Trips" asp-action="Create">
+                                + Novo putovanje
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Kontakt">Kontakt</a>
+                        </li>
+
+                        <li class="nav-item ms-lg-3">
+                            <partial name="_LoginPartial" />
                         </li>
                     </ul>
-
-                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer premium-footer">
+        <div class="footer-glow footer-glow-one"></div>
+        <div class="footer-glow footer-glow-two"></div>
+
+        <div class="container">
+            <div class="premium-footer-top">
+                <div class="premium-footer-brand-block">
+                    <a class="footer-brand premium-footer-brand" asp-controller="Home" asp-action="Index">
+                        <span class="footer-icon">✈</span>
+                        <span>
+                            Planer
+                            <strong>Putovanja</strong>
+                        </span>
+                    </a>
+
+                    <p class="footer-text">
+                        Moderna web aplikacija za planiranje putovanja, organizaciju destinacija,
+                        praćenje troškova i spremanje svih važnih detalja na jednom mjestu.
+                    </p>
+
+                    <div class="footer-mini-stats">
+                        <div>
+                            <strong>Ruta</strong>
+                            <span>destinacije</span>
+                        </div>
+
+                        <div>
+                            <strong>Budžet</strong>
+                            <span>troškovi</span>
+                        </div>
+
+                        <div>
+                            <strong>PDF</strong>
+                            <span>izvoz plana</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="premium-footer-cta">
+                    <span class="eyebrow">Spreman za planiranje?</span>
+                    <h3>Kreiraj novo putovanje i organiziraj sve detalje prije polaska.</h3>
+
+                    <div class="footer-actions">
+                        <a class="btn-main" asp-controller="Trips" asp-action="Create">
+                            Novo putovanje
+                        </a>
+
+                        <a class="btn-ghost" asp-controller="Dashboard" asp-action="Index">
+                            Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="premium-footer-links">
+                <div>
+                    <h5>Navigacija</h5>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Home" asp-action="Index">Početna</a></li>
+                        <li><a asp-controller="Albums" asp-action="Index">Uspomene</a></li>
+                        <li><a asp-controller="Trips" asp-action="Index">Moja putovanja</a></li>
+                        <li><a asp-controller="Home" asp-action="Kontakt">Kontakt</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h5>Aplikacija</h5>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                        <li><a asp-controller="Trips" asp-action="Index">Moja putovanja</a></li>
+                        <li><a asp-controller="Trips" asp-action="Create">Novo putovanje</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h5>Mogućnosti</h5>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Trips" asp-action="Create">Planiranje putovanja</a></li>
+                        <li><a asp-controller="Albums" asp-action="Index">Putni albumi i uspomene</a></li>
+                        <li><a asp-controller="Dashboard" asp-action="Index">Pregled budžeta</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h5>Korisnički račun</h5>
+                    <ul class="footer-links">
+                        <li><a asp-area="Identity" asp-page="/Account/Login">Prijava</a></li>
+                        <li><a asp-area="Identity" asp-page="/Account/Register">Registracija</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom premium-footer-bottom">
+                <p>© 2026 Planer Putovanja.</p>
+                <p>Organiziraj putovanje pametnije, preglednije i bez kaosa.</p>
+            </div>
+        </div>
+    </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

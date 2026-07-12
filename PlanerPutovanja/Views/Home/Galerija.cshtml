@@ -1,0 +1,220 @@
+﻿@{
+    ViewData["Title"] = "Galerija";
+}
+
+<section class="gallery-3d-hero">
+    <div class="gallery-orb gallery-orb-one"></div>
+    <div class="gallery-orb gallery-orb-two"></div>
+
+    <div class="container">
+        <div class="gallery-hero-grid">
+            <div>
+                <span class="eyebrow">Putnička inspiracija</span>
+                <h1>Galerija trenutaka koji pokreću putovanje.</h1>
+                <p>
+                    Pregledaj različite stilove putovanja — more, gradove, prirodu,
+                    avanturu i romantične vikende — pa inspiraciju pretvori u vlastiti plan.
+                </p>
+
+                <div class="hero-actions">
+                    <a class="btn-main" asp-controller="Home" asp-action="Destinacije">
+                        Pogledaj destinacije
+                    </a>
+
+                    <a class="btn-ghost" asp-controller="Trips" asp-action="Create">
+                        Kreiraj putovanje
+                    </a>
+                </div>
+            </div>
+
+            <div class="gallery-polaroid-stage">
+                <div class="polaroid-card polaroid-one">
+                    <div class="polaroid-img" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80');"></div>
+                    <span>More</span>
+                </div>
+
+                <div class="polaroid-card polaroid-two">
+                    <div class="polaroid-img" style="background-image:url('https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=700&q=80');"></div>
+                    <span>Grad</span>
+                </div>
+
+                <div class="polaroid-card polaroid-three">
+                    <div class="polaroid-img" style="background-image:url('https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=700&q=80');"></div>
+                    <span>Priroda</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm gallery-3d-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="eyebrow">Galerija</span>
+            <h2 class="section-title">Odaberi atmosferu putovanja</h2>
+            <p class="section-subtitle">
+                Svaka fotografija predstavlja jedan stil putovanja i vodi te prema kreiranju vlastitog plana.
+            </p>
+        </div>
+
+        <div class="gallery-masonry-3d">
+
+            <a asp-controller="Trips"
+               asp-action="Create"
+               asp-route-destination="Obala"
+               class="gallery-tile tile-large">
+                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80" alt="Obala i more" />
+                <div class="gallery-tile-overlay">
+                    <span>More</span>
+                    <h3>Obala i opuštanje</h3>
+                    <p>Ljetni odmor, plaže i miran ritam putovanja.</p>
+                    <em>Kreiraj plan →</em>
+                </div>
+            </a>
+
+            <a asp-controller="Trips"
+               asp-action="Create"
+               asp-route-destination="Venecija"
+               class="gallery-tile tile-medium">
+                <img src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=900&q=80" alt="Romantični grad" />
+                <div class="gallery-tile-overlay">
+                    <span>Romantika</span>
+                    <h3>Romantični gradovi</h3>
+                    <p>Mostovi, trgovi, šetnje i posebna atmosfera.</p>
+                    <em>Kreiraj plan →</em>
+                </div>
+            </a>
+
+            <a asp-controller="Trips"
+               asp-action="Create"
+               asp-route-destination="Velebit"
+               class="gallery-tile tile-small">
+                <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80" alt="Planine" />
+                <div class="gallery-tile-overlay">
+                    <span>Priroda</span>
+                    <h3>Planine</h3>
+                    <p>Za aktivne putnike.</p>
+                    <em>Kreiraj plan →</em>
+                </div>
+            </a>
+
+            <a asp-controller="Trips"
+               asp-action="Create"
+               asp-route-destination="Plitvička jezera"
+               class="gallery-tile tile-small">
+                <img src="https://images.unsplash.com/photo-1565992441121-4367c2967103?auto=format&fit=crop&w=900&q=80" alt="Jezera" />
+                <div class="gallery-tile-overlay">
+                    <span>Izlet</span>
+                    <h3>Jezera i slapovi</h3>
+                    <p>Mir, zelenilo i šetnice.</p>
+                    <em>Kreiraj plan →</em>
+                </div>
+            </a>
+
+            <a asp-controller="Trips"
+               asp-action="Create"
+               asp-route-destination="Istra"
+               class="gallery-tile tile-medium">
+                <img src="https://images.unsplash.com/photo-1605649461784-98f3f8e31b4f?auto=format&fit=crop&w=900&q=80" alt="Mediteran" />
+                <div class="gallery-tile-overlay">
+                    <span>Gastro</span>
+                    <h3>Mediteranski ritam</h3>
+                    <p>Hrana, more i opuštene večeri.</p>
+                    <em>Kreiraj plan →</em>
+                </div>
+            </a>
+
+            <a asp-controller="Trips"
+               asp-action="Create"
+               asp-route-destination="Dubrovnik"
+               class="gallery-tile tile-large">
+                <img src="https://images.unsplash.com/photo-1555990538-c48b0f0e0f85?auto=format&fit=crop&w=1200&q=80" alt="Povijesni grad" />
+                <div class="gallery-tile-overlay">
+                    <span>Kultura</span>
+                    <h3>Povijesni gradovi</h3>
+                    <p>Zidine, stari gradovi i lokacije pune priča.</p>
+                    <em>Kreiraj plan →</em>
+                </div>
+            </a>
+
+            <a asp-controller="Trips"
+               asp-action="Create"
+               asp-route-destination="Avantura"
+               class="gallery-tile tile-medium">
+                <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=900&q=80" alt="Avantura" />
+                <div class="gallery-tile-overlay">
+                    <span>Avantura</span>
+                    <h3>Put prema nepoznatom</h3>
+                    <p>Za znatiželjne putnike i aktivne planove.</p>
+                    <em>Kreiraj plan →</em>
+                </div>
+            </a>
+
+            <a asp-controller="Trips"
+               asp-action="Create"
+               asp-route-destination="City break"
+               class="gallery-tile tile-small">
+                <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80" alt="Izlet" />
+                <div class="gallery-tile-overlay">
+                    <span>Vikend</span>
+                    <h3>Kratki izleti</h3>
+                    <p>Brza putovanja puna doživljaja.</p>
+                    <em>Kreiraj plan →</em>
+                </div>
+            </a>
+
+        </div>
+    </div>
+</section>
+
+<section class="section gallery-story-section">
+    <div class="container">
+        <div class="gallery-story-card">
+            <div>
+                <span class="eyebrow">Od slike do plana</span>
+                <h2>Inspiracija odmah postaje funkcionalna.</h2>
+                <p>
+                    Klikom na sliku otvara se kreiranje novog putovanja s unaprijed odabranom destinacijom.
+                    Tako galerija nije samo ukras, nego dio procesa planiranja.
+                </p>
+            </div>
+
+            <div class="story-steps">
+                <div>
+                    <strong>01</strong>
+                    <span>Odaberi stil putovanja</span>
+                </div>
+
+                <div>
+                    <strong>02</strong>
+                    <span>Kreiraj plan</span>
+                </div>
+
+                <div>
+                    <strong>03</strong>
+                    <span>Dodaj aktivnosti i troškove</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section gallery-final-cta">
+    <div class="container text-center">
+        <span class="eyebrow">Spreman za polazak?</span>
+        <h2>Pretvori inspiraciju u stvaran plan putovanja.</h2>
+        <p>
+            Odaberi destinaciju, dodaj detalje i organiziraj putovanje od početka do kraja.
+        </p>
+
+        <div class="hero-actions justify-content-center">
+            <a class="btn-main" asp-controller="Home" asp-action="Destinacije">
+                Pogledaj destinacije
+            </a>
+
+            <a class="btn-ghost" asp-controller="Trips" asp-action="Create">
+                Novo putovanje
+            </a>
+        </div>
+    </div>
+</section>

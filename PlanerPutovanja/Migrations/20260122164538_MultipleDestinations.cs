@@ -4,10 +4,8 @@
 
 namespace PlanerPutovanja.Migrations
 {
-    /// <inheritdoc />
     public partial class MultipleDestinations : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
@@ -106,7 +104,6 @@ namespace PlanerPutovanja.Migrations
                 column: "TripId");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

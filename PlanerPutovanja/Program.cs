@@ -1,12 +1,29 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using PlanerPutovanja.Models;
+using PlanerPutovanja.Services;
+using QuestPDF.Infrastructure;
 using System.Globalization;
-using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
+
+builder.Services.AddHttpClient("gm", c =>
+{
+    c.Timeout = TimeSpan.FromSeconds(8);
+});
+
+builder.Services.AddHttpClient("weather", c =>
+{
+    c.BaseAddress = new Uri("https://api.openweathermap.org/data/2.5/");
+    c.Timeout = TimeSpan.FromSeconds(8);
+});
+
+builder.Services.AddScoped<GoogleMapsService>();
+builder.Services.AddScoped<WeatherService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -16,6 +33,16 @@ builder.Services.AddDefaultIdentity<User>(options =>
     options.SignIn.RequireConfirmedAccount = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { new CultureInfo("hr-HR") };
+    options.DefaultRequestCulture = new RequestCulture("hr-HR");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 
@@ -29,23 +56,15 @@ else
     app.UseHsts();
 }
 
-// ← LOKALIZACIJA IDE PRVO (prije routinga)
-var hrCulture = new CultureInfo("hr-HR");
-var localizationOptions = new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture(hrCulture),
-    SupportedCultures = new List<CultureInfo> { hrCulture },
-    SupportedUICultures = new List<CultureInfo> { hrCulture }
-};
-app.UseRequestLocalization(localizationOptions);
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseRequestLocalization();
 
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",

@@ -159,6 +159,45 @@ namespace PlanerPutovanja.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PlanerPutovanja.Models.ContactMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContactMessages");
+                });
+
             modelBuilder.Entity("PlanerPutovanja.Models.Expense", b =>
                 {
                     b.Property<int>("Id")
@@ -202,8 +241,7 @@ namespace PlanerPutovanja.Migrations
 
                     b.Property<string>("Currency")
                         .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Destination")
                         .IsRequired()
@@ -265,6 +303,43 @@ namespace PlanerPutovanja.Migrations
                     b.ToTable("Activities");
                 });
 
+            modelBuilder.Entity("PlanerPutovanja.Models.TripAlbum", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CoverImagePath")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Review")
+                        .HasMaxLength(1500)
+                        .HasColumnType("nvarchar(1500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<int>("TripId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TripId");
+
+                    b.ToTable("TripAlbums");
+                });
+
             modelBuilder.Entity("PlanerPutovanja.Models.TripDestination", b =>
                 {
                     b.Property<int>("Id")
@@ -275,7 +350,8 @@ namespace PlanerPutovanja.Migrations
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Nights")
                         .HasColumnType("int");
@@ -291,6 +367,39 @@ namespace PlanerPutovanja.Migrations
                     b.HasIndex("TripId");
 
                     b.ToTable("TripDestinations");
+                });
+
+            modelBuilder.Entity("PlanerPutovanja.Models.TripPhoto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Caption")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("TripAlbumId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TripAlbumId");
+
+                    b.ToTable("TripPhotos");
                 });
 
             modelBuilder.Entity("PlanerPutovanja.Models.User", b =>
@@ -442,6 +551,17 @@ namespace PlanerPutovanja.Migrations
                     b.Navigation("Trip");
                 });
 
+            modelBuilder.Entity("PlanerPutovanja.Models.TripAlbum", b =>
+                {
+                    b.HasOne("PlanerPutovanja.Models.Trip", "Trip")
+                        .WithMany("Albums")
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Trip");
+                });
+
             modelBuilder.Entity("PlanerPutovanja.Models.TripDestination", b =>
                 {
                     b.HasOne("PlanerPutovanja.Models.Trip", "Trip")
@@ -453,13 +573,31 @@ namespace PlanerPutovanja.Migrations
                     b.Navigation("Trip");
                 });
 
+            modelBuilder.Entity("PlanerPutovanja.Models.TripPhoto", b =>
+                {
+                    b.HasOne("PlanerPutovanja.Models.TripAlbum", "TripAlbum")
+                        .WithMany("Photos")
+                        .HasForeignKey("TripAlbumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TripAlbum");
+                });
+
             modelBuilder.Entity("PlanerPutovanja.Models.Trip", b =>
                 {
                     b.Navigation("Activities");
 
+                    b.Navigation("Albums");
+
                     b.Navigation("Destinations");
 
                     b.Navigation("Expenses");
+                });
+
+            modelBuilder.Entity("PlanerPutovanja.Models.TripAlbum", b =>
+                {
+                    b.Navigation("Photos");
                 });
 
             modelBuilder.Entity("PlanerPutovanja.Models.User", b =>

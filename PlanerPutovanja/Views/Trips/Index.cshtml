@@ -1,130 +1,241 @@
 ﻿@model IEnumerable<PlanerPutovanja.Models.Trip>
 
 @{
-    ViewData["Title"] = "My trips";
+    ViewData["Title"] = "Moja putovanja";
     string currentFilter = ViewBag.CurrentFilter as string ?? "all";
+
+    var trips = Model.ToList();
+    var totalTrips = trips.Count;
+    var upcomingTrips = trips.Count(t => t.StartDate > DateTime.Today);
+    var activeTrips = trips.Count(t => t.StartDate <= DateTime.Today && t.EndDate >= DateTime.Today);
+    var pastTrips = trips.Count(t => t.EndDate < DateTime.Today);
 }
 
-<section class="py-5">
+<section class="app-hero trips-index-hero">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="app-hero-content">
             <div>
-                <h1 class="h2 mb-1">My trips</h1>
-                <p class="text-muted mb-0">Overview of all your planned trips.</p>
+                <span class="eyebrow">Moji planovi</span>
+                <h1>Moja putovanja</h1>
+                <p>
+                    Pregledaj sva svoja putovanja, prati destinacije, aktivnosti, troškove i brzo nastavi s planiranjem.
+                </p>
             </div>
-            <a asp-action="Create" class="btn btn-primary">+ Create new trip</a>
+            <div class="trips-hero-clean">
+                <div class="trips-hero-clean-panel">
+                    <div class="trips-hero-clean-top">
+                        <span class="trips-hero-badge">Travel command</span>
+                        <span class="trips-hero-label">premium pregled</span>
+                    </div>
+
+                    <h3>Planiraj pametnije.</h3>
+
+                    <p>
+                        Prati statuse putovanja, aktivnosti i troškove u jednom elegantnom prikazu.
+                    </p>
+
+                    <div class="trips-hero-clean-stats">
+                        <div class="clean-stat-card">
+                            <strong>@totalTrips</strong>
+                            <span>planova</span>
+                        </div>
+                        <div class="clean-stat-card">
+                            <strong>@activeTrips</strong>
+                            <span>aktivna</span>
+                        </div>
+                    </div>
+
+                    <div class="trips-hero-clean-metrics">
+                        <div>
+                            <strong>@upcomingTrips</strong>
+                            <span>nadolazeća</span>
+                        </div>
+                        <div>
+                            <strong>@activeTrips</strong>
+                            <span>u tijeku</span>
+                        </div>
+                        <div>
+                            <strong>@pastTrips</strong>
+                            <span>završena</span>
+                        </div>
+                    </div>
+
+                    <div class="trips-hero-clean-route">
+                        <span class="clean-route-pin pin-1"></span>
+                        <span class="clean-route-pin pin-2"></span>
+                        <span class="clean-route-pin pin-3"></span>
+                    </div>
+
+                    <a asp-action="Create" class="btn-main trips-hero-clean-cta">
+                        + Novo putovanje
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm trips-index-page">
+    <div class="container">
+
+        <div class="trip-stats-grid">
+            <div class="trip-stat-card">
+                <span>Ukupno</span>
+                <strong>@totalTrips</strong>
+                <p>Sva spremljena putovanja</p>
+            </div>
+
+            <div class="trip-stat-card">
+                <span>Nadolazeća</span>
+                <strong>@upcomingTrips</strong>
+                <p>Putovanja koja tek počinju</p>
+            </div>
+
+            <div class="trip-stat-card">
+                <span>U tijeku</span>
+                <strong>@activeTrips</strong>
+                <p>Putovanja koja trenutno traju</p>
+            </div>
+
+            <div class="trip-stat-card">
+                <span>Završena</span>
+                <strong>@pastTrips</strong>
+                <p>Arhiva prethodnih putovanja</p>
+            </div>
         </div>
 
-        @if (!Model.Any())
+        @if (!trips.Any())
         {
-            <div class="text-center py-5 border rounded-3 bg-light">
-                <h5 class="mb-2">You don't have any trips yet.</h5>
-                <p class="text-muted mb-3">Create your first trip and start planning.</p>
-                <a asp-action="Create" class="btn btn-primary">Create new trip</a>
+            <div class="empty-state-card">
+                <div class="empty-state-icon">🧳</div>
+                <h2>Još nemaš spremljenih putovanja</h2>
+                <p>
+                    Kreiraj prvo putovanje, dodaj destinacije, aktivnosti i troškove te počni graditi vlastiti plan.
+                </p>
+
+                <a asp-action="Create" class="btn-main">
+                    Kreiraj prvo putovanje
+                </a>
             </div>
         }
         else
         {
-            <div class="btn-group mb-3" role="group">
-                <a asp-action="Index" asp-route-filter="all"
-                   class="btn btn-sm btn-outline-secondary @(currentFilter == "all" ? "active" : "")">
-                    All
+            <div class="filter-bar">
+                <a asp-action="Index"
+                   asp-route-filter="all"
+                   class="filter-pill @(currentFilter == "all" ? "active" : "")">
+                    Sva putovanja
                 </a>
-                <a asp-action="Index" asp-route-filter="upcoming"
-                   class="btn btn-sm btn-outline-secondary @(currentFilter == "upcoming" ? "active" : "")">
-                    Upcoming
+
+                <a asp-action="Index"
+                   asp-route-filter="upcoming"
+                   class="filter-pill @(currentFilter == "upcoming" ? "active" : "")">
+                    Nadolazeća
                 </a>
-                <a asp-action="Index" asp-route-filter="inprogress"
-                   class="btn btn-sm btn-outline-secondary @(currentFilter == "inprogress" ? "active" : "")">
-                    In progress
+
+                <a asp-action="Index"
+                   asp-route-filter="current"
+                   class="filter-pill @(currentFilter == "current" ? "active" : "")">
+                    U tijeku
                 </a>
-                <a asp-action="Index" asp-route-filter="past"
-                   class="btn btn-sm btn-outline-secondary @(currentFilter == "past" ? "active" : "")">
-                    Past
+
+                <a asp-action="Index"
+                   asp-route-filter="past"
+                   class="filter-pill @(currentFilter == "past" ? "active" : "")">
+                    Završena
                 </a>
             </div>
 
-            <div class="row g-3">
-                @foreach (var trip in Model)
+            <div class="row g-4">
+                @foreach (var trip in trips)
                 {
                     var totalDays = (trip.EndDate - trip.StartDate).TotalDays + 1;
-                    string status = trip.StartDate > DateTime.Today ? "Upcoming" :
-                    trip.EndDate < DateTime.Today ? "Past" : "In progress";
+                    if (totalDays < 1) totalDays = 1;
+
+                    string status = trip.StartDate > DateTime.Today
+                    ? "Nadolazeće"
+                    : trip.EndDate < DateTime.Today
+                    ? "Završeno"
+                    : "U tijeku";
+
+                    string statusClass = trip.StartDate > DateTime.Today
+                    ? "status-upcoming"
+                    : trip.EndDate < DateTime.Today
+                    ? "status-past"
+                    : "status-active";
 
                     var activitiesCount = trip.Activities?.Count() ?? 0;
                     var expensesCount = trip.Expenses?.Count() ?? 0;
                     var destinationsCount = trip.Destinations?.Count() ?? 1;
+                    var firstDest = trip.Destinations?.OrderBy(d => d.Order).FirstOrDefault()?.City ?? trip.Destination;
 
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div>
-                                        <h5 class="card-title mb-1">@trip.Name</h5>
-                                        @{
-                                            var firstDest = trip.Destinations?.FirstOrDefault();
-                                            var destText = firstDest?.City ?? trip.Destination;
-                                        }
-                                        <p class="text-muted mb-0">
-                                            <span class="me-1">📍</span>@destText
-                                            @if (destinationsCount > 1)
-                                            {
-                                                <span class="badge bg-secondary ms-1">+@(destinationsCount - 1)</span>
-                                            }
-                                        </p>
-                                    </div>
-                                    <span class="badge bg-light text-dark">@totalDays day@(totalDays == 1 ? "" : "s")</span>
+                    string transportText = trip.Transport switch
+                    {
+                        Trip.TransportMode.Car => "🚗 Auto",
+                        Trip.TransportMode.Plane => "✈️ Avion",
+                        Trip.TransportMode.Train => "🚆 Vlak",
+                        Trip.TransportMode.Bus => "🚌 Autobus",
+                        Trip.TransportMode.CruiseShip => "🛳️ Brod",
+                        _ => "Prijevoz nije odabran"
+                    };
+
+                    <div class="col-md-6 col-xl-4">
+                        <div class="trip-card">
+                            <div class="trip-card-top">
+                                <div>
+                                    <span class="trip-status @statusClass">@status</span>
+                                    <h2>@trip.Name</h2>
                                 </div>
 
-                                <p class="small text-muted mb-1">
-                                    @trip.StartDate.ToShortDateString() – @trip.EndDate.ToShortDateString()
-                                </p>
-
-                                <p class="small text-muted mb-2">
-                                    <span class="badge bg-light text-dark me-1">@activitiesCount @("activity" + (activitiesCount == 1 ? "" : "ies"))</span>
-                                    <span class="badge bg-light text-dark">@expensesCount @("expense" + (expensesCount == 1 ? "" : "s"))</span>
-                                </p>
-
-                                @if (trip.Transport != Trip.TransportMode.NotSelected)
-                                {
-                                    @if (trip.Transport == Trip.TransportMode.Car)
-                                    {
-                                        <span class="badge bg-info text-dark mb-2">🚗 Car</span>
-                                    }
-                                    else if (trip.Transport == Trip.TransportMode.Plane)
-                                    {
-                                        <span class="badge bg-info text-dark mb-2">✈️ Plane</span>
-                                    }
-                                    else if (trip.Transport == Trip.TransportMode.Train)
-                                    {
-                                        <span class="badge bg-info text-dark mb-2">🚂 Train</span>
-                                    }
-                                    else if (trip.Transport == Trip.TransportMode.Bus)
-                                    {
-                                        <span class="badge bg-info text-dark mb-2">🚌 Bus</span>
-                                    }
-                                    else if (trip.Transport == Trip.TransportMode.CruiseShip)
-                                    {
-                                        <span class="badge bg-info text-dark mb-2">🛳️ Cruise</span>
-                                    }
-                                    else if (trip.Transport == Trip.TransportMode.Other)
-                                    {
-                                        <span class="badge bg-info text-dark mb-2">Other</span>
-                                    }
-                                }
-
-
-
-                                <p class="small mb-3">
-                                    <span class="badge @(status == "Upcoming" ? "bg-success" : status == "Past" ? "bg-secondary" : "bg-primary")">
-                                        @status
-                                    </span>
-                                </p>
-
-                                <div class="mt-auto d-flex gap-2">
-                                    <a asp-action="Details" asp-route-id="@trip.Id" class="btn btn-sm btn-outline-primary">Details</a>
-                                    <a asp-action="Edit" asp-route-id="@trip.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <div class="trip-days">
+                                    <strong>@totalDays</strong>
+                                    <span>dan@(totalDays == 1 ? "" : "a")</span>
                                 </div>
+                            </div>
+
+                            <div class="trip-location">
+                                <span>📍</span>
+                                <div>
+                                    <strong>@firstDest</strong>
+                                    @if (destinationsCount > 1)
+                                    {
+                                        <small>+ još @(destinationsCount - 1) destinacij@(destinationsCount - 1 == 1 ? "a" : "e")</small>
+                                    }
+                                    else
+                                    {
+                                        <small>Glavna destinacija</small>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="trip-date">
+                                @trip.StartDate.ToString("dd.MM.yyyy") - @trip.EndDate.ToString("dd.MM.yyyy")
+                            </div>
+
+                            <div class="trip-meta-grid">
+                                <div>
+                                    <strong>@activitiesCount</strong>
+                                    <span>aktivnost@(activitiesCount == 1 ? "" : "i")</span>
+                                </div>
+
+                                <div>
+                                    <strong>@expensesCount</strong>
+                                    <span>troš@(expensesCount == 1 ? "ak" : "kova")</span>
+                                </div>
+                            </div>
+
+                            <div class="trip-transport">
+                                @transportText
+                            </div>
+
+                            <div class="trip-actions">
+                                <a asp-action="Details" asp-route-id="@trip.Id" class="btn-main btn-card">
+                                    Detalji
+                                </a>
+
+                                <a asp-action="Edit" asp-route-id="@trip.Id" class="btn-ghost btn-card">
+                                    Uredi
+                                </a>
                             </div>
                         </div>
                     </div>

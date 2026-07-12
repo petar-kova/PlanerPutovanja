@@ -1,8 +1,13 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlanerPutovanja.Models;
+using PlanerPutovanja.Services;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace PlanerPutovanja.Controllers
 {
@@ -10,41 +15,38 @@ namespace PlanerPutovanja.Controllers
     public class TripsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly WeatherService _weatherService;
 
-        public TripsController(ApplicationDbContext context)
+        public TripsController(ApplicationDbContext context, WeatherService weatherService)
         {
             _context = context;
+            _weatherService = weatherService;
         }
 
-        private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
         public async Task<IActionResult> Index(string filter = "all")
         {
-            IQueryable<Trip> query = _context.Trips
-                .Where(t => t.UserId == CurrentUserId);
+            IQueryable<Trip> query = _context.Trips.Where(t => t.UserId == CurrentUserId);
 
             var today = DateTime.Today;
 
-            if (filter == "upcoming")
+            query = filter switch
             {
-                query = query.Where(t => t.StartDate > today);
-            }
-            else if (filter == "past")
-            {
-                query = query.Where(t => t.EndDate < today);
-            }
-            else if (filter == "current")
-            {
-                query = query.Where(t => t.StartDate <= today && t.EndDate >= today);
-            }
+                "upcoming" => query.Where(t => t.StartDate > today),
+                "past" => query.Where(t => t.EndDate < today),
+                "current" => query.Where(t => t.StartDate <= today && t.EndDate >= today),
+                _ => query
+            };
 
             var trips = await query
                 .Include(t => t.Activities)
                 .Include(t => t.Expenses)
+                .Include(t => t.Destinations)
                 .OrderByDescending(t => t.StartDate)
                 .ToListAsync();
 
-            ViewBag.Filter = filter;
+            ViewBag.CurrentFilter = filter;
             return View(trips);
         }
 
@@ -53,46 +55,81 @@ namespace PlanerPutovanja.Controllers
             if (id == null) return NotFound();
 
             var trip = await _context.Trips
-                .Include(t => t.Activities)
-                .Include(t => t.Expenses)
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
+    .Include(t => t.Activities)
+    .Include(t => t.Expenses)
+    .Include(t => t.Destinations)
+    .Include(t => t.Albums)
+        .ThenInclude(a => a.Photos)
+    .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
 
             if (trip == null) return NotFound();
+
+            var cities = trip.Destinations?
+    .OrderBy(d => d.Order)
+    .Select(d => d.City)
+    .Where(c => !string.IsNullOrWhiteSpace(c))
+    .Select(c => c!.Trim())
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToList() ?? new List<string>();
+
+            var weatherByCity = new Dictionary<string, WeatherService.WeatherInfo?>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var city in cities)
+            {
+                weatherByCity[city] = await _weatherService.GetCurrentWeatherAsync(city);
+            }
+
+            ViewBag.WeatherByCity = weatherByCity;
+
+            var topCity = cities.FirstOrDefault() ?? trip.Destination;
+            ViewBag.Weather = await _weatherService.GetCurrentWeatherAsync(topCity);
+
             return View(trip);
         }
 
-        public IActionResult Create()
+        public IActionResult Create(string? destination = null)
         {
-            return View();
+            var trip = new Trip
+            {
+                StartDate = DateTime.Today,
+                EndDate = DateTime.Today.AddDays(1)
+            };
+
+            if (!string.IsNullOrWhiteSpace(destination))
+            {
+                trip.Destination = destination.Trim();
+                trip.Name = $"Putovanje u {destination.Trim()}";
+            }
+
+            return View(trip);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Location,StartDate,EndDate,Transport,Accommodation,Budget")] Trip trip)
+        public IActionResult Create(Trip trip)
         {
             trip.UserId = CurrentUserId;
 
-            // IGNORIRAJ validaciju za Budget
-            ModelState.Remove("Budget");
+            ModelState.Remove(nameof(Trip.UserId));
+            trip.Budget = ParseBudgetFromForm();
+            ModelState.Remove(nameof(Trip.Budget));
 
-            if (ModelState.IsValid)
-            {
-                _context.Add(trip);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(trip);
+            if (!ModelState.IsValid)
+                return View(trip);
+
+            _context.Add(trip);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
         }
-
-
 
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var trip = await _context.Trips.FindAsync(id);
-            if (trip == null || trip.UserId != CurrentUserId) return NotFound();
+            var trip = await _context.Trips
+                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
 
+            if (trip == null) return NotFound();
             return View(trip);
         }
 
@@ -102,41 +139,55 @@ namespace PlanerPutovanja.Controllers
         {
             if (id != trip.Id) return NotFound();
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var existingTrip = await _context.Trips.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
-                    if (existingTrip == null || existingTrip.UserId != CurrentUserId)
-                        return NotFound();
+            var existingTrip = await _context.Trips
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
 
-                    _context.Update(trip);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Trips.Any(e => e.Id == trip.Id))
-                        return NotFound();
-                    throw;
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(trip);
+            if (existingTrip == null) return NotFound();
+
+            trip.UserId = CurrentUserId;
+
+            ModelState.Remove(nameof(Trip.UserId));
+            trip.Budget = ParseBudgetFromForm();
+            ModelState.Remove(nameof(Trip.Budget));
+
+            if (!ModelState.IsValid)
+                return View(trip);
+
+            _context.Update(trip);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        [HttpGet]
+        public async Task<IActionResult> ExportPdf(int id)
         {
-            if (id == null) return NotFound();
-
             var trip = await _context.Trips
                 .Include(t => t.Activities)
                 .Include(t => t.Expenses)
+                .Include(t => t.Destinations)
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == CurrentUserId);
 
-            if (trip == null) return NotFound();
-            return View(trip);
-        }
+            if (trip == null)
+                return NotFound();
 
+            var pdfService = new TripPdfService();
+            var pdfBytes = pdfService.GenerateTripPdf(trip);
+
+            var safeFileName = SanitizeFileName(trip.Name ?? "putovanje");
+
+            return File(pdfBytes, "application/pdf", $"{safeFileName}-premium.pdf");
+        }
+        private string SanitizeFileName(string fileName)
+        {
+            foreach (var invalidChar in Path.GetInvalidFileNameChars())
+            {
+                fileName = fileName.Replace(invalidChar, '-');
+            }
+
+            return fileName.Replace(" ", "-").ToLowerInvariant();
+        }
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -155,6 +206,40 @@ namespace PlanerPutovanja.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private decimal? ParseBudgetFromForm()
+        {
+            var raw = Request.Form[nameof(Trip.Budget)].FirstOrDefault()
+                      ?? Request.Form["Budget"].FirstOrDefault()
+                      ?? "";
+            return ParseBudget(raw);
+        }
+
+        private decimal? ParseBudget(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return null;
+
+            input = input.Trim();
+
+            input = input.Replace(" ", "");
+
+            if (input.Contains('.') && input.Contains(','))
+            {
+                input = input.Replace(".", "");
+                input = input.Replace(",", ".");
+            }
+            else
+            {
+                if (input.Contains(',') && !input.Contains('.'))
+                    input = input.Replace(",", ".");
+            }
+
+            if (decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+                return value;
+
+            return null;
         }
     }
 }

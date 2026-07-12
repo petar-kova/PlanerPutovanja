@@ -1,0 +1,105 @@
+﻿@model PlanerPutovanja.Models.TripAlbum
+
+@{
+    ViewData["Title"] = "Uredi album";
+}
+
+<section class="memory-create-page">
+    <div class="container">
+
+        <div class="memory-create-hero">
+            <div>
+                <span class="eyebrow">Uredi uspomene</span>
+                <h1>Uredi album</h1>
+                <p>
+                    Promijeni naslov, osvrt i ocjenu za album
+                    <strong>@Model.Title</strong>.
+                </p>
+            </div>
+
+            <a asp-controller="Albums" asp-action="Details" asp-route-id="@Model.Id" class="btn-ghost light">
+                ← Natrag na album
+            </a>
+        </div>
+
+        <form asp-controller="Albums"
+              asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post"
+              class="memory-create-layout">
+
+            @Html.AntiForgeryToken()
+
+            <div class="memory-form-card">
+                <div class="form-heading">
+                    <span>✏️</span>
+                    <div>
+                        <h2>Podaci albuma</h2>
+                        <p>Uredi tekstualni dio albuma. Slike možeš dodavati i brisati na stranici albuma.</p>
+                    </div>
+                </div>
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="TripId" />
+                <input type="hidden" asp-for="CreatedAt" />
+                <input type="hidden" asp-for="CoverImagePath" />
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label">Naslov albuma</label>
+                    <input asp-for="Title" class="form-control" placeholder="npr. Ljeto u Splitu" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Review" class="form-label">Osvrt / dojam s putovanja</label>
+                    <textarea asp-for="Review"
+                              class="form-control"
+                              rows="8"
+                              placeholder="Napiši što ti je bilo najbolje, što bi preporučio/la i kakav je bio dojam..."></textarea>
+                    <span asp-validation-for="Review" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Rating" class="form-label">Ocjena putovanja</label>
+                    <select asp-for="Rating" class="form-select">
+                        <option value="5">★★★★★ - Odlično</option>
+                        <option value="4">★★★★☆ - Jako dobro</option>
+                        <option value="3">★★★☆☆ - Dobro</option>
+                        <option value="2">★★☆☆☆ - Moglo je bolje</option>
+                        <option value="1">★☆☆☆☆ - Loše</option>
+                    </select>
+                    <span asp-validation-for="Rating" class="text-danger"></span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-main">
+                        Spremi promjene
+                    </button>
+
+                    <a asp-controller="Albums" asp-action="Details" asp-route-id="@Model.Id" class="btn-ghost">
+                        Odustani
+                    </a>
+                </div>
+            </div>
+
+            <div class="memory-preview-card edit-preview-card">
+                <span class="preview-badge">Album</span>
+
+                <div class="edit-preview-content">
+                    <div class="edit-preview-icon">📔</div>
+                    <h3>@Model.Title</h3>
+                    <p>
+                        Ovdje mijenjaš samo naslov, osvrt i ocjenu. Fotografije ostaju spremljene
+                        u albumu i uređuju se posebno.
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,140 @@
+﻿@model PlanerPutovanja.Models.TripAlbum
+
+@{
+    ViewData["Title"] = "Uspomene";
+    var rating = new string('★', Model.Rating) + new string('☆', 5 - Model.Rating);
+}
+
+<section class="memory-details-page">
+    <div class="container">
+
+        <div class="memory-album-hero">
+            <div>
+                <span class="eyebrow">Moje uspomene</span>
+                <h1>@Model.Title</h1>
+
+                <p>
+                    Album za putovanje
+                    <strong>@Model.Trip.Name</strong>
+                    kreiran @Model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")
+                </p>
+
+                <div class="album-rating">
+                    @rating
+                </div>
+            </div>
+
+            <div class="memory-album-actions">
+                <a asp-controller="Trips" asp-action="Details" asp-route-id="@Model.TripId" class="btn-ghost light">
+                    ← Natrag na putovanje
+                </a>
+                <a asp-controller="Albums" asp-action="Edit" asp-route-id="@Model.Id" class="btn-main">
+                    Uredi album
+                </a>
+                <form asp-controller="Albums"
+                      asp-action="Delete"
+                      asp-route-id="@Model.Id"
+                      method="post"
+                      onsubmit="return confirm('Želiš obrisati cijeli album?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-danger-soft">
+                        Obriši album
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="memory-review-card">
+            <div class="review-icon">📔</div>
+
+            <div>
+                <h2>Osvrt s putovanja</h2>
+
+                @if (string.IsNullOrWhiteSpace(Model.Review))
+                {
+                    <p>
+                        Za ovaj album još nije dodan osvrt.
+                    </p>
+                }
+                else
+                {
+                    <p>
+                        @Model.Review
+                    </p>
+                }
+            </div>
+        </div>
+        <div class="memory-add-photos-card">
+            <div>
+                <span class="eyebrow">Dodaj slike</span>
+                <h2>Proširi album novim uspomenama</h2>
+                <p>
+                    Dodaj još fotografija u ovaj album. Slike će se automatski prikazati u polaroid galeriji.
+                </p>
+            </div>
+
+            <form asp-controller="Albums"
+                  asp-action="AddPhotos"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="memory-add-photos-form">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="albumId" value="@Model.Id" />
+
+                <input type="file"
+                       name="photos"
+                       class="form-control"
+                       accept=".jpg,.jpeg,.png,.webp"
+                       multiple />
+
+                <button type="submit" class="btn-main">
+                    Dodaj slike
+                </button>
+            </form>
+        </div>
+        @if (Model.Photos == null || !Model.Photos.Any())
+        {
+            <div class="memory-empty">
+                <strong>Nema dodanih slika</strong>
+                <p>Album postoji, ali još nema fotografija.</p>
+            </div>
+        }
+        else
+        {
+            <div class="polaroid-gallery">
+                @{
+                    var index = 0;
+                }
+
+                @foreach (var photo in Model.Photos.OrderBy(p => p.DisplayOrder))
+                {
+                    index++;
+                    var rotateClass = (index % 4) switch
+                    {
+                        1 => "rotate-left",
+                        2 => "rotate-right",
+                        3 => "rotate-small-left",
+                        _ => "rotate-small-right"
+                    };
+
+                    <div class="polaroid-card @rotateClass">
+                        <img src="@photo.ImagePath" alt="@photo.Caption" />
+
+                        <div class="polaroid-caption clean">
+                            <form asp-controller="Albums"
+                                  asp-action="DeletePhoto"
+                                  asp-route-id="@photo.Id"
+                                  method="post"
+                                  onsubmit="return confirm('Želiš obrisati ovu sliku?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" title="Obriši sliku">×</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

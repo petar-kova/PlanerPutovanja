@@ -1,52 +1,98 @@
 ﻿@model PlanerPutovanja.Models.TripActivity
 
 @{
-    ViewData["Title"] = "Add activity";
+    ViewData["Title"] = "Dodaj aktivnost";
 }
 
-<div class="container py-4">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h1 class="mb-0">Add activity</h1>
-        <a asp-controller="Trips"
-           asp-action="Details"
-           asp-route-id="@Model.TripId"
-           class="btn btn-outline-secondary">
-            Back to trip
-        </a>
-    </div>
+<section class="app-hero activity-hero">
+    <div class="container">
+        <div class="app-hero-content">
+            <div>
+                <span class="eyebrow">Plan aktivnosti</span>
+                <h1>Dodaj aktivnost</h1>
+                <p>
+                    Dodaj izlet, obilazak, rezervaciju, restoran ili bilo koju stavku koju želiš imati u planu putovanja.
+                </p>
+            </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-            <form asp-action="Create" asp-route-tripId="@Model.TripId" method="post">
-                @Html.AntiForgeryToken()
-
-                <input asp-for="TripId" type="hidden" />
-
-                <div class="mb-3">
-                    <label asp-for="Name" class="form-label">Activity name</label>
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Notes" class="form-label">Notes (optional)</label>
-                    <input asp-for="Notes" class="form-control" />
-                    <span asp-validation-for="Notes" class="text-danger"></span>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Save</button>
-                <a asp-controller="Trips"
-                   asp-action="Details"
-                   asp-route-id="@Model.TripId"
-                   class="btn btn-secondary">
-                    Cancel
-                </a>
-            </form>
+            <a asp-controller="Trips"
+               asp-action="Details"
+               asp-route-id="@Model.TripId"
+               class="btn-ghost">
+                ← Detalji putovanja
+            </a>
         </div>
     </div>
-</div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="simple-form-layout">
+            <div class="simple-form-card">
+                <div class="form-heading">
+                    <span>🎯</span>
+                    <div>
+                        <h2>Nova aktivnost</h2>
+                        <p>Unesi naziv aktivnosti i kratku napomenu kako bi plan bio jasniji i pregledniji.</p>
+                    </div>
+                </div>
+
+                <form asp-action="Create" asp-route-tripId="@Model.TripId" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input asp-for="TripId" type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly" class="validation-summary mb-4"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="Name" class="form-label">Naziv aktivnosti</label>
+                        <input asp-for="Name"
+                               class="form-control"
+                               placeholder="npr. Obilazak stare gradske jezgre" />
+                        <span asp-validation-for="Name" class="text-danger small fw-semibold"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Notes" class="form-label">Napomena</label>
+                        <textarea asp-for="Notes"
+                                  class="form-control"
+                                  rows="5"
+                                  placeholder="npr. Rezervirati ulaznice unaprijed, ponijeti vodu, provjeriti radno vrijeme..."></textarea>
+                        <span asp-validation-for="Notes" class="text-danger small fw-semibold"></span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-main">
+                            Spremi aktivnost
+                        </button>
+
+                        <a asp-controller="Trips"
+                           asp-action="Details"
+                           asp-route-id="@Model.TripId"
+                           class="btn-ghost">
+                            Odustani
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <aside class="simple-side-card">
+                <div class="side-icon">💡</div>
+                <h3>Primjeri aktivnosti</h3>
+                <p>
+                    Možeš dodati obilazak znamenitosti, restoran, plažu, izlet, muzej, vožnju brodom ili slobodno vrijeme.
+                </p>
+
+                <div class="suggestion-list">
+                    <span>🏛️ Muzej ili znamenitost</span>
+                    <span>🍽️ Večera ili restoran</span>
+                    <span>🌅 Zalazak sunca</span>
+                    <span>🚶 Šetnja gradom</span>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -1,0 +1,170 @@
+﻿@{
+    ViewData["Title"] = "Budžet";
+}
+
+<section class="page-hero budget-hero">
+    <div class="container">
+        <div class="page-hero-content text-center">
+            <span class="eyebrow">Kalkulator troškova</span>
+            <h1>Izračunaj okvirni budžet za svoje putovanje</h1>
+            <p>
+                Unesi osnovne troškove putovanja i odmah dobij procjenu ukupnog iznosa,
+                troška po osobi i pregled glavnih kategorija.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-5">
+                <div class="form-card glass-card">
+                    <h2 class="form-title">Unos troškova</h2>
+                    <p class="form-intro">
+                        Kalkulator koristi jednostavnu formulu kako bi korisniku dao brzu i razumljivu procjenu troškova.
+                    </p>
+
+                    <form id="budgetForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="peopleCount">Broj osoba</label>
+                                <input type="number" class="form-control" id="peopleCount" min="1" value="2" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="daysCount">Broj dana</label>
+                                <input type="number" class="form-control" id="daysCount" min="1" value="3" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="accommodationCost">Smještaj po noći (€)</label>
+                                <input type="number" class="form-control" id="accommodationCost" min="0" value="70" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="foodCost">Hrana po osobi/dan (€)</label>
+                                <input type="number" class="form-control" id="foodCost" min="0" value="25" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="transportCost">Prijevoz ukupno (€)</label>
+                                <input type="number" class="form-control" id="transportCost" min="0" value="80" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="extraCost">Dodatni troškovi (€)</label>
+                                <input type="number" class="form-control" id="extraCost" min="0" value="50" />
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-main w-100 mt-4" id="calculateBudgetBtn">
+                            Izračunaj budžet
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="budget-result-card card-premium">
+                    <div class="budget-header">
+                        <span>Procjena troškova</span>
+                        <strong id="budgetTotal">0 €</strong>
+                    </div>
+
+                    <div class="budget-body">
+                        <div class="budget-main-result">
+                            <p>Trošak po osobi</p>
+                            <h2 id="budgetPerPerson">0 €</h2>
+                        </div>
+
+                        <div class="budget-breakdown">
+                            <div class="budget-row">
+                                <span>Smještaj</span>
+                                <strong id="accommodationResult">0 €</strong>
+                            </div>
+
+                            <div class="budget-row">
+                                <span>Hrana</span>
+                                <strong id="foodResult">0 €</strong>
+                            </div>
+
+                            <div class="budget-row">
+                                <span>Prijevoz</span>
+                                <strong id="transportResult">0 €</strong>
+                            </div>
+
+                            <div class="budget-row">
+                                <span>Dodatno</span>
+                                <strong id="extraResult">0 €</strong>
+                            </div>
+                        </div>
+
+                        <div class="budget-note">
+                            <strong>Napomena:</strong>
+                            Izračun je okviran i služi za planiranje. Stvarni troškovi mogu ovisiti o sezoni,
+                            dostupnosti smještaja, prijevozu i osobnim navikama.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="planner-tips">
+                    <div class="tip-card">
+                        <strong>💶 Savjet za uštedu</strong>
+                        <p>Rezerviraj smještaj ranije i usporedi nekoliko opcija prije konačne odluke.</p>
+                    </div>
+
+                    <div class="tip-card">
+                        <strong>📊 Praktično</strong>
+                        <p>Ukupni trošak odmah usporedi s brojem osoba kako bi znao realan iznos po putniku.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-highlight">
+    <div class="container text-center">
+        <span class="eyebrow">Što se računa?</span>
+        <h2 class="section-title">Budžet je podijeljen po glavnim kategorijama</h2>
+        <p class="section-subtitle">
+            Korisnik odmah vidi koliko otpada na smještaj, hranu, prijevoz i dodatne troškove,
+            što olakšava donošenje odluka prije putovanja.
+        </p>
+
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">🏨</div>
+                    <h3 class="feature-title">Smještaj</h3>
+                    <p class="feature-text">Broj noćenja pomnožen s cijenom smještaja.</p>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">🍽️</div>
+                    <h3 class="feature-title">Hrana</h3>
+                    <p class="feature-text">Dnevni trošak hrane računa se po osobi.</p>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">🚗</div>
+                    <h3 class="feature-title">Prijevoz</h3>
+                    <p class="feature-text">Ukupni trošak puta, goriva, karata ili transfera.</p>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="card-premium h-100 p-4">
+                    <div class="feature-icon">🎟️</div>
+                    <h3 class="feature-title">Dodatno</h3>
+                    <p class="feature-text">Ulaznice, aktivnosti, suveniri i neplanirani troškovi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

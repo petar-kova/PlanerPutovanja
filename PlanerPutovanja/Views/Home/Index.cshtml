@@ -1,98 +1,217 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using PlanerPutovanja.Models
-@inject SignInManager<User> SignInManager
-
-@{
-    ViewData["Title"] = "Home";
-    var isSignedIn = SignInManager.IsSignedIn(User);
+﻿@{
+    ViewData["Title"] = "Početna";
 }
 
-<section class="py-5 mb-5">
+<section class="home-3d-hero">
+    <div class="home-orb orb-one"></div>
+    <div class="home-orb orb-two"></div>
+    <div class="home-orb orb-three"></div>
+
     <div class="container">
-        <div class="p-5 p-md-6 text-white rounded-4 position-relative overflow-hidden"
-             style="
-                background-image: linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35)), url('/img/projekt.png');
-                background-size: cover;
-                background-position: center;
-                min-height: 480px;">
-            <div class="row align-items-center h-100">
-                <div class="col-lg-7">
-                    <h1 class="display-5 fw-bold mb-3">Travel Planner</h1>
-                    <p class="lead mb-4">
-                        Plan your trips, activities and expenses in one place — fast, clean and easy to use.
-                    </p>
+        <div class="home-3d-grid">
+            <div class="home-hero-copy">
+                <span class="eyebrow">Pametno planiranje putovanja</span>
 
-                    @if (!isSignedIn)
-                    {
-                        <div class="d-flex flex-wrap gap-2">
-                            <a class="btn btn-primary btn-lg"
-                               asp-area="Identity"
-                               asp-page="/Account/Login">
-                                Log in
-                            </a>
+                <h1>
+                    Pretvori ideju za putovanje u organiziran plan.
+                </h1>
 
-                            <a class="btn btn-outline-light btn-lg"
-                               asp-area="Identity"
-                               asp-page="/Account/Register">
-                                Register
-                            </a>
+                <p>
+                    Kreiraj putovanje, dodaj destinacije, planiraj aktivnosti,
+                    prati troškove i spremi sve važne detalje na jednom mjestu.
+                </p>
+
+                <div class="hero-actions">
+                    <a class="btn-main" asp-controller="Trips" asp-action="Create">
+                        Započni planiranje
+                    </a>
+
+                    <a class="btn-ghost" asp-controller="Dashboard" asp-action="Index">
+                        Otvori dashboard
+                    </a>
+                </div>
+
+                <div class="home-trust-row">
+                    <div>
+                        <strong>Ruta</strong>
+                        <span>više destinacija</span>
+                    </div>
+
+                    <div>
+                        <strong>Budžet</strong>
+                        <span>troškovi i plan</span>
+                    </div>
+
+                    <div>
+                        <strong>PDF</strong>
+                        <span>izvoz putovanja</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-3d-stage">
+                <div class="dashboard-mockup tilt-card">
+                    <div class="mockup-topbar">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+
+                    <div class="mockup-content">
+                        <div class="mockup-header-card">
+                            <div>
+                                <small>Aktivno putovanje</small>
+                                <strong>Dalmacija roadtrip</strong>
+                            </div>
+                            <em>🧳</em>
                         </div>
 
-                        <p class="mt-3 small text-white-50 mb-0">
-                            Already have an account? Log in and continue where you left off.
-                        </p>
-                    }
-                    else
-                    {
-                        <div class="d-flex flex-wrap gap-2">
-                            <a class="btn btn-primary btn-lg"
-                               asp-controller="Trips"
-                               asp-action="Index">
-                                My trips
-                            </a>
+                        <div class="mockup-grid">
+                            <div class="mockup-stat">
+                                <span>Ruta</span>
+                                <strong>412 km</strong>
+                            </div>
 
-                            <a class="btn btn-outline-light btn-lg"
-                               asp-area="Identity"
-                               asp-page="/Account/Manage/Index">
-                                Profile
-                            </a>
+                            <div class="mockup-stat">
+                                <span>Trajanje</span>
+                                <strong>4h 20m</strong>
+                            </div>
                         </div>
-                    }
+
+                        <div class="mockup-map">
+                            <div class="map-line"></div>
+                            <div class="map-pin pin-one"></div>
+                            <div class="map-pin pin-two"></div>
+                            <div class="map-pin pin-three"></div>
+                            <span class="city city-one">Zagreb</span>
+                            <span class="city city-two">Zadar</span>
+                            <span class="city city-three">Split</span>
+                        </div>
+
+                        <div class="mockup-bottom">
+                            <div>
+                                <span>Budžet</span>
+                                <strong>420,00 €</strong>
+                                <div class="budget-mini-progress">
+                                    <i></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span>Vrijeme</span>
+                                <strong>☀️ 24°C</strong>
+                                <small>Split</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-floating-badge badge-destinations">
+                    <strong>+3</strong>
+                    <span>destinacije</span>
+                    <small>u jednom planu</small>
+                </div>
+
+                <div class="floating-badge badge-two">
+                    <strong>PDF</strong>
+                    <span>spreman izvoz</span>
+                </div>
+
+                <div class="floating-badge badge-three">
+                    <strong>82%</strong>
+                    <span>budžet</span>
                 </div>
             </div>
         </div>
+    </div>
+</section>
 
-        <div class="row mt-4 g-3 mb-6">
+<section class="section home-features-section">
+    <div class="container text-center">
+        <span class="eyebrow">Mogućnosti aplikacije</span>
+        <h2 class="section-title">Sve što ti treba za organizirano putovanje</h2>
+        <p class="section-subtitle">
+            PlanerPutovanja pomaže da putovanje ne ostane samo ideja, nego postane jasan i pregledan plan.
+        </p>
+
+        <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Trips</h5>
-                        <p class="card-text mb-0">
-                            Add destinations, dates and budgets for your trips.
-                        </p>
-                    </div>
+                <div class="feature-3d-card tilt-card">
+                    <div class="feature-icon">🧳</div>
+                    <h3>Moja putovanja</h3>
+                    <p>Pregledaj spremljene planove, datume, destinacije, aktivnosti i troškove.</p>
+                    <a asp-controller="Trips" asp-action="Index">Otvori putovanja</a>
                 </div>
             </div>
+
             <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Activities</h5>
-                        <p class="card-text mb-0">
-                            Plan your days and manage all trip activities.
-                        </p>
-                    </div>
+                <div class="feature-3d-card tilt-card">
+                    <div class="feature-icon">📍</div>
+                    <h3>Destinacije</h3>
+                    <p>Dodaj više lokacija u jedno putovanje i složi redoslijed obilaska.</p>
+                    <a asp-controller="Trips" asp-action="Create">Kreiraj plan</a>
                 </div>
             </div>
+
             <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Expenses</h5>
-                        <p class="card-text mb-0">
-                            Track your expenses and keep your budget under control.
-                        </p>
-                    </div>
+                <div class="feature-3d-card tilt-card">
+                    <div class="feature-icon">💶</div>
+                    <h3>Troškovi</h3>
+                    <p>Prati potrošnju, usporedi je s budžetom i lakše kontroliraj troškove.</p>
+                    <a asp-controller="Dashboard" asp-action="Index">Pogledaj dashboard</a>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+
+<section class="section how-it-works-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="eyebrow">Kako radi?</span>
+            <h2 class="section-title">Od ideje do plana u tri koraka</h2>
+            <p class="section-subtitle">
+                Aplikacija vodi korisnika kroz jednostavan proces organizacije putovanja.
+            </p>
+        </div>
+
+        <div class="steps-3d-grid">
+            <div class="step-3d-card">
+                <span>01</span>
+                <h3>Kreiraj putovanje</h3>
+                <p>Unesi naziv, destinaciju, datume, budžet i način prijevoza.</p>
+            </div>
+
+            <div class="step-3d-card">
+                <span>02</span>
+                <h3>Dodaj detalje</h3>
+                <p>Dodaj destinacije, aktivnosti i troškove kako bi plan bio potpun.</p>
+            </div>
+
+            <div class="step-3d-card">
+                <span>03</span>
+                <h3>Prati i izvozi</h3>
+                <p>Pregledaj dashboard, prati budžet i izvezi plan u PDF dokument.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section cta-section">
+    <div class="container text-center">
+        <h2>Spreman za planiranje?</h2>
+        <p>
+            Kreiraj novo putovanje i organiziraj sve detalje prije polaska.
+        </p>
+
+        <div class="hero-actions justify-content-center">
+            <a class="btn-main" asp-controller="Trips" asp-action="Create">
+                Kreiraj putovanje
+            </a>
+
+            <a class="btn-ghost" asp-area="Identity" asp-page="/Account/Register">
+                Registriraj se
+            </a>
         </div>
     </div>
 </section>

@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8" />
+<title>Planer Putovanja – Tehnička dokumentacija</title>
+<style>
+  /* ── Opći stilovi dokumenta ── */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Calibri", "Segoe UI", Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1a1a2e;
+    background: #fff;
+    padding: 40px 20px;
+  }
+
+  .page {
+    max-width: 210mm;
+    margin: 0 auto;
+    background: white;
+  }
+
+  /* ── Naslovna stranica ── */
+  .cover {
+    text-align: center;
+    padding: 80px 40px 60px;
+    border-bottom: 3px solid #0f766e;
+    margin-bottom: 50px;
+    page-break-after: always;
+  }
+
+  .cover-logo {
+    font-size: 48pt;
+    margin-bottom: 24px;
+  }
+
+  .cover h1 {
+    font-size: 28pt;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 10px;
+    letter-spacing: -1px;
+  }
+
+  .cover h2 {
+    font-size: 16pt;
+    font-weight: 400;
+    color: #0f766e;
+    margin-bottom: 40px;
+  }
+
+  .cover-table {
+    display: inline-block;
+    text-align: left;
+    margin: 20px auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .cover-table td {
+    padding: 10px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 11pt;
+  }
+
+  .cover-table td:first-child {
+    font-weight: 700;
+    color: #64748b;
+    background: #f8fafc;
+    width: 130px;
+  }
+
+  .cover-table tr:last-child td { border-bottom: none; }
+
+  /* ── Sadržaj ── */
+  .toc {
+    page-break-after: always;
+    margin-bottom: 50px;
+  }
+
+  .toc h2 {
+    font-size: 16pt;
+    color: #0f172a;
+    border-bottom: 2px solid #14b8a6;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  .toc ol {
+    list-style: none;
+    padding: 0;
+  }
+
+  .toc > ol > li {
+    margin-bottom: 8px;
+    font-size: 11pt;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .toc > ol > li > span {
+    color: #0f766e;
+    margin-right: 8px;
+  }
+
+  .toc ol ol {
+    margin: 4px 0 4px 24px;
+    list-style: none;
+  }
+
+  .toc ol ol li {
+    font-weight: 400;
+    font-size: 10.5pt;
+    color: #475569;
+    margin-bottom: 3px;
+  }
+
+  /* ── Headingi ── */
+  h1 {
+    font-size: 20pt;
+    font-weight: 700;
+    color: #0f172a;
+    border-bottom: 3px solid #14b8a6;
+    padding-bottom: 8px;
+    margin: 40px 0 18px;
+    page-break-after: avoid;
+  }
+
+  h2 {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #0f172a;
+    border-left: 4px solid #14b8a6;
+    padding-left: 12px;
+    margin: 30px 0 14px;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #0f766e;
+    margin: 22px 0 10px;
+    page-break-after: avoid;
+  }
+
+  h4 {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 16px 0 8px;
+    page-break-after: avoid;
+  }
+
+  /* ── Tekst ── */
+  p {
+    margin-bottom: 10px;
+    text-align: justify;
+  }
+
+  /* ── Code blokovi ── */
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 16px 18px;
+    border-radius: 8px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 9pt;
+    line-height: 1.55;
+    overflow-x: auto;
+    margin: 12px 0 16px;
+    page-break-inside: avoid;
+  }
+
+  code {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 9.5pt;
+    background: #f1f5f9;
+    color: #0f766e;
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    font-size: 9pt;
+  }
+
+  /* Sintaksno obojavanje unutar pre */
+  .kw  { color: #67e8f9; }   /* ključna riječ */
+  .st  { color: #a5f3c4; }   /* string */
+  .cm  { color: #64748b; }   /* komentar */
+  .cl  { color: #fde68a; }   /* klasa/selector */
+  .pr  { color: #c4b5fd; }   /* property */
+  .vl  { color: #fb923c; }   /* vrijednost */
+  .fn  { color: #93c5fd; }   /* funkcija */
+
+  /* ── Tablice ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 20px;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+
+  th {
+    background: #0f172a;
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ── Info/Napomena boxovi ── */
+  .note {
+    background: #f0fdf4;
+    border-left: 4px solid #22c55e;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+
+  .info {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+
+  .warn {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0;
+    font-size: 10.5pt;
+    page-break-inside: avoid;
+  }
+
+  /* ── Liste ── */
+  ul, ol {
+    padding-left: 22px;
+    margin-bottom: 12px;
+  }
+
+  li { margin-bottom: 4px; }
+
+  /* ── Razdjelnici ── */
+  hr {
+    border: none;
+    border-top: 2px solid #e2e8f0;
+    margin: 30px 0;
+  }
+
+  .section-break { page-break-before: always; }
+
+  /* ── Zaglavlje/podnožje stranice ── */
+  @media print {
+    body { padding: 0; }
+    .page { max-width: 100%; }
+
+    @page {
+      size: A4;
+      margin: 20mm 18mm 20mm 20mm;
+    }
+
+    h1, h2, h3 { page-break-after: avoid; }
+    pre, table  { page-break-inside: avoid; }
+    .cover      { page-break-after: always; }
+    .toc        { page-break-after: always; }
+    .section-break { page-break-before: always; }
+
+    /* Podnožje s brojem stranice */
+    body::after {
+      content: "";
+    }
+  }
+
+  /* Boja za CSS selektore u primjerima */
+  .selector { color: #67e8f9; }
+  .property { color: #c4b5fd; }
+  .value    { color: #fb923c; }
+  .comment  { color: #64748b; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ═══════════════════════════════════════════
+     NASLOVNA STRANICA
+═══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-logo">✈</div>
+  <h1>Planer Putovanja</h1>
+  <h2>Tehnička dokumentacija projekta</h2>
+
+  <table class="cover-table">
+    <tr><td>Projekt</td><td>Planer Putovanja – Web aplikacija</td></tr>
+    <tr><td>Tehnologije</td><td>ASP.NET Core 8 MVC, C#, CSS3, Bootstrap 5</td></tr>
+    <tr><td>Autor</td><td>Petar</td></tr>
+    <tr><td>Datum</td><td>Lipanj 2026.</td></tr>
+    <tr><td>Predmet</td><td>Oblikovanje web stranica</td></tr>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     SADRŽAJ
+═══════════════════════════════════════════ -->
+<div class="toc">
+  <h2>Sadržaj</h2>
+  <ol>
+    <li><span>1.</span> Pregled projekta
+      <ol>
+        <li>Opis aplikacije</li>
+        <li>Glavne funkcionalnosti</li>
+      </ol>
+    </li>
+    <li><span>2.</span> Struktura projekta
+      <ol>
+        <li>Mapa direktorija</li>
+        <li>MVC arhitektura</li>
+      </ol>
+    </li>
+    <li><span>3.</span> Baza podataka i modeli
+      <ol>
+        <li>Dijagram veza</li>
+        <li>Opis ključnih modela</li>
+      </ol>
+    </li>
+    <li><span>4.</span> Kontroleri i logika
+      <ol>
+        <li>HomeController – kontakt forma</li>
+        <li>TripsController – CRUD putovanja</li>
+        <li>DashboardController – analitika</li>
+        <li>AlbumsController – uspomene</li>
+      </ol>
+    </li>
+    <li><span>5.</span> Oblikovanje web stranica – CSS dizajn sustav
+      <ol>
+        <li>CSS varijable i paleta boja</li>
+        <li>Globalni stilovi</li>
+        <li>Boje i gradijenti</li>
+        <li>Tipografija</li>
+        <li>Kartice (Cards)</li>
+        <li>Navigacijska traka</li>
+        <li>Footer</li>
+        <li>Forme i validacija</li>
+        <li>Gumbi</li>
+        <li>Statusne oznake i filter</li>
+      </ol>
+    </li>
+    <li><span>6.</span> Shared Layout – zajednički predložak</li>
+    <li><span>7.</span> Stranice i njihov izgled
+      <ol>
+        <li>Početna stranica</li>
+        <li>Dashboard</li>
+        <li>Moja putovanja</li>
+        <li>Albumi i uspomene</li>
+        <li>Kontakt stranica</li>
+        <li>Prijava i registracija</li>
+      </ol>
+    </li>
+    <li><span>8.</span> Responzivni dizajn</li>
+    <li><span>9.</span> Animacije i 3D efekti</li>
+    <li><span>10.</span> Vanjske biblioteke</li>
+  </ol>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     1. PREGLED PROJEKTA
+═══════════════════════════════════════════ -->
+<h1>1. Pregled projekta</h1>
+
+<p><strong>Planer Putovanja</strong> je web aplikacija za organiziranje putovanja. Korisnik se može registrirati, prijaviti, kreirati putovanje, dodati destinacije, aktivnosti i troškove, pratiti budžet putem dashboarda te spremiti uspomene u albume sa fotografijama. Plan putovanja moguće je izvesti kao PDF dokument.</p>
+
+<p>Aplikacija je izgrađena prema <strong>MVC (Model–View–Controller)</strong> arhitekturi koristeći ASP.NET Core 8. Vizualni identitet je moderan, temeljen na principima glassmorphisma, 3D CSS transformacija i responzivnog dizajna.</p>
+
+<h3>Glavne funkcionalnosti</h3>
+
+<table>
+  <tr><th>Funkcionalnost</th><th>Opis</th></tr>
+  <tr><td>Kreiranje putovanja</td><td>Unos naziva, destinacije, datuma, budžeta i prijevoza</td></tr>
+  <tr><td>Višestruke destinacije</td><td>Jedno putovanje može imati više destinacija s redoslijedom</td></tr>
+  <tr><td>Aktivnosti</td><td>Dodavanje aktivnosti po danu i satu unutar putovanja</td></tr>
+  <tr><td>Troškovi</td><td>Evidencija troškova s kategorijama, usporedba s planiranim budžetom</td></tr>
+  <tr><td>Dashboard</td><td>Grafikoni troškova, top destinacije, upozorenja o prekoračenju budžeta</td></tr>
+  <tr><td>Albumi i uspomene</td><td>Polaroid-stil albumi s fotografijama, ocjenom (1–5 ⭐) i osvrtom</td></tr>
+  <tr><td>Kontakt forma</td><td>Poruka se sprema u bazu podataka, validacija polja</td></tr>
+  <tr><td>PDF izvoz</td><td>Generiranje PDF dokumenta s planom putovanja</td></tr>
+  <tr><td>Autentikacija</td><td>Prijava i registracija korisnika (ASP.NET Identity)</td></tr>
+  <tr><td>Google Maps</td><td>Prikaz rute i izračun udaljenosti između destinacija</td></tr>
+  <tr><td>Vremenska prognoza</td><td>Dohvat prognoze za destinaciju putem vanjskog API-ja</td></tr>
+</table>
+
+
+<!-- ═══════════════════════════════════════════
+     2. STRUKTURA PROJEKTA
+═══════════════════════════════════════════ -->
+<h1 class="section-break">2. Struktura projekta</h1>
+
+<h2>2.1 MVC arhitektura</h2>
+
+<p>Aplikacija koristi <strong>Model–View–Controller (MVC)</strong> arhitekturni obrazac:</p>
+
+<ul>
+  <li><strong>Model</strong> – C# klase koje predstavljaju podatke (Trip, Expense, TripAlbum…)</li>
+  <li><strong>View</strong> – Razor predlošci (.cshtml) koji generiraju HTML</li>
+  <li><strong>Controller</strong> – C# klase koje primaju HTTP zahtjeve, pozivaju bazu i vraćaju View</li>
+</ul>
+
+<h2>2.2 Mapa direktorija</h2>
+
+<pre>PlanerPutovanja/
+├── Controllers/                ← Kontroleri (logika stranica)
+│   ├── HomeController.cs       ← Početna, Kontakt, Destinacije, Galerija
+│   ├── TripsController.cs      ← Kreiranje, uređivanje, detalji putovanja
+│   ├── DashboardController.cs  ← Analitika, grafikoni, statistike
+│   ├── AlbumsController.cs     ← Albumi i uspomene s fotografijama
+│   └── ExpensesController.cs   ← Upravljanje troškovima
+│
+├── Models/                     ← Modeli (klase koje predstavljaju podatke)
+│   ├── Trip.cs
+│   ├── TripDestination.cs
+│   ├── TripActivity.cs
+│   ├── Expense.cs
+│   ├── TripAlbum.cs
+│   ├── TripPhoto.cs
+│   ├── ContactMessage.cs
+│   ├── User.cs
+│   ├── DashboardViewModel.cs
+│   └── ApplicationDbContext.cs ← EF Core kontekst za pristup bazi
+│
+├── Views/                      ← Razor pogledi (HTML predlošci)
+│   ├── Shared/
+│   │   ├── _Layout.cshtml      ← Glavni predložak (navigacija + footer)
+│   │   └── _LoginPartial.cshtml← Partial za prijavu/odjavu
+│   ├── Home/
+│   │   ├── Index.cshtml        ← Početna stranica
+│   │   ├── Kontakt.cshtml      ← Kontakt stranica s formom
+│   │   ├── Destinacije.cshtml  ← Pregled destinacija
+│   │   └── Galerija.cshtml     ← Galerija slika
+│   ├── Trips/                  ← Stranice za upravljanje putovanjima
+│   ├── Dashboard/              ← Dashboard sa grafikonima
+│   ├── Albums/                 ← Albumi i uspomene
+│   └── Expenses/               ← Troškovi
+│
+├── wwwroot/
+│   └── css/
+│       └── site.css            ← Glavni CSS stilovi (6.500+ linija)
+│
+├── Services/
+│   ├── TripPdfService.cs       ← Generiranje PDF-a (iTextSharp)
+│   ├── GoogleMapsService.cs    ← Google Maps API (ruta, udaljenost)
+│   └── WeatherService.cs       ← Vremenska prognoza API
+│
+├── Migrations/                 ← EF Core migracije baze podataka
+└── Program.cs                  ← Konfiguracija i pokretanje aplikacije</pre>
+
+
+<!-- ═══════════════════════════════════════════
+     3. BAZA PODATAKA I MODELI
+═══════════════════════════════════════════ -->
+<h1 class="section-break">3. Baza podataka i modeli</h1>
+
+<p>Aplikacija koristi <strong>Entity Framework Core</strong> s <strong>SQL Server</strong> bazom podataka (LocalDB za razvoj). Baza se kreira automatski putem migracija – nema ručnog pisanja SQL-a.</p>
+
+<h2>3.1 Dijagram veza između tablica</h2>
+
+<pre>User  (ASP.NET Identity – autentikacija)
+ └── Trip  (1 korisnik : više putovanja)
+      ├── TripDestination  (1 putovanje : više destinacija)
+      ├── TripActivity     (1 putovanje : više aktivnosti)
+      ├── Expense          (1 putovanje : više troškova)
+      └── TripAlbum        (1 putovanje : 1 album)
+           └── TripPhoto   (1 album : više fotografija)
+
+ContactMessage  (neovisno – bez veze s korisnikom)</pre>
+
+<h2>3.2 Opis ključnih modela</h2>
+
+<h3>Trip.cs – Model putovanja</h3>
+
+<pre>public class Trip {
+    public int Id { get; set; }
+    public string Name { get; set; }          // Naziv putovanja
+    public string Destination { get; set; }   // Glavna destinacija (tekst)
+    public DateTime StartDate { get; set; }   // Datum polaska
+    public DateTime EndDate { get; set; }     // Datum povratka
+    public decimal Budget { get; set; }       // Planirani budžet (€)
+    public TransportMode Transport { get; set; } // Enum: Auto, Avion, Vlak, Autobus, Brod
+    public string UserId { get; set; }        // Veza s korisnikom (strani ključ)
+
+    // Navigacijska svojstva – EF Core automatski učitava vezane podatke
+    public List&lt;TripDestination&gt; Destinations { get; set; }
+    public List&lt;TripActivity&gt; Activities { get; set; }
+    public List&lt;Expense&gt; Expenses { get; set; }
+    public TripAlbum Album { get; set; }
+}</pre>
+
+<h3>DashboardViewModel.cs – Podaci za dashboard</h3>
+
+<p>Ovaj model nije direktno u bazi – konstruira se u kontroleru iz postojećih podataka:</p>
+
+<pre>public class DashboardViewModel {
+    public int TotalTrips { get; set; }
+    public decimal TotalExpenses { get; set; }
+    public decimal TotalBudget { get; set; }
+    public decimal BudgetUsagePercent { get; set; }       // (troškovi / budžet) * 100
+    public List&lt;Trip&gt; UpcomingTrips { get; set; }         // Nadolazeća putovanja
+    public List&lt;OverBudgetTripItem&gt; OverBudgetTrips { get; set; } // Upozorenja
+    public List&lt;MonthlyExpenseItem&gt; MonthlyExpenses { get; set; } // Za line grafikon
+    public List&lt;TopDestinationItem&gt; TopDestinations { get; set; } // Za bar grafikon
+}</pre>
+
+<h3>ContactMessage.cs – Kontakt poruka</h3>
+
+<pre>public class ContactMessage {
+    public int Id { get; set; }
+
+    [Required(ErrorMessage = "Ime je obavezno")]
+    public string Name { get; set; }
+
+    [Required, EmailAddress]
+    public string Email { get; set; }
+
+    [Required]
+    public string Subject { get; set; }   // Tema upita
+
+    [Required, MinLength(10)]
+    public string Message { get; set; }   // Tekst poruke
+
+    public DateTime SentAt { get; set; } = DateTime.UtcNow;
+}</pre>
+
+<p><strong>Data Annotations</strong> kao <code>[Required]</code>, <code>[EmailAddress]</code>, <code>[MinLength]</code> automatski generiraju validacijska pravila i poruke o grešci, i na serveru i na klijentskoj strani.</p>
+
+
+<!-- ═══════════════════════════════════════════
+     4. KONTROLERI I LOGIKA
+═══════════════════════════════════════════ -->
+<h1 class="section-break">4. Kontroleri i logika</h1>
+
+<h2>4.1 HomeController – kontakt forma</h2>
+
+<pre>// GET – prikazuje praznu kontakt formu
+public IActionResult Kontakt() =&gt; View(new ContactMessage());
+
+// POST – prima podatke iz forme, validira i sprema u bazu
+[HttpPost]
+public async Task&lt;IActionResult&gt; Kontakt(ContactMessage model)
+{
+    if (ModelState.IsValid)
+    {
+        _context.ContactMessages.Add(model);
+        await _context.SaveChangesAsync();
+        TempData["ContactSuccess"] = true;       // Poruka za sljedeći request
+        return RedirectToAction("Kontakt");       // Redirect sprječava dvostruki submit
+    }
+    return View(model);  // Vraća formu s greškama
+}</pre>
+
+<h2>4.2 TripsController – upravljanje putovanjima</h2>
+
+<p>Koristi <code>[Authorize]</code> atribut – samo prijavljeni korisnici mogu koristiti. Svaki upit filtrira po <code>UserId</code> pa korisnik vidi samo svoja putovanja.</p>
+
+<p>U <code>Details</code> akciji koristi se <strong>Eager loading</strong> s <code>Include()</code> za učitavanje vezanih podataka u jednom upitu:</p>
+
+<pre>var trip = await _context.Trips
+    .Include(t =&gt; t.Destinations.OrderBy(d =&gt; d.Order))
+    .Include(t =&gt; t.Activities.OrderBy(a =&gt; a.Date))
+    .Include(t =&gt; t.Expenses)
+    .Include(t =&gt; t.Album).ThenInclude(a =&gt; a.Photos)
+    .FirstOrDefaultAsync(t =&gt; t.Id == id &amp;&amp; t.UserId == userId);</pre>
+
+<h2>4.3 DashboardController – analitika</h2>
+
+<p>Gradi <code>DashboardViewModel</code> iz podataka u bazi:</p>
+<ul>
+  <li>Zbraja sve troškove i budžete korisnika</li>
+  <li>Računa postotak potrošnje: <code>(troškovi / budžet) × 100</code></li>
+  <li>Pronalazi nadolazeća putovanja: <code>StartDate &gt; DateTime.Today</code></li>
+  <li>Pronalazi putovanja iznad budžeta: troškovi ≥ 90% budžeta</li>
+  <li>Grupira troškove po putovanju za grafikon</li>
+  <li>Broji najčešće destinacije za bar grafikon</li>
+</ul>
+
+<h2>4.4 AlbumsController – uspomene i fotografije</h2>
+
+<p>Fotografija se ne uploaduje kao datoteka, nego se sprema kao <strong>URL adresa slike</strong> (npr. Unsplash link ili direktan URL). To je namjerna odluka kako bi se izbjeglo upravljanje lokalnim datotekama na serveru.</p>
+
+
+<!-- ═══════════════════════════════════════════
+     5. CSS I DIZAJN SUSTAV
+═══════════════════════════════════════════ -->
+<h1 class="section-break">5. Oblikovanje web stranica – CSS dizajn sustav</h1>
+
+<p>Sav vizualni dizajn nalazi se u jednoj datoteci: <code>wwwroot/css/site.css</code> (više od 6.500 linija). Datoteka je organizirana po komponentama i stranicama.</p>
+
+<h2>5.1 CSS varijable – centralizirani dizajn sustav</h2>
+
+<p>Na samom vrhu <code>site.css</code> definirane su <strong>CSS custom properties</strong> (varijable) koje definiraju cijeli vizualni identitet aplikacije:</p>
+
+<pre>:root {
+    /* ── Boje ── */
+    --primary:     #0f172a;   /* Tamno plava – tekst i tamne pozadine */
+    --accent:      #14b8a6;   /* Teal – akcent boja (gumbi, highlighti) */
+    --accent-2:    #38bdf8;   /* Svijetlo plava – sekundarni akcent */
+    --accent-dark: #0f766e;   /* Tamna teal – hover stanja, linkovi */
+    --soft:        #f8fafc;   /* Vrlo svijetla siva – pozadine sekcija */
+    --muted:       #64748b;   /* Siva – sekundarni tekst, opisi */
+    --danger:      #ef4444;   /* Crvena – greške, prekoračenje budžeta */
+
+    /* ── Sjene (box-shadow) ── */
+    --shadow-soft: 0 14px 34px rgba(15,23,42,.08);   /* Blag shadow za kartice */
+    --shadow:      0 24px 58px rgba(15,23,42,.14);   /* Srednji shadow */
+    --shadow-dark: 0 34px 88px rgba(0,0,0,.32);      /* Jak shadow (3D elementi) */
+
+    /* ── Zaobljeni kutovi (border-radius) ── */
+    --radius:    24px;   /* Standardno zaobljenje kartica */
+    --radius-lg: 34px;   /* Veće zaobljenje (hero elementi) */
+}</pre>
+
+<div class="note">
+  <strong>Zašto varijable?</strong> Korištenjem varijabli sve stranice dijele isti skup boja i sjenki. Promjenom vrijednosti na jednom mjestu automatski se mijenja izgled cijele aplikacije.
+</div>
+
+<h2>5.2 Globalni stilovi</h2>
+
+<pre>* {
+    box-sizing: border-box;  /* Padding ne povećava veličinu elementa */
+}
+
+html {
+    font-size: 16px;          /* Osnova za rem jedinice (1rem = 16px) */
+    scroll-behavior: smooth;  /* Glatko skrolanje na sidra */
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--soft);  /* Svjetlosiva pozadina svih stranica */
+    color: #172033;
+    overflow-x: hidden;       /* Sprječava horizontalni scroll */
+}
+
+a { text-decoration: none; }  /* Uklanja podcrtavanje svih linkova */</pre>
+
+<h2>5.3 Boje i gradijenti</h2>
+
+<p>Aplikacija koristi <strong>tamnu paletu</strong> za hero sekcije i navigaciju, te <strong>bijelu/svjetlosivu</strong> za sadržajne dijelove stranice.</p>
+
+<h4>Hero pozadina (primjenjuje se na svim hero sekcijama)</h4>
+
+<pre>background:
+    radial-gradient(circle at 18% 18%, rgba(20,184,166,.22), transparent 28%),
+    radial-gradient(circle at 85% 18%, rgba(56,189,248,.18), transparent 30%),
+    linear-gradient(135deg, #020617 0%, #0f172a 55%, #082f49 100%);</pre>
+
+<p>Objašnjenje slojeva (primjenjuju se odozgo prema dolje):</p>
+<ol>
+  <li>Radijalni gradijent – teal "svjetlost" u gornjem lijevom kutu</li>
+  <li>Radijalni gradijent – plava "svjetlost" u gornjem desnom kutu</li>
+  <li>Linearni gradijent – tamna pozadina od gotovo crne prema tamno plavoj</li>
+</ol>
+<p>Kombinirani daju efekt dubine i premium izgleda poput noćnog neba.</p>
+
+<h4>Primarni gumb</h4>
+
+<pre>.btn-main {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 16px 35px rgba(20,184,166,.28);
+}</pre>
+
+<p>Dijagonalni gradijent od teal prema plavoj, s mekim sjenom koji daje vizualni "lebdeći" efekt.</p>
+
+<h2>5.4 Tipografija</h2>
+
+<pre>.section-title {
+    font-size: clamp(2rem, 4vw, 3.2rem);  /* Responzivna veličina */
+    font-weight: 950;                      /* Extra-bold */
+    letter-spacing: -1.5px;               /* Negativni razmak – moderan izgled */
+    color: var(--primary);
+}</pre>
+
+<p><strong><code>clamp(minimum, preferirano, maksimum)</code></strong> – automatski prilagođava veličinu fonta:</p>
+<ul>
+  <li>Na malim ekranima: minimalno <strong>2rem</strong></li>
+  <li>Na střednjim ekranima: <strong>4vw</strong> (4% širine viewport-a)</li>
+  <li>Na velikim ekranima: maksimalno <strong>3.2rem</strong></li>
+</ul>
+
+<div class="info">
+  Aplikacija intenzivno koristi visoke font-weight vrijednosti (850, 950) kako bi naslovi izgledali moderno i snažno, u skladu s "display" tipografskim stilom.
+</div>
+
+<h2>5.5 Kartice (Cards)</h2>
+
+<p>Svi paneli, kartice i okviri dijele isti vizualni stil definiran grupnom CSS selekcijom:</p>
+
+<pre>.glass-card, .card-premium, .dashboard-card, .details-panel,
+.create-trip-card, .side-card, .simple-form-card {
+    background: white;
+    border-radius: var(--radius);           /* 24px zaobljeni kutovi */
+    box-shadow: var(--shadow-soft);         /* Blag shadow */
+    border: 1px solid rgba(15,23,42,.06);  /* Jedva vidljivi rub */
+}</pre>
+
+<p>Grupnom selekcijom (više selektora odvojenih zarezom) izbjegava se ponavljanje koda.</p>
+
+<h2>5.6 Navigacijska traka</h2>
+
+<pre>.custom-navbar, .premium-navbar {
+    padding: 14px 0;
+    background: rgba(15,23,42,.78);      /* Tamna pozadina s 78% prozirnosti */
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    backdrop-filter: blur(20px);          /* Efekt zamućenog stakla */
+    -webkit-backdrop-filter: blur(20px);  /* Prefiks za Safari */
+    box-shadow: 0 18px 45px rgba(15,23,42,.22);
+}</pre>
+
+<div class="note">
+  <strong>Glassmorphism efekt:</strong> <code>backdrop-filter: blur(20px)</code> zamućuje sadržaj iza elementa. Navigacija je poluprozirna i prikazuje zamućenu stranicu ispod, što daje moderan premium izgled. Ovaj efekt je vidljiv jedino ako navigacija stoji iznad drugog sadržaja – zato je i <code>fixed-top</code> (fiksirana na vrhu).
+</div>
+
+<h4>Logo (brand)</h4>
+
+<pre>.brand-icon {
+    width: 42px;  height: 42px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 14px 30px rgba(20,184,166,.28);
+    transform: rotate(-8deg);  /* Blagi naklon za dinamičan izgled */
+}</pre>
+
+<h4>Nav linkovi – hover efekt</h4>
+
+<pre>.custom-navbar .nav-link {
+    color: rgba(255,255,255,.78) !important;
+    border-radius: 999px;       /* Pill oblik */
+    transition: .22s ease;      /* Glatki prijelaz */
+}
+
+.custom-navbar .nav-link:hover {
+    color: white !important;
+    background: rgba(255,255,255,.1);  /* Bijela s 10% prozirnosti */
+    transform: translateY(-1px);        /* Lagano gore pri hoveru */
+}</pre>
+
+<h4>Highlightani link "Novo putovanje"</h4>
+
+<pre>.nav-highlight {
+    color: white !important;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)) !important;
+    box-shadow: 0 14px 30px rgba(20,184,166,.25);
+}</pre>
+
+<h2>5.7 Footer</h2>
+
+<p>Footer ima isti vizualni stil kao navigacija (tamna pozadina s gradijentom). Sadrži 4 stupca s linkovima, opis aplikacije, mini statistike i copyright.</p>
+
+<pre>.site-footer {
+    padding: 70px 0 28px;
+    color: white;
+    background:
+        radial-gradient(circle at 16% 20%, rgba(20,184,166,.18), transparent 28%),
+        radial-gradient(circle at 86% 24%, rgba(56,189,248,.15), transparent 30%),
+        linear-gradient(135deg, #020617 0%, #0f172a 58%, #082f49 100%);
+}
+
+.footer-links a:hover {
+    color: white;
+    padding-left: 4px;  /* Pomak udesno pri hoveru – vizualna interakcija */
+}</pre>
+
+<h2>5.8 Forme i unosi podataka</h2>
+
+<pre>.form-control, .form-select {
+    border-radius: 18px;                       /* Zaobljeni inputi */
+    padding: 14px 16px;
+    border: 1px solid rgba(15,23,42,.12);
+    min-height: 54px;                          /* Viši od defaultnog – pristupačnost */
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent);               /* Teal rub pri fokusu */
+    box-shadow: 0 0 0 4px rgba(20,184,166,.12) !important; /* Glow efekt */
+}
+
+/* Validacijska poruka greške */
+.validation-banner {
+    padding: 14px 18px;
+    border-radius: 18px;
+    color: #991b1b;
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border: 1px solid #fecaca;
+}
+
+/* Sakriva praznu validaciju (kad nema greške) */
+.validation-summary:empty {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+}</pre>
+
+<h2>5.9 Gumbi</h2>
+
+<table>
+  <tr><th>Klasa</th><th>Namjena</th><th>Izgled</th></tr>
+  <tr><td><code>.btn-main</code></td><td>Primarni gumb</td><td>Teal gradijent, bijeli tekst, shadow</td></tr>
+  <tr><td><code>.btn-ghost</code></td><td>Sekundarni gumb</td><td>Bijeli, tanki rub, taman tekst</td></tr>
+  <tr><td><code>.btn-card</code></td><td>Gumb unutar kartice</td><td>Manji padding: 10px 16px</td></tr>
+  <tr><td><code>.btn-small</code></td><td>Mali gumb</td><td>Iste dimenzije kao .btn-card</td></tr>
+  <tr><td><code>.mini-btn</code></td><td>Ikonica gumb</td><td>34×34px, zaobljeni, za akcije u listama</td></tr>
+</table>
+
+<pre>.btn-main {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 26px;
+    border: none;
+    border-radius: 999px;   /* Pill oblik (savršeni oval) */
+    font-weight: 900;
+    color: white;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 16px 35px rgba(20,184,166,.28);
+    transition: .25s ease;  /* Animacija prijelaza */
+}
+
+.btn-main:hover {
+    transform: translateY(-3px);                    /* Lebdi gore 3px */
+    box-shadow: 0 20px 44px rgba(20,184,166,.38);  /* Jači shadow */
+}</pre>
+
+<h2>5.10 Statusne oznake i filter</h2>
+
+<h4>Statusne oznake putovanja</h4>
+
+<pre>.status-upcoming { color: #047857; background: #d1fae5; }  /* Zelena – nadolazeće */
+.status-active   { color: #1d4ed8; background: #dbeafe; }  /* Plava – u tijeku */
+.status-past     { color: #475569; background: #e2e8f0; }  /* Siva – završeno */</pre>
+
+<p>Svaki status dobiva drugu boju pozadine i teksta za jasnu vizualnu razliku bez ikona.</p>
+
+<h4>Filter pill navigacija</h4>
+
+<pre>.filter-pill { background: white; color: var(--primary); border-radius: 999px; }
+
+.filter-pill:hover, .filter-pill.active {
+    color: white;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    transform: translateY(-2px);
+}</pre>
+
+<p>Aktivni filter dobiva isti stil kao <code>.btn-main</code> – konzistentnost dizajna.</p>
+
+
+<!-- ═══════════════════════════════════════════
+     6. SHARED LAYOUT
+═══════════════════════════════════════════ -->
+<h1 class="section-break">6. Shared Layout – zajednički predložak</h1>
+
+<p>Datoteka <code>Views/Shared/_Layout.cshtml</code> je <strong>master predložak</strong> koji se primjenjuje na svaku stranicu. Sadrži zajednički HTML okvir u koji se ubacuje sadržaj svake stranice.</p>
+
+<h3>Struktura _Layout.cshtml</h3>
+
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="hr"&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8" /&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;@ViewData["Title"] - Planer Putovanja&lt;/title&gt;
+
+    &lt;!-- Bootstrap CSS (lokalni) --&gt;
+    &lt;link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /&gt;
+    &lt;!-- Vlastiti CSS stilovi --&gt;
+    &lt;link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;nav class="navbar custom-navbar fixed-top"&gt;...&lt;/nav&gt;
+    &lt;/header&gt;
+
+    &lt;main class="main-content"&gt;
+        @RenderBody()   &lt;!-- ← Ovdje se ubacuje sadržaj svake stranice --&gt;
+    &lt;/main&gt;
+
+    &lt;footer class="site-footer"&gt;...&lt;/footer&gt;
+
+    &lt;script src="~/lib/jquery/dist/jquery.min.js"&gt;&lt;/script&gt;
+    &lt;script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+
+    @await RenderSectionAsync("Scripts", required: false)  &lt;!-- Skripte stranice --&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+<div class="info">
+  <strong><code>asp-append-version="true"</code></strong> automatski dodaje hash u URL CSS datoteke (npr. <code>site.css?v=abc123</code>). Preglednik uvijek učitava najnoviju verziju jer se hash mijenja kad se datoteka promijeni (cache busting).
+</div>
+
+<h3>Navigacija – hamburger za mobilni</h3>
+
+<pre>&lt;button class="navbar-toggler custom-toggler"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNavbar"&gt;
+    &lt;span&gt;&lt;/span&gt;
+    &lt;span&gt;&lt;/span&gt;
+    &lt;span&gt;&lt;/span&gt;   &lt;!-- Tri crte hamburger ikone --&gt;
+&lt;/button&gt;</pre>
+
+<p>Tri <code>&lt;span&gt;</code> elementa su tri crte hamburger ikone, stilizirane CSS-om:</p>
+
+<pre>.custom-toggler span {
+    display: block;
+    width: 22px;
+    height: 2px;       /* Tanka crta */
+    margin: 0 auto;
+    border-radius: 999px;
+    background: white;
+}</pre>
+
+<p>Bootstrap JavaScript automatski kontrolira otvaranje/zatvaranje izbornika putem <code>data-bs-toggle="collapse"</code> atributa, bez pisanja JavaScript koda.</p>
+
+<h3>Padding ispod navigacije</h3>
+
+<pre>.main-content {
+    min-height: 75vh;
+    padding-top: 76px;  /* Visina navigacije – sprječava preklapanje sadržaja */
+}</pre>
+
+
+<!-- ═══════════════════════════════════════════
+     7. STRANICE I NJIHOV IZGLED
+═══════════════════════════════════════════ -->
+<h1 class="section-break">7. Stranice i njihov izgled</h1>
+
+<h2>7.1 Početna stranica (Home/Index)</h2>
+
+<p>Početna stranica ima četiri sekcije: hero s 3D mockupom, kartice s mogućnostima, koraci "Kako radi?" i CTA (call-to-action) poziv.</p>
+
+<h4>Hero layout – CSS Grid</h4>
+
+<pre>.home-3d-grid {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 520px;
+    /* Tekst: fleksibilna širina | Mockup: fiksnih 520px */
+    gap: 70px;
+    align-items: center;
+}</pre>
+
+<h4>3D Dashboard mockup</h4>
+
+<pre>.dashboard-mockup {
+    width: 430px;
+    border-radius: 36px;
+    background: linear-gradient(145deg,
+        rgba(255,255,255,.96), rgba(226,232,240,.92));
+    box-shadow: var(--shadow-dark), inset 0 1px 0 rgba(255,255,255,.9);
+    transform: rotateY(-17deg) rotateX(8deg) rotateZ(2deg); /* 3D nagib */
+    transform-style: preserve-3d;  /* Djeca u istom 3D prostoru */
+}
+
+.dashboard-mockup:hover {
+    transform: rotateY(-10deg) rotateX(5deg) rotateZ(1deg) translateY(-8px);
+}</pre>
+
+<p>Mockup je zarotiran u 3D prostoru (<code>rotateX</code>, <code>rotateY</code>, <code>rotateZ</code>) kako bi izgledao kao da lebdi pod kutom. Pri hoveru se nagib smanjuje i element se podiže – daje dojam reagiranja na korisnika.</p>
+
+<h4>Feature kartice – 3D hover efekt</h4>
+
+<pre>.feature-3d-card {
+    transform: perspective(1000px) rotateX(0) rotateY(0);
+    transition: .3s ease;
+}
+
+.feature-3d-card:hover {
+    transform: perspective(1000px) rotateX(3deg) rotateY(-4deg) translateY(-8px);
+    box-shadow: var(--shadow);
+}</pre>
+
+<p><code>perspective(1000px)</code> definira "udaljenost gledatelja" od elementa. Na hoveru se kartica nakloni i podigne, simulating 3D tilt efekt.</p>
+
+<h2>7.2 Dashboard (Dashboard/Index)</h2>
+
+<p>Dashboard prikazuje analitiku: statistike, grafikone, listu nadolazećih putovanja i upozorenja o budžetu.</p>
+
+<h4>Dinamička boja progress bara</h4>
+
+<pre>@* U Razor predlošku, C# kod računa CSS klasu *@
+var usageColorClass = "dashboard-danger";
+
+if (Model.BudgetUsagePercent &lt; 70m)       usageColorClass = "dashboard-success";
+else if (Model.BudgetUsagePercent &lt;= 90m) usageColorClass = "dashboard-warning";
+
+&lt;!-- Inline stil šalje postotak kao širinu --&gt;
+&lt;div class="command-progress"&gt;
+    &lt;div class="@usageColorClass" style="width: @usageWidth;"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+
+<p>Postotak budžeta dinamički mijenja CSS klasu (zelena/žuta/crvena) i širinu progress bara.</p>
+
+<h4>Chart.js grafikoni</h4>
+
+<p>Podaci se prosljeđuju iz C# u JavaScript kroz JSON serializaciju:</p>
+
+<pre>@* C# – serializira podatke u JSON string *@
+var labelsJson = JsonSerializer.Serialize(Model.MonthlyExpenses.Select(x =&gt; x.Label));
+
+@* JavaScript – parsira JSON i kreira grafikon *@
+const labels = JSON.parse('@JavaScriptEncoder.Default.Encode(labelsJson)');
+
+new Chart(document.getElementById('monthlyExpensesChart'), {
+    type: 'line',
+    data: { labels: labels, datasets: [{ data: totals, borderColor: '#14b8a6' }] },
+    options: {
+        plugins: { tooltip: { backgroundColor: '#020617', cornerRadius: 12 } }
+    }
+});</pre>
+
+<h2>7.3 Moja putovanja (Trips/Index)</h2>
+
+<p>Prikazuje grid kartica svih putovanja korisnika. Statistike se računaju direktno u Razor predlošku:</p>
+
+<pre>var totalTrips    = trips.Count;
+var upcomingTrips = trips.Count(t =&gt; t.StartDate &gt; DateTime.Today);
+var activeTrips   = trips.Count(t =&gt; t.StartDate &lt;= DateTime.Today
+                                  &amp;&amp; t.EndDate &gt;= DateTime.Today);
+var pastTrips     = trips.Count(t =&gt; t.EndDate &lt; DateTime.Today);</pre>
+
+<h4>Grid raspored kartica</h4>
+
+<pre>&lt;div class="col-md-6 col-xl-4"&gt;  &lt;!-- Bootstrap klase --&gt;</pre>
+<ul>
+  <li>Na <code>md</code> ekranima (≥768px): 2 kartice u redu</li>
+  <li>Na <code>xl</code> ekranima (≥1200px): 3 kartice u redu</li>
+  <li>Ispod <code>md</code>: 1 kartica u redu (mobilni)</li>
+</ul>
+
+<h2>7.4 Albumi i uspomene (Albums/Index)</h2>
+
+<p>Polaroid-stil prikaz albuma koji imitira fizičke Polaroid fotografije.</p>
+
+<h4>Polaroid efekt – rotacija</h4>
+
+<pre>.memory-album-polaroid {
+    padding: 14px 14px 22px;   /* Deblji padding na dnu = bijeli okvir Polaroida */
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff 0%, #fefefe 72%, #f8fafc 100%);
+    box-shadow: 0 24px 58px rgba(15,23,42,.15);
+    transform: rotate(-1.2deg);  /* Blagi nagib ulijevo */
+}
+
+.memory-album-polaroid:nth-child(even) {
+    transform: rotate(1.2deg);  /* Svaki DRUGI nagnut udesno */
+}
+
+.memory-album-polaroid:hover {
+    transform: rotate(0deg) translateY(-10px) scale(1.018);
+    z-index: 5;  /* Prikazuje se iznad ostalih */
+}</pre>
+
+<h4>Scotch tape (lepljiva traka) – CSS pseudo-element</h4>
+
+<pre>.memory-album-polaroid::before {
+    content: "";           /* Prazan sadržaj – element postoji samo vizualno */
+    position: absolute;
+    width: 78px;
+    height: 24px;
+    left: 50%;
+    top: -13px;            /* Izlazi izvan gornjeg ruba kartice */
+    transform: translateX(-50%) rotate(-2deg);
+    border-radius: 5px;
+    background: rgba(203,213,225,.55);  /* Prozirna siva = traka */
+}</pre>
+
+<div class="note">
+  <strong>CSS <code>::before</code> pseudo-element</strong> dodaje vizualni sadržaj koji ne postoji u HTML-u. Njime je napravljena "scotch tape" traka na vrhu svakog Polaroida, bez ikakvog HTML elementa.
+</div>
+
+<h2>7.5 Kontakt stranica (Home/Kontakt)</h2>
+
+<h4>Forma s ASP.NET validacijom</h4>
+
+<pre>&lt;form asp-action="Kontakt" asp-controller="Home" method="post"&gt;
+    @Html.AntiForgeryToken()   &lt;!-- Sigurnosni token (CSRF zaštita) --&gt;
+
+    &lt;div asp-validation-summary="ModelOnly" class="validation-banner"&gt;&lt;/div&gt;
+
+    &lt;input asp-for="Name" class="form-control" /&gt;
+    &lt;span asp-validation-for="Name"&gt;&lt;/span&gt;  &lt;!-- Greška za ovo polje --&gt;
+&lt;/form&gt;</pre>
+
+<p><code>@Html.AntiForgeryToken()</code> sprječava CSRF napade (Cross-Site Request Forgery) – lažne zahtjeve s tuđih stranica. ASP.NET automatski provjerava token pri svakom POST zahtevu.</p>
+
+<h4>Poruka o uspješnom slanju</h4>
+
+<pre>@if (TempData["ContactSuccess"] != null)
+{
+    &lt;div class="contact-success-premium"&gt;
+        Poruka je uspješno poslana!
+    &lt;/div&gt;
+}</pre>
+
+<p><code>TempData</code> čuva podatke kroz jedan redirect – idealno za "flash poruke" o uspjehu.</p>
+
+<h2>7.6 Prijava i registracija (ASP.NET Identity)</h2>
+
+<pre>.auth-shell {
+    width: min(1120px, 100%);              /* Max 1120px, responzivno */
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;  /* Slika lijevo | Forma desno */
+    border-radius: 34px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+/* Pozadinska fotografija na lijevoj strani */
+.auth-visual {
+    min-height: 650px;
+    background:
+        linear-gradient(135deg, rgba(15,23,42,.92), rgba(15,23,42,.64)),
+        url("https://images.unsplash.com/photo-...");
+    background-size: cover;
+    background-position: center;
+}</pre>
+
+<p>Auth stranica je podijeljena na dvije strane: <strong>lijevo</strong> pozadinska fotografija planine s tekstom, <strong>desno</strong> forma za prijavu/registraciju.</p>
+
+
+<!-- ═══════════════════════════════════════════
+     8. RESPONZIVNI DIZAJN
+═══════════════════════════════════════════ -->
+<h1 class="section-break">8. Responzivni dizajn</h1>
+
+<p>Aplikacija je potpuno responzivna kroz tri komplementarna pristupa: Bootstrap grid, CSS Grid s auto-prilagodbom i Media queries.</p>
+
+<h2>8.1 Breakpointi</h2>
+
+<table>
+  <tr><th>Breakpoint</th><th>Što se mijenja</th></tr>
+  <tr><td><code>max-width: 1100px</code></td><td>Hero gridi prelaze s 2 na 1 stupac; galerija s 4 na 2 stupca</td></tr>
+  <tr><td><code>max-width: 991px</code></td><td>Navigacija kolapsira (hamburger); svi multi-stupčani layouti na 1 stupac; auth visual manji</td></tr>
+  <tr><td><code>max-width: 768px</code></td><td>Badge elementi mijenjaju poziciju; 3D stage kompaktniji</td></tr>
+  <tr><td><code>max-width: 576px</code></td><td>Sve stoga; gumbi na punu širinu; Polaroid galerija 1 stupac; padding reduciran</td></tr>
+</table>
+
+<h2>8.2 Primjeri responzivnih pravila</h2>
+
+<h4>Hero grid – tablet i mobilni</h4>
+
+<pre>/* Desktop: tekst lijevo, mockup desno */
+.home-3d-grid {
+    grid-template-columns: minmax(0,1fr) 520px;
+}
+
+/* Tablet (≤1100px): jedno ispod drugog */
+@media (max-width: 1100px) {
+    .home-3d-grid {
+        grid-template-columns: 1fr;
+    }
+}</pre>
+
+<h4>Hamburger navigacija na mobilnom</h4>
+
+<pre>@media (max-width: 991px) {
+    .custom-navbar .navbar-collapse {
+        margin-top: 14px;
+        padding: 16px;
+        border-radius: 24px;
+        background: rgba(15,23,42,.96);  /* Tamni izbornik */
+    }
+
+    /* Gumbi prijave/registracije na punu širinu */
+    .btn-login, .btn-register, .btn-logout { width: 100%; }
+}</pre>
+
+<h4>Floating badge i 3D mockup na mobilnom</h4>
+
+<pre>@media (max-width: 576px) {
+    .dashboard-mockup {
+        width: min(360px, 96vw);  /* Max 360px ili 96% zaslona */
+        transform: rotateY(-6deg) rotateX(4deg) rotateZ(1deg);  /* Manji kut */
+    }
+
+    .floating-badge {
+        position: relative;   /* Više nije apsolutno pozicioniran */
+        left: auto !important;
+        animation: none;      /* Bez animacije – bolje performanse na mobilnom */
+        transform: none !important;
+    }
+}</pre>
+
+
+<!-- ═══════════════════════════════════════════
+     9. ANIMACIJE I 3D EFEKTI
+═══════════════════════════════════════════ -->
+<h1 class="section-break">9. Animacije i 3D efekti</h1>
+
+<h2>9.1 Orb animacija – lebdeće kugle u pozadini</h2>
+
+<pre>@keyframes orbFloat {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) scale(1);     /* Polazna pozicija */
+    }
+    50% {
+        transform: translate3d(0, -22px, 0) scale(1.05); /* 22px gore + malo uvećanje */
+    }
+}
+
+.home-orb {
+    position: absolute;
+    border-radius: 999px;
+    opacity: .7;
+    pointer-events: none;  /* Ne blokira klikove */
+    animation: orbFloat 8s ease-in-out infinite;
+}
+
+.orb-two   { animation-delay: -2s; }  /* Pomak faze = asinkrono lebdenje */
+.orb-three { animation-delay: -4s; }</pre>
+
+<p><code>ease-in-out</code> znači spori start i kraj, brz srednji dio – imitira fizičko lebdenje. Negativni <code>animation-delay</code> znači da animacija "počinje u sredini" pa su orb-ovi uvijek u različitim fazama.</p>
+
+<h2>9.2 Badge animacija</h2>
+
+<pre>@keyframes badgeFloat {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-14px); }  /* Lebdi 14px gore-dolje */
+}
+
+.floating-badge            { animation: badgeFloat 5s ease-in-out infinite; }
+.badge-two                 { animation-delay: -1.4s; }
+.badge-three               { animation-delay: -2.8s; }</pre>
+
+<h2>9.3 CSS 3D transformacije</h2>
+
+<pre>/* Definira "udaljenost gledatelja" od 3D scene */
+.home-3d-stage { perspective: 1200px; }
+
+/* Mockup u 3D prostoru */
+.dashboard-mockup {
+    transform: rotateY(-17deg) rotateX(8deg) rotateZ(2deg);
+    transform-style: preserve-3d;  /* Djeca dijele isti 3D prostor */
+}
+
+/* Badge "izlazi" prema gledatelju (Z-os) */
+.hero-floating-badge.badge-destinations {
+    transform: rotate(-8deg) translateZ(40px);
+}
+
+.badge-two   { transform: rotate(7deg)  translateZ(34px); }
+.badge-three { transform: rotate(-5deg) translateZ(30px); }</pre>
+
+<h2>9.4 Hover efekti kartica – 3D tilt</h2>
+
+<pre>.feature-3d-card, .trip-card {
+    transform: perspective(1000px) rotateX(0) rotateY(0);
+    transition: .3s ease;
+}
+
+.feature-3d-card:hover, .trip-card:hover {
+    transform: perspective(1000px) rotateX(3deg) rotateY(-4deg) translateY(-8px);
+    box-shadow: var(--shadow);
+}</pre>
+
+<h2>9.5 Polaroid rotacija – nth-child selektori</h2>
+
+<pre>/* Svaka kartica ima drugačiji kut */
+.memory-album-polaroid                { transform: rotate(-1.2deg); }
+.memory-album-polaroid:nth-child(even){ transform: rotate(1.2deg);  }
+.memory-album-polaroid:nth-child(3n)  { transform: rotate(-0.4deg); }
+
+/* Klase za ručnu rotaciju fotografija */
+.rotate-left        { transform: rotate(-2deg); }
+.rotate-right       { transform: rotate(2deg);  }
+.rotate-small-left  { transform: rotate(-1deg); }
+.rotate-small-right { transform: rotate(1deg);  }</pre>
+
+<p><code>:nth-child(even)</code> selektira svaki parni element, <code>:nth-child(3n)</code> svaki treći – bez JavaScript-a, samo CSS-om.</p>
+
+
+<!-- ═══════════════════════════════════════════
+     10. VANJSKE BIBLIOTEKE
+═══════════════════════════════════════════ -->
+<h1 class="section-break">10. Vanjske biblioteke</h1>
+
+<h2>Bootstrap 5.x</h2>
+
+<p>Lokalno instaliran u <code>wwwroot/lib/bootstrap/</code>. Koristi se za:</p>
+<ul>
+  <li><strong>Grid sustav</strong> – <code>col-md-6</code>, <code>col-xl-4</code>, <code>row</code>, <code>g-4</code> (gap između elemenata)</li>
+  <li><strong>Navbar komponenta</strong> – <code>navbar</code>, <code>navbar-expand-lg</code>, <code>collapse</code></li>
+  <li><strong>Utility klase</strong> – <code>ms-auto</code>, <code>align-items-center</code>, <code>text-center</code>, <code>d-flex</code></li>
+  <li><strong>Form klase</strong> – <code>form-control</code>, <code>form-select</code>, <code>form-label</code> (vizualno predefinirano, potom se prilagođava u <code>site.css</code>)</li>
+</ul>
+
+<div class="info">
+  Bootstrap form klase (<code>form-control</code>, <code>form-select</code>) daju bazu, a vlastiti CSS ih dalje stilizira zaobljenim kutovima, višom visinom i teal bojom fokusa.
+</div>
+
+<h2>jQuery + jQuery Validate</h2>
+
+<p>Lokalno instalirani. <code>jquery.validate.unobtrusive.js</code> automatski čita ASP.NET Data Annotations i provjerava formu <strong>na klijentskoj strani</strong> bez refresh-a stranice:</p>
+
+<pre>// U modelu (C#):
+[Required(ErrorMessage = "Ime je obavezno")]
+[StringLength(100)]
+public string Name { get; set; }
+
+// → Automatski generira HTML atribute:
+// &lt;input data-val="true" data-val-required="Ime je obavezno" ... /&gt;</pre>
+
+<h2>Chart.js (CDN)</h2>
+
+<pre>&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;</pre>
+
+<p>Koristi se na Dashboard stranici. Stiliziran da odgovara dizajnu:</p>
+
+<pre>new Chart(ctx, {
+    options: {
+        plugins: {
+            tooltip: {
+                backgroundColor: '#020617',   /* Tamna pozadina */
+                titleColor: '#ffffff',
+                cornerRadius: 12              /* Zaobljeni tooltip */
+            }
+        },
+        scales: {
+            y: {
+                ticks: { color: '#64748b' },          /* Siva boja osi */
+                grid:  { color: 'rgba(148,163,184,.22)' } /* Prozirna rešetka */
+            }
+        }
+    }
+});</pre>
+
+<h2>iTextSharp (PDF generiranje)</h2>
+
+<p>Koristi se u <code>TripPdfService.cs</code> za generiranje PDF dokumenta koji sadrži plan putovanja: naziv i datume putovanja, popis destinacija s redoslijedom, aktivnosti po danima i tablicu troškova.</p>
+
+<hr />
+
+<h1>Zaključak</h1>
+
+<p><strong>Planer Putovanja</strong> je cjelovita web aplikacija izgrađena na modernim principima web dizajna:</p>
+
+<table>
+  <tr><th>Tehnika</th><th>Gdje se koristi</th></tr>
+  <tr><td>Glassmorphism</td><td>Navigacijska traka, kartice na hero sekcijama</td></tr>
+  <tr><td>CSS 3D transformacije</td><td>Dashboard mockup, feature kartice, floating badges</td></tr>
+  <tr><td>CSS varijable</td><td>Centralizirani dizajn sustav (boje, sjenke, radijusi)</td></tr>
+  <tr><td>CSS Grid</td><td>Hero layouti, dashboard, albumi, detalji putovanja</td></tr>
+  <tr><td>Bootstrap Grid</td><td>Kartice putovanja, feature kartice, kontakt layout</td></tr>
+  <tr><td>Media queries</td><td>4 breakpointa za mobilne uređaje i tablete</td></tr>
+  <tr><td>CSS @keyframes animacije</td><td>Orb lebdenje, badge animacije</td></tr>
+  <tr><td>CSS pseudo-elementi</td><td>Scotch tape efekt, dekorativni elementi</td></tr>
+  <tr><td>nth-child selektori</td><td>Različita rotacija Polaroid albuma</td></tr>
+  <tr><td>Kombinirani gradijenti</td><td>Hero pozadine, gumbi, kartice albuma</td></tr>
+</table>
+
+<p>Vizualni identitet je konzistentan kroz sve stranice zahvaljujući jedinstvenoj CSS datoteci s varijablama, zajedničkom predlošku <code>_Layout.cshtml</code> i ponovnoj upotrebi CSS klasa (npr. <code>.btn-main</code>, <code>.eyebrow</code>, <code>.section-title</code>, <code>.glass-card</code>).</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,155 @@
+﻿@model IEnumerable<PlanerPutovanja.Models.TripAlbum>
+
+@{
+    ViewData["Title"] = "Uspomene";
+
+    var albums = Model?.ToList() ?? new List<PlanerPutovanja.Models.TripAlbum>();
+
+    var totalPhotos = albums.Sum(a => a.Photos?.Count ?? 0);
+
+    var averageRating = albums.Any()
+        ? albums.Average(a => a.Rating).ToString("0.0")
+        : "0.0";
+
+    var latestAlbum = albums
+        .OrderByDescending(a => a.CreatedAt)
+        .FirstOrDefault();
+}
+<section class="memories-index-hero">
+    <div class="container">
+        <div class="memories-index-hero-grid">
+            <div>
+                <span class="eyebrow">Putni dnevnik</span>
+                <h1>Uspomene s tvojih putovanja.</h1>
+                <p>
+                    Pregledaj albume, slike, ocjene i osvrte koje si spremio za svoja putovanja.
+                    Svaki album postaje mali osobni dnevnik s putovanja.
+                </p>
+
+                <div class="hero-actions">
+                    <a asp-controller="Trips" asp-action="Index" class="btn-main">
+                        Moja putovanja
+                    </a>
+
+                    <a asp-controller="Trips" asp-action="Create" class="btn-ghost light">
+                        + Novo putovanje
+                    </a>
+                </div>
+            </div>
+
+            <div class="memories-hero-card">
+                <span class="memories-hero-main-icon">📸</span>
+                <strong>@albums.Count</strong>
+                <p>spremljenih albuma</p>
+
+                <div class="memories-hero-stats">
+                    <div class="memories-mini-stat">
+                        <span>🖼️</span>
+                        <div>
+                            <strong>@totalPhotos</strong>
+                            <small>fotografija</small>
+                        </div>
+                    </div>
+
+                    <div class="memories-mini-stat">
+                        <span>⭐</span>
+                        <div>
+                            <strong>@averageRating</strong>
+                            <small>prosj. ocjena</small>
+                        </div>
+                    </div>
+                </div>
+
+                @if (latestAlbum != null)
+                {
+                    <div class="memories-latest-chip">
+                        Zadnji album: <strong>@latestAlbum.Title</strong>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm memories-index-section">
+    <div class="container">
+
+        @if (!albums.Any())
+        {
+            <div class="memories-empty-state">
+                <div class="empty-icon">📷</div>
+                <h2>Još nema uspomena</h2>
+                <p>
+                    Otvori neko putovanje i klikni <strong>Dodaj uspomene</strong>.
+                    Tamo možeš dodati osvrt, ocjenu i slike u polaroid stilu.
+                </p>
+
+                <a asp-controller="Trips" asp-action="Index" class="btn-main">
+                    Otvori moja putovanja
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="memories-toolbar">
+                <div>
+                    <span class="eyebrow">Albumi</span>
+                    <h2>Tvoj putni album</h2>
+                </div>
+
+                <a asp-controller="Trips" asp-action="Index" class="btn-ghost">
+                    Dodaj novi album preko putovanja
+                </a>
+            </div>
+
+            <div class="memories-album-grid">
+                @foreach (var album in albums)
+                {
+                    var cover = !string.IsNullOrWhiteSpace(album.CoverImagePath)
+                    ? album.CoverImagePath
+                    : album.Photos?.OrderBy(p => p.DisplayOrder).FirstOrDefault()?.ImagePath;
+
+                    var rating = new string('★', album.Rating) + new string('☆', 5 - album.Rating);
+                    var photoCount = album.Photos?.Count ?? 0;
+
+                    <a asp-controller="Albums"
+                       asp-action="Details"
+                       asp-route-id="@album.Id"
+                       class="memory-album-polaroid">
+
+                        <div class="memory-polaroid-image">
+                            @if (!string.IsNullOrWhiteSpace(cover))
+                            {
+                                <img src="@cover" alt="@album.Title" />
+                            }
+                            else
+                            {
+                                <span>📷</span>
+                            }
+                        </div>
+
+                        <div class="memory-polaroid-body">
+                            <small>@album.Trip.Name</small>
+                            <h3>@album.Title</h3>
+
+                            <div class="memory-rating">@rating</div>
+
+                            <p>
+                                @(string.IsNullOrWhiteSpace(album.Review)
+                                    ? "Album nema dodan osvrt."
+                                    : album.Review.Length > 130
+                                    ? album.Review.Substring(0, 130) + "..."
+                                    : album.Review)
+                            </p>
+
+                            <div class="memory-polaroid-footer">
+                                <span>@photoCount slik@(photoCount == 1 ? "a" : "a")</span>
+                                <em>@album.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")</em>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</section>

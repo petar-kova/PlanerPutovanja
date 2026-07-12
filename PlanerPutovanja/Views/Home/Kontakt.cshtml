@@ -1,0 +1,204 @@
+@model PlanerPutovanja.Models.ContactMessage
+@{
+    ViewData["Title"] = "Kontakt";
+}
+
+<section class="contact-3d-hero">
+    <div class="contact-orb contact-orb-one"></div>
+    <div class="contact-orb contact-orb-two"></div>
+
+    <div class="container">
+        <div class="contact-hero-grid">
+            <div>
+                <span class="eyebrow">Kontakt i podrška</span>
+                <h1>Imaš pitanje, ideju ili prijedlog destinacije?</h1>
+                <p>
+                    Pošalji upit, predloži destinaciju ili ostavi komentar vezan uz planiranje putovanja.
+                </p>
+
+                <div class="hero-actions">
+                    <a class="btn-main" asp-controller="Trips" asp-action="Create">
+                        Kreiraj putovanje
+                    </a>
+                    <a class="btn-ghost" asp-controller="Home" asp-action="Destinacije">
+                        Pogledaj destinacije
+                    </a>
+                </div>
+            </div>
+
+            <div class="contact-floating-board">
+                <div class="contact-message-card message-main">
+                    <span>Nova poruka</span>
+                    <strong>Prijedlog destinacije</strong>
+                    <p>"Volio bih dodati putovanje kroz Istru..."</p>
+                </div>
+
+                <div class="contact-mini-card contact-mini-one">
+                    <strong>24h</strong>
+                    <span>odgovor</span>
+                </div>
+
+                <div class="contact-mini-card contact-mini-two">
+                    <strong>4</strong>
+                    <span>teme upita</span>
+                </div>
+
+                <div class="contact-support-card">
+                    <span>📍</span>
+                    <div>
+                        <strong>Zagreb</strong>
+                        <small>Hrvatska</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm contact-3d-section">
+    <div class="container">
+        <div class="contact-layout-3d">
+            <div class="contact-info-3d-card">
+                <span class="eyebrow">Informacije</span>
+                <h2>Tu smo za sva pitanja</h2>
+                <p>
+                    Koristi kontakt formu za pitanja o planiranju, budžetu, destinacijama ili za prijedloge poboljšanja aplikacije.
+                </p>
+
+                <div class="contact-list premium-contact-list">
+                    <div class="contact-list-item">
+                        <span>📍</span>
+                        <div>
+                            <strong>Lokacija</strong>
+                            <p>Zagreb, Hrvatska</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-list-item">
+                        <span>✉️</span>
+                        <div>
+                            <strong>Email</strong>
+                            <p>info@planerputovanja.hr</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-list-item">
+                        <span>🕒</span>
+                        <div>
+                            <strong>Dostupnost</strong>
+                            <p>Pon - Pet, 09:00 - 17:00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-map-card">
+                    <div class="contact-map-path"></div>
+                    <i class="contact-map-dot dot-a"></i>
+                    <i class="contact-map-dot dot-b"></i>
+                    <i class="contact-map-dot dot-c"></i>
+
+                    <div>
+                        <strong>PlanerPutovanja centar</strong>
+                        <p>Kontakt točka za upite, prijedloge i ideje.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-form-3d-card">
+                <div class="contact-form-header">
+                    <span class="eyebrow">Pošalji poruku</span>
+                    <h2>Kontakt forma</h2>
+                    <p>
+                        Popuni podatke i odaberi temu upita. Poruka će biti spremljena i zaprimljena.
+                    </p>
+                </div>
+
+                @if (TempData["ContactSuccess"] != null)
+                {
+                    <div class="contact-success-premium show" style="margin-bottom:20px;">
+                        <strong>Poruka je uspješno poslana!</strong>
+                        <p>Hvala na javljanju. Tvoj upit je zaprimljen.</p>
+                    </div>
+                }
+
+                <form asp-action="Kontakt" asp-controller="Home" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="validation-banner"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Name" class="form-label">Ime i prezime</label>
+                            <input asp-for="Name" class="form-control" placeholder="Unesi ime" />
+                            <small class="form-error"><span asp-validation-for="Name"></span></small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label">Email adresa</label>
+                            <input asp-for="Email" class="form-control" placeholder="ime@email.com" />
+                            <small class="form-error"><span asp-validation-for="Email"></span></small>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Subject" class="form-label">Tema upita</label>
+                            <select asp-for="Subject" class="form-select">
+                                <option value="">Odaberi temu</option>
+                                <option value="Prijedlog destinacije">Prijedlog destinacije</option>
+                                <option value="Pitanje o planiranju">Pitanje o planiranju</option>
+                                <option value="Pitanje o budžetu">Pitanje o budžetu</option>
+                                <option value="Ostalo">Ostalo</option>
+                            </select>
+                            <small class="form-error"><span asp-validation-for="Subject"></span></small>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Message" class="form-label">Poruka</label>
+                            <textarea asp-for="Message" class="form-control" rows="6" placeholder="Napiši svoju poruku..."></textarea>
+                            <small class="form-error"><span asp-validation-for="Message"></span></small>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-main w-100 mt-4">
+                        Pošalji poruku
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section contact-benefits-section">
+    <div class="container text-center">
+        <span class="eyebrow">Brza komunikacija</span>
+        <h2 class="section-title">Jednostavan način za slanje prijedloga i upita</h2>
+        <p class="section-subtitle">
+            Kontakt stranica omogućuje jasnu komunikaciju s korisnikom aplikacije.
+        </p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="contact-benefit-card">
+                    <div class="feature-icon">✅</div>
+                    <h3>Jasna provjera unosa</h3>
+                    <p>Korisnik odmah dobiva poruku ako neko polje nije pravilno popunjeno.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="contact-benefit-card">
+                    <div class="feature-icon">📧</div>
+                    <h3>Sprema se u bazu</h3>
+                    <p>Svaka poruka se trajno sprema u bazu podataka.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="contact-benefit-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Potvrda slanja</h3>
+                    <p>Nakon uspješnog slanja korisnik dobiva jasnu povratnu informaciju.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

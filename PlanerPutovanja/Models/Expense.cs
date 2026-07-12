@@ -18,7 +18,6 @@ namespace PlanerPutovanja.Models
         [Range(0.01, 1_000_000_000, ErrorMessage = "Amount must be greater than 0.")]
         public decimal Amount { get; set; }
 
-        // Foreign key to Trip
         [Required]
         public int TripId { get; set; }
 
