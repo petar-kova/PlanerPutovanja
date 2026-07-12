@@ -20,7 +20,6 @@ namespace PlanerPutovanja.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // FILTER EVERYTHING BY USER
             var userTrips = _context.Trips.Where(t => t.UserId == CurrentUserId);
 
             var totalTrips = await userTrips.CountAsync();
@@ -36,7 +35,6 @@ namespace PlanerPutovanja.Controllers
                 ? 0m
                 : (totalExpenses / totalBudget) * 100m;
 
-            // Upcoming trips
             var today = DateTime.Today;
 
             var upcomingTrips = await userTrips
@@ -53,7 +51,6 @@ namespace PlanerPutovanja.Controllers
                 .Take(5)
                 .ToListAsync();
 
-            // "MonthlyExpenses" placeholder: Top 12 trips by expenses (for this user only)
             var expensesByTripRaw = await userTrips
                 .Select(t => new
                 {
@@ -72,7 +69,6 @@ namespace PlanerPutovanja.Controllers
                 })
                 .ToList();
 
-            // Top destinations (for this user only)
             var topDestinations = await _context.TripDestinations
                 .Where(d => d.Trip.UserId == CurrentUserId)
                 .GroupBy(d => d.City)
@@ -85,7 +81,6 @@ namespace PlanerPutovanja.Controllers
                 .Take(7)
                 .ToListAsync();
 
-            // Over budget (for this user only)
             var overBudgetRaw = await userTrips
                 .Where(t => t.Budget.HasValue && t.Budget.Value > 0m)
                 .Select(t => new

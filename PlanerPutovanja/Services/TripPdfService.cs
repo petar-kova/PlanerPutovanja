@@ -11,8 +11,6 @@ namespace PlanerPutovanja.Services
     {
         public byte[] GenerateTripPdf(Trip trip)
         {
-            QuestPDF.Settings.License = LicenseType.Community;
-
             var tripName = GetString(trip, "Name", "Title") ?? "Putovanje";
             var description = GetString(trip, "Description", "Notes", "Summary") ?? "Nema dodatnog opisa putovanja.";
             var startDate = GetDate(trip, "StartDate", "DateFrom", "DepartureDate");
@@ -299,7 +297,7 @@ namespace PlanerPutovanja.Services
                     {
                         var name = GetString(activity, "Name", "Title") ?? "Aktivnost";
                         var description = GetString(activity, "Description", "Notes") ?? "-";
-                        var date = GetDate(activity, "ActivityDate", "Date", "StartDate");
+                        var date = GetDate(activity, "Date", "StartDate");
 
                         BodyCell(table.Cell(), name);
                         BodyCell(table.Cell(), description);

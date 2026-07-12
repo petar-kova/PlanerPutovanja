@@ -1,4 +1,5 @@
-﻿@{
+@model PlanerPutovanja.Models.ContactMessage
+@{
     ViewData["Title"] = "Kontakt";
 }
 
@@ -13,14 +14,12 @@
                 <h1>Imaš pitanje, ideju ili prijedlog destinacije?</h1>
                 <p>
                     Pošalji upit, predloži destinaciju ili ostavi komentar vezan uz planiranje putovanja.
-                    Forma provjerava unos i odmah prikazuje potvrdu slanja.
                 </p>
 
                 <div class="hero-actions">
                     <a class="btn-main" asp-controller="Trips" asp-action="Create">
                         Kreiraj putovanje
                     </a>
-
                     <a class="btn-ghost" asp-controller="Home" asp-action="Destinacije">
                         Pogledaj destinacije
                     </a>
@@ -31,7 +30,7 @@
                 <div class="contact-message-card message-main">
                     <span>Nova poruka</span>
                     <strong>Prijedlog destinacije</strong>
-                    <p>“Volio bih dodati putovanje kroz Istru...”</p>
+                    <p>"Volio bih dodati putovanje kroz Istru..."</p>
                 </div>
 
                 <div class="contact-mini-card contact-mini-one">
@@ -110,54 +109,59 @@
                     <span class="eyebrow">Pošalji poruku</span>
                     <h2>Kontakt forma</h2>
                     <p>
-                        Popuni podatke i odaberi temu upita. Nakon uspješne provjere prikazat će se potvrda.
+                        Popuni podatke i odaberi temu upita. Poruka će biti spremljena i zaprimljena.
                     </p>
                 </div>
 
-                <form id="contactForm" novalidate>
+                @if (TempData["ContactSuccess"] != null)
+                {
+                    <div class="contact-success-premium show" style="margin-bottom:20px;">
+                        <strong>Poruka je uspješno poslana!</strong>
+                        <p>Hvala na javljanju. Tvoj upit je zaprimljen.</p>
+                    </div>
+                }
+
+                <form asp-action="Kontakt" asp-controller="Home" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="validation-banner"></div>
+
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label" for="contactName">Ime i prezime</label>
-                            <input type="text" class="form-control" id="contactName" placeholder="Unesi ime" />
-                            <small class="form-error" id="nameError"></small>
+                            <label asp-for="Name" class="form-label">Ime i prezime</label>
+                            <input asp-for="Name" class="form-control" placeholder="Unesi ime" />
+                            <small class="form-error"><span asp-validation-for="Name"></span></small>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label" for="contactEmail">Email adresa</label>
-                            <input type="email" class="form-control" id="contactEmail" placeholder="ime@email.com" />
-                            <small class="form-error" id="emailError"></small>
+                            <label asp-for="Email" class="form-label">Email adresa</label>
+                            <input asp-for="Email" class="form-control" placeholder="ime@email.com" />
+                            <small class="form-error"><span asp-validation-for="Email"></span></small>
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label" for="contactSubject">Tema upita</label>
-                            <select class="form-select" id="contactSubject">
+                            <label asp-for="Subject" class="form-label">Tema upita</label>
+                            <select asp-for="Subject" class="form-select">
                                 <option value="">Odaberi temu</option>
-                                <option value="destinacija">Prijedlog destinacije</option>
-                                <option value="planiranje">Pitanje o planiranju</option>
-                                <option value="budzet">Pitanje o budžetu</option>
-                                <option value="ostalo">Ostalo</option>
+                                <option value="Prijedlog destinacije">Prijedlog destinacije</option>
+                                <option value="Pitanje o planiranju">Pitanje o planiranju</option>
+                                <option value="Pitanje o budžetu">Pitanje o budžetu</option>
+                                <option value="Ostalo">Ostalo</option>
                             </select>
-                            <small class="form-error" id="subjectError"></small>
+                            <small class="form-error"><span asp-validation-for="Subject"></span></small>
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label" for="contactMessage">Poruka</label>
-                            <textarea class="form-control" id="contactMessage" rows="6" placeholder="Napiši svoju poruku..."></textarea>
-                            <small class="form-error" id="messageError"></small>
+                            <label asp-for="Message" class="form-label">Poruka</label>
+                            <textarea asp-for="Message" class="form-control" rows="6" placeholder="Napiši svoju poruku..."></textarea>
+                            <small class="form-error"><span asp-validation-for="Message"></span></small>
                         </div>
                     </div>
 
-                    <button type="button" class="btn-main w-100 mt-4" id="sendContactBtn">
+                    <button type="submit" class="btn-main w-100 mt-4">
                         Pošalji poruku
                     </button>
                 </form>
-
-                <div id="contactSuccessMessage" class="success-message contact-success-premium">
-                    <strong>Poruka je uspješno pripremljena!</strong>
-                    <p>
-                        Hvala na javljanju. Tvoj upit je zaprimljen u kontakt formi.
-                    </p>
-                </div>
             </div>
         </div>
     </div>
@@ -168,7 +172,7 @@
         <span class="eyebrow">Brza komunikacija</span>
         <h2 class="section-title">Jednostavan način za slanje prijedloga i upita</h2>
         <p class="section-subtitle">
-            Kontakt stranica je dio korisničkog iskustva i omogućuje jasnu komunikaciju s korisnikom aplikacije.
+            Kontakt stranica omogućuje jasnu komunikaciju s korisnikom aplikacije.
         </p>
 
         <div class="row g-4">
@@ -183,8 +187,8 @@
             <div class="col-md-4">
                 <div class="contact-benefit-card">
                     <div class="feature-icon">📧</div>
-                    <h3>Pregledna forma</h3>
-                    <p>Forma ima odvojena polja za ime, email, temu i poruku.</p>
+                    <h3>Sprema se u bazu</h3>
+                    <p>Svaka poruka se trajno sprema u bazu podataka.</p>
                 </div>
             </div>
 
@@ -192,7 +196,7 @@
                 <div class="contact-benefit-card">
                     <div class="feature-icon">💬</div>
                     <h3>Potvrda slanja</h3>
-                    <p>Nakon uspješnog unosa korisnik dobiva jasnu povratnu informaciju.</p>
+                    <p>Nakon uspješnog slanja korisnik dobiva jasnu povratnu informaciju.</p>
                 </div>
             </div>
         </div>

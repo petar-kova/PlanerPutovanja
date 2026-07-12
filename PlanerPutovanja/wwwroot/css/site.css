@@ -1,6 +1,4 @@
-﻿
-
-:root {
+﻿:root {
     --primary: #0f172a;
     --accent: #14b8a6;
     --accent-2: #38bdf8;
@@ -54,7 +52,6 @@ img {
     color: var(--accent)
 }
 
-/* NAVBAR */
 .custom-navbar, .premium-navbar {
     padding: 14px 0;
     background: rgba(15,23,42,.78);
@@ -196,7 +193,6 @@ img {
         background: white
     }
 
-/* GLOBAL */
 .section {
     padding: 90px 0
 }
@@ -283,7 +279,6 @@ img {
     border: 1px solid rgba(15,23,42,.06)
 }
 
-/* HERO */
 .home-3d-hero, .gallery-3d-hero, .destinations-3d-hero, .app-hero, .details-hero, .dashboard-hero, .page-hero, .create-trip-hero, .edit-trip-hero, .contact-hero, .gallery-hero, .planner-hero, .budget-hero, .activity-hero, .expense-hero {
     position: relative;
     overflow: hidden;
@@ -372,7 +367,6 @@ img {
     flex-wrap: wrap
 }
 
-/* HOME 3D MOCKUP */
 .home-3d-stage {
     position: relative;
     min-height: 570px;
@@ -561,7 +555,6 @@ img {
         background: linear-gradient(135deg,var(--accent),var(--accent-2))
     }
 
-/* FIX 1: +3 destinacije mobile */
 .floating-badge, .hero-floating-badge {
     position: absolute;
     z-index: 5;
@@ -624,7 +617,6 @@ img {
     }
 }
 
-/* CARDS / LISTS */
 .home-trust-row {
     display: flex;
     flex-wrap: wrap;
@@ -705,7 +697,6 @@ img {
     gap: 24px
 }
 
-/* FORMS + VALIDATION FIX */
 .form-card, .login-card {
     padding: 34px
 }
@@ -795,13 +786,6 @@ textarea.form-control {
         border: 0 !important
     }
 
-.form-error {
-    display: block;
-    color: var(--danger);
-    font-weight: 750;
-    margin-top: 6px;
-    min-height: 18px
-}
 
 .create-trip-hero, .edit-trip-hero, .activity-hero, .expense-hero {
     padding: 105px 0 70px
@@ -869,7 +853,6 @@ textarea.form-control {
         text-align: center !important
     }
 
-/* TRIPS / DETAILS / DASHBOARD */
 .app-hero, .details-hero, .dashboard-hero, .page-hero {
     padding: 105px 0 70px
 }
@@ -1214,24 +1197,6 @@ textarea.form-control {
     padding: 16px
 }
 
-.timeline-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 999px;
-    background: var(--accent);
-    box-shadow: 0 0 0 6px rgba(20,184,166,.14)
-}
-
-.timeline-content strong {
-    display: block;
-    color: var(--primary);
-    font-weight: 950
-}
-
-.timeline-content span {
-    color: var(--muted);
-    font-size: .9rem
-}
 
 .timeline-actions, .clean-actions {
     display: flex;
@@ -1317,126 +1282,7 @@ textarea.form-control {
         border-radius: inherit
     }
 
-.dashboard-success {
-    background: linear-gradient(135deg,#22c55e,#14b8a6)
-}
 
-.dashboard-warning {
-    background: linear-gradient(135deg,#f59e0b,#f97316)
-}
-
-.dashboard-danger {
-    background: linear-gradient(135deg,#ef4444,#dc2626)
-}
-
-/* ALBUMI / USPOMENE */
-.memories-hero-card {
-    position: relative;
-    width: min(420px,100%);
-    min-height: 380px;
-    margin-left: auto;
-    padding: 44px 34px;
-    text-align: center;
-    color: white;
-    border-radius: 34px;
-    background: rgba(255,255,255,.13);
-    border: 1px solid rgba(255,255,255,.14);
-    box-shadow: 0 34px 80px rgba(0,0,0,.24);
-    backdrop-filter: blur(18px);
-    transform: rotateY(-12deg) rotateX(6deg) rotateZ(2deg);
-    transform-style: preserve-3d
-}
-
-    .memories-hero-card::before {
-        content: "";
-        position: absolute;
-        inset: 18px;
-        border-radius: 28px;
-        border: 1px solid rgba(255,255,255,.08);
-        pointer-events: none
-    }
-
-.memories-hero-main-icon {
-    width: 82px;
-    height: 82px;
-    display: grid;
-    place-items: center;
-    border-radius: 28px;
-    background: rgba(255,255,255,.13);
-    font-size: 2.2rem;
-    margin: 0 auto 18px
-}
-
-.memories-hero-card > strong {
-    display: block;
-    color: white;
-    font-size: 3.3rem;
-    line-height: 1;
-    font-weight: 950
-}
-
-.memories-hero-card > p {
-    color: rgba(255,255,255,.76) !important;
-    font-weight: 900;
-    margin: 8px 0 0 !important
-}
-
-.memories-hero-stats {
-    width: 100%;
-    margin-top: 22px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px
-}
-
-.memories-mini-stat {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    border-radius: 18px;
-    background: rgba(255,255,255,.10);
-    border: 1px solid rgba(255,255,255,.12);
-    text-align: left
-}
-
-    .memories-mini-stat > span {
-        width: 40px;
-        height: 40px;
-        flex: 0 0 40px;
-        display: grid;
-        place-items: center;
-        border-radius: 14px;
-        background: rgba(255,255,255,.12);
-        font-size: 1.05rem
-    }
-
-    .memories-mini-stat strong {
-        display: block;
-        color: white;
-        font-size: 1rem;
-        font-weight: 950;
-        line-height: 1.1
-    }
-
-    .memories-mini-stat small {
-        display: block;
-        color: rgba(255,255,255,.68);
-        font-weight: 750;
-        margin-top: 3px
-    }
-
-.memories-latest-chip {
-    margin-top: 14px;
-    padding: 10px 14px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.10);
-    border: 1px solid rgba(255,255,255,.12);
-    color: rgba(255,255,255,.78);
-    font-size: .9rem;
-    font-weight: 800;
-    white-space: normal
-}
 
 .memory-empty, .empty-mini {
     padding: 24px;
@@ -1446,61 +1292,7 @@ textarea.form-control {
     font-weight: 750
 }
 
-.polaroid-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
-    gap: 24px;
-    align-items: start
-}
 
-.polaroid-card {
-    position: relative;
-    padding: 14px 14px 52px;
-    border-radius: 22px;
-    background: white;
-    box-shadow: 0 22px 50px rgba(15,23,42,.16);
-    transform: rotateZ(var(--rotate,0deg));
-    transition: .3s ease
-}
-
-    .polaroid-card:hover {
-        transform: rotateZ(0deg) translateY(-8px) scale(1.02)
-    }
-
-.rotate-left {
-    --rotate: -2.5deg
-}
-
-.rotate-right {
-    --rotate: 2.5deg
-}
-
-.rotate-small-left {
-    --rotate: -1.2deg
-}
-
-.rotate-small-right {
-    --rotate: 1.2deg
-}
-
-.polaroid-card img {
-    width: 100%;
-    height: 210px;
-    object-fit: cover;
-    border-radius: 16px;
-    background: var(--soft)
-}
-
-.polaroid-caption {
-    position: absolute;
-    left: 18px;
-    right: 18px;
-    bottom: 14px;
-    color: var(--primary);
-    font-weight: 950
-}
-
-/* GALLERY / DESTINATIONS */
 .gallery-polaroid-stage, .destinations-mini-board {
     position: relative;
     min-height: 430px;
@@ -1718,7 +1510,6 @@ textarea.form-control {
         display: block
     }
 
-/* CONTACT FIX */
 .contact-info-card {
     padding: 34px
 }
@@ -1735,11 +1526,6 @@ textarea.form-control {
         line-height: 1.8
     }
 
-.contact-list {
-    display: grid;
-    gap: 16px;
-    margin: 26px 0
-}
 
 .contact-list-item, .premium-contact-item {
     display: flex;
@@ -1870,7 +1656,6 @@ textarea.form-control {
         font-weight: 900
     }
 
-/* AUTH */
 .auth-page {
     min-height: calc(100vh - 80px);
     padding: 72px 16px;
@@ -1988,7 +1773,6 @@ textarea.form-control {
         margin-left: 4px
     }
 
-/* FOOTER */
 .site-footer, .premium-footer {
     position: relative;
     overflow: hidden;
@@ -2094,7 +1878,6 @@ textarea.form-control {
         font-size: .86rem
     }
 
-/* TABLES / WEATHER / BUDGET */
 .expense-table-wrap {
     overflow-x: auto
 }
@@ -2206,7 +1989,6 @@ textarea.form-control {
         font-weight: 950
     }
 
-/* RESPONSIVE */
 @media (max-width:1100px) {
     .home-3d-grid, .gallery-hero-grid, .destinations-hero-grid {
         grid-template-columns: 1fr
@@ -2464,12 +2246,6 @@ textarea.form-control {
         grid-template-columns: 1fr
     }
 }
-/* =========================================================
-   HITNI FIX - USPOMENE / ALBUMI / +3 DESTINACIJE
-   Zalijepiti NA KRAJ site.css
-========================================================= */
-
-/* ---------- HOME HERO +3 DESTINACIJE FIX ---------- */
 
 .home-3d-stage {
     position: relative;
@@ -2533,7 +2309,6 @@ textarea.form-control {
         margin-top: 6px;
     }
 
-/* ostali floating badgevi da imaju bolji 3D osjećaj */
 .floating-badge {
     backdrop-filter: blur(18px);
     transform-style: preserve-3d;
@@ -2553,7 +2328,6 @@ textarea.form-control {
     box-shadow: 0 34px 90px rgba(2, 6, 23, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-/* mobitel - +3 ide normalno ispod mockupa, ne sa strane */
 @media (max-width: 768px) {
     .home-3d-stage {
         min-height: auto;
@@ -2595,8 +2369,6 @@ textarea.form-control {
         display: none;
     }
 }
-
-/* ---------- USPOMENE INDEX HERO FIX ---------- */
 
 .memories-index-hero {
     position: relative;
@@ -2680,7 +2452,6 @@ textarea.form-control {
         background: rgba(255, 255, 255, 0.18);
     }
 
-/* velika kartica s brojem albuma - popravljena i puna */
 .memories-hero-card {
     position: relative;
     overflow: hidden;
@@ -2817,8 +2588,6 @@ textarea.form-control {
     .memories-latest-chip strong {
         color: #ffffff;
     }
-
-/* ---------- USPOMENE LISTA ALBUMA - POLAROID ALI NORMALAN ---------- */
 
 .memories-index-section {
     padding-top: 70px;
@@ -2964,7 +2733,6 @@ textarea.form-control {
         font-style: normal;
     }
 
-/* prazno stanje uspomena */
 .memories-empty-state {
     max-width: 760px;
     margin: 0 auto;
@@ -3001,8 +2769,6 @@ textarea.form-control {
         font-weight: 750;
         margin: 0 auto 24px;
     }
-
-/* ---------- ALBUM DETAILS STRANICA ---------- */
 
 .memory-create-page,
 .memory-details-page {
@@ -3154,7 +2920,6 @@ textarea.form-control {
         font-weight: 750;
     }
 
-/* slike u albumu - čist i stabilan polaroid */
 .polaroid-gallery {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3227,7 +2992,6 @@ textarea.form-control {
             opacity: 1;
         }
 
-/* rotacije neka budu blage, ne razvaljene */
 .rotate-left {
     transform: rotate(-2deg);
 }
@@ -3254,8 +3018,6 @@ textarea.form-control {
     background: linear-gradient(135deg, #ef4444, #dc2626);
     box-shadow: 0 14px 30px rgba(239, 68, 68, 0.24);
 }
-
-/* ---------- RESPONSIVE USPOMENE ---------- */
 
 @media (max-width: 1100px) {
     .memories-index-hero-grid {
@@ -3345,8 +3107,6 @@ textarea.form-control {
     }
 }
 
-/* ---------- VALIDATION CRVENA PRAZNA CRTA FIX ---------- */
-
 .validation-summary-valid,
 .text-danger.validation-summary-valid,
 div[data-valmsg-summary="true"]:empty,
@@ -3364,8 +3124,6 @@ div[data-valmsg-summary="true"] ul:empty,
     border: 1px solid #fecaca;
     font-weight: 800;
 }
-
-/* ---------- MALO PREMIUM 3D EFEKTA BEZ LOMA LAYOUTA ---------- */
 
 .feature-3d-card,
 .step-3d-card,
@@ -3396,10 +3154,6 @@ div[data-valmsg-summary="true"] ul:empty,
         animation: none !important;
     }
 }
-/* =========================================================
-   HITNI DASHBOARD FIX - smiruje layout i 3D kaos
-   Zalijepiti NA KRAJ site.css
-========================================================= */
 
 .dashboard-command-hero {
     position: relative;
@@ -3456,7 +3210,6 @@ div[data-valmsg-summary="true"] ul:empty,
     margin-top: 30px;
 }
 
-/* desni budget panel - fiksiran, ne skače */
 .dashboard-command-panel {
     position: relative;
     overflow: hidden;
@@ -3617,13 +3370,11 @@ div[data-valmsg-summary="true"] ul:empty,
     text-align: center;
 }
 
-/* osnovna sekcija */
 .dashboard-command-section {
     padding: 70px 0 95px;
     background: radial-gradient(circle at 8% 10%, rgba(20, 184, 166, 0.075), transparent 30%), linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 }
 
-/* stat kartice - uredno i jednako */
 .dashboard-command-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3683,7 +3434,6 @@ div[data-valmsg-summary="true"] ul:empty,
         margin: 10px 0 0;
     }
 
-/* layout kartica */
 .dashboard-command-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
@@ -3778,7 +3528,6 @@ div[data-valmsg-summary="true"] ul:empty,
     border: 1px solid rgba(20,184,166,0.16);
 }
 
-/* timeline i warning liste */
 .command-trip-timeline,
 .command-warning-list {
     display: grid;
@@ -3901,7 +3650,6 @@ div[data-valmsg-summary="true"] ul:empty,
     margin: 0 0 18px;
 }
 
-/* važno: dashboard ne smije naslijediti kaotični 3D rotate */
 .dashboard-command-hero *,
 .dashboard-command-section * {
     transform-style: flat;
@@ -3915,7 +3663,6 @@ div[data-valmsg-summary="true"] ul:empty,
     transform: none;
 }
 
-/* responsive */
 @media (max-width: 1200px) {
     .dashboard-command-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3976,10 +3723,6 @@ div[data-valmsg-summary="true"] ul:empty,
         height: 270px;
     }
 }
-/* =========================================================
-   KONTAKT FINAL FIX - premium, uredno, bez kaosa
-   Zalijepiti NA KRAJ site.css
-========================================================= */
 
 .contact-3d-hero {
     position: relative;
@@ -4047,7 +3790,6 @@ div[data-valmsg-summary="true"] ul:empty,
     margin-top: 30px;
 }
 
-/* desni hero board */
 .contact-floating-board {
     position: relative;
     min-height: 460px;
@@ -4169,7 +3911,6 @@ div[data-valmsg-summary="true"] ul:empty,
         font-weight: 800;
     }
 
-/* glavna kontakt sekcija */
 .contact-3d-section {
     background: radial-gradient(circle at 8% 14%, rgba(20, 184, 166, 0.075), transparent 30%), linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 }
@@ -4230,7 +3971,6 @@ div[data-valmsg-summary="true"] ul:empty,
         margin-bottom: 26px;
     }
 
-/* info itemi */
 .contact-list {
     display: grid;
     gap: 14px;
@@ -4278,7 +4018,6 @@ div[data-valmsg-summary="true"] ul:empty,
         margin: 0;
     }
 
-/* OVO JE GLAVNI POPRAVAK ZA TVOJU 4. SLIKU */
 .contact-map-card {
     position: relative;
     overflow: hidden;
@@ -4385,7 +4124,6 @@ div[data-valmsg-summary="true"] ul:empty,
     margin: 0;
 }
 
-/* forma */
 .contact-form-3d-card .form-label {
     color: var(--primary);
     font-weight: 900;
@@ -4442,7 +4180,6 @@ div[data-valmsg-summary="true"] ul:empty,
         color: #047857;
     }
 
-/* benefit kartice dolje */
 .contact-benefits-section {
     background: #ffffff;
 }
@@ -4475,7 +4212,6 @@ div[data-valmsg-summary="true"] ul:empty,
         margin: 0;
     }
 
-/* responsive */
 @media (max-width: 1100px) {
     .contact-hero-grid,
     .contact-layout-3d {
@@ -4529,9 +4265,6 @@ div[data-valmsg-summary="true"] ul:empty,
             max-width: 100%;
         }
 }
-/* =========================================================
-   FOOTER FINAL FIX - odvaja Ruta/Budžet/PDF od CTA bloka
-========================================================= */
 
 .premium-footer-top {
     display: grid !important;
@@ -4594,12 +4327,10 @@ div[data-valmsg-summary="true"] ul:empty,
     margin-top: 0 !important;
 }
 
-/* Bitno: globalni .eyebrow fix više ne smije gurati footer CTA */
 .premium-footer .eyebrow {
     margin-top: 0 !important;
 }
 
-/* Responsive: na manjim ekranima footer ide jedan ispod drugog */
 @media (max-width: 950px) {
     .premium-footer-top {
         grid-template-columns: 1fr !important;
@@ -4621,12 +4352,6 @@ div[data-valmsg-summary="true"] ul:empty,
         border-radius: 28px !important;
     }
 }
-/* =========================================================
-   MOJA PUTOVANJA - FINAL STABILIZED PREMIUM FIX
-   Cilja samo Views/Trips/Index.cshtml
-========================================================= */
-
-/* ---------- HERO ---------- */
 
 .trips-index-hero {
     position: relative;
@@ -4713,17 +4438,13 @@ div[data-valmsg-summary="true"] ul:empty,
         box-shadow: 0 24px 52px rgba(34, 211, 238, 0.25);
     }
 
-/* ---------- PAGE BACKGROUND ---------- */
-
 .trips-index-page {
     position: relative;
     padding: 74px 0 100px;
     background: radial-gradient(circle at 8% 12%, rgba(20,184,166,0.075), transparent 30%), radial-gradient(circle at 92% 28%, rgba(56,189,248,0.055), transparent 28%), linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 }
 
-    /* ---------- STATS ---------- */
-
-    .trips-index-page .trip-stats-grid {
+.trips-index-page .trip-stats-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 18px;
@@ -4798,9 +4519,7 @@ div[data-valmsg-summary="true"] ul:empty,
             margin: 0;
         }
 
-    /* ---------- FILTERS ---------- */
-
-    .trips-index-page .filter-bar {
+.trips-index-page .filter-bar {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
@@ -4842,9 +4561,7 @@ div[data-valmsg-summary="true"] ul:empty,
             box-shadow: 0 14px 30px rgba(20, 184, 166, 0.24);
         }
 
-    /* ---------- TRIP CARDS ---------- */
-
-    .trips-index-page .trip-card {
+.trips-index-page .trip-card {
         position: relative;
         overflow: hidden;
         height: 100%;
@@ -5087,9 +4804,7 @@ div[data-valmsg-summary="true"] ul:empty,
             background: rgba(20,184,166,0.06);
         }
 
-    /* ---------- EMPTY STATE ---------- */
-
-    .trips-index-page .empty-state-card {
+.trips-index-page .empty-state-card {
         max-width: 760px;
         margin: 0 auto;
         padding: 48px;
@@ -5125,8 +4840,6 @@ div[data-valmsg-summary="true"] ul:empty,
         font-weight: 750;
         margin: 0 auto 24px;
     }
-
-/* ---------- RESPONSIVE ---------- */
 
 @media (max-width: 1100px) {
     .trips-index-page .trip-stats-grid {
@@ -5205,9 +4918,6 @@ div[data-valmsg-summary="true"] ul:empty,
         flex-basis: 100%;
     }
 }
-/* =========================================================
-   MOJA PUTOVANJA HERO VISUAL - FIX DA NE BJEŽI VAN
-========================================================= */
 
 .trips-index-hero {
     overflow: hidden !important;
@@ -5251,7 +4961,6 @@ div[data-valmsg-summary="true"] ul:empty,
     z-index: 4 !important;
 }
 
-/* sprječava da tekst izgleda kao da se lomi svako slovo */
 .trips-visual-main h3,
 .trips-visual-main p,
 .trips-visual-top small,
@@ -5277,7 +4986,6 @@ div[data-valmsg-summary="true"] ul:empty,
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 
-/* nova blaža animacija */
 @keyframes tripsFloatMainFixed {
     0%, 100% {
         transform: rotate(2deg) translateY(0);
@@ -5288,7 +4996,6 @@ div[data-valmsg-summary="true"] ul:empty,
     }
 }
 
-/* tablet */
 @media (max-width: 1100px) {
     .trips-index-hero .app-hero-content {
         grid-template-columns: 1fr !important;
@@ -5312,7 +5019,6 @@ div[data-valmsg-summary="true"] ul:empty,
     }
 }
 
-/* mobitel */
 @media (max-width: 768px) {
     .trips-hero-visual {
         min-height: auto !important;
@@ -5327,10 +5033,6 @@ div[data-valmsg-summary="true"] ul:empty,
         grid-template-columns: 1fr !important;
     }
 }
-/* =========================================================
-   MOJA PUTOVANJA HERO - CLEAN PREMIUM FIX
-   stabilan desni dio headera
-========================================================= */
 
 .trips-index-hero .app-hero-content {
     display: grid !important;
@@ -5484,8 +5186,6 @@ div[data-valmsg-summary="true"] ul:empty,
         font-weight: 800;
     }
 
-/* ---------- clean route mini map ---------- */
-
 .trips-hero-clean-route {
     position: relative;
     z-index: 2;
@@ -5519,7 +5219,6 @@ div[data-valmsg-summary="true"] ul:empty,
         pointer-events: none;
     }
 
-/* pin marker */
 .clean-route-pin {
     position: absolute;
     width: 22px;
@@ -5539,22 +5238,19 @@ div[data-valmsg-summary="true"] ul:empty,
         background: rgba(255,255,255,0.95);
     }
 
-    /* lijevi pin */
-    .clean-route-pin.pin-1 {
+.clean-route-pin.pin-1 {
         left: 30px;
         top: 50%;
         transform: translateY(-50%) rotate(-45deg);
     }
 
-    /* srednji pin */
-    .clean-route-pin.pin-2 {
+.clean-route-pin.pin-2 {
         left: 50%;
         top: 24px;
         transform: translateX(-50%) rotate(-45deg);
     }
 
-    /* desni pin */
-    .clean-route-pin.pin-3 {
+.clean-route-pin.pin-3 {
         right: 30px;
         top: 50%;
         transform: translateY(-50%) rotate(-45deg);
@@ -5568,7 +5264,6 @@ div[data-valmsg-summary="true"] ul:empty,
     box-shadow: 0 18px 42px rgba(34, 211, 238, 0.24);
 }
 
-/* mobitel / tablet */
 @media (max-width: 992px) {
     .trips-index-hero .app-hero-content {
         grid-template-columns: 1fr !important;
@@ -5595,16 +5290,10 @@ div[data-valmsg-summary="true"] ul:empty,
         grid-template-columns: 1fr;
     }
 }
-/* =========================================================
-   TRIP DETAILS PAGE - PREMIUM STABILIZED FIX
-   Cilja samo Views/Trips/Details.cshtml
-========================================================= */
 
 .details-page {
     background: radial-gradient(circle at 8% 10%, rgba(20,184,166,0.06), transparent 28%), linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 }
-
-/* HERO */
 
 .details-hero {
     position: relative;
@@ -5684,8 +5373,6 @@ div[data-valmsg-summary="true"] ul:empty,
     margin: 0 0 22px;
 }
 
-/* META PILLS */
-
 .details-hero-meta {
     display: flex;
     flex-wrap: wrap;
@@ -5732,8 +5419,6 @@ div[data-valmsg-summary="true"] ul:empty,
             border-color: rgba(148,163,184,0.24);
         }
 
-/* ACTION BUTTONS DESNO */
-
 .details-actions {
     display: flex;
     justify-content: flex-end;
@@ -5777,15 +5462,11 @@ div[data-valmsg-summary="true"] ul:empty,
             color: #0f766e;
         }
 
-/* MAIN SECTION */
-
 .details-main-section {
     position: relative;
     padding: 72px 0 100px;
     background: radial-gradient(circle at 8% 10%, rgba(20,184,166,0.055), transparent 30%), radial-gradient(circle at 92% 22%, rgba(56,189,248,0.045), transparent 28%), linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 }
-
-/* STATS */
 
 .details-stats-grid {
     display: grid;
@@ -5867,8 +5548,6 @@ div[data-valmsg-summary="true"] ul:empty,
         font-weight: 750;
         margin: 0;
     }
-
-/* READINESS PANEL */
 
 .details-readiness-panel {
     position: relative;
@@ -6000,8 +5679,6 @@ div[data-valmsg-summary="true"] ul:empty,
         background: rgba(248, 250, 252, 0.9);
     }
 
-/* LAYOUT BELOW */
-
 .details-layout {
     display: grid;
     grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
@@ -6094,8 +5771,6 @@ div[data-valmsg-summary="true"] ul:empty,
         line-height: 1.25;
     }
 
-/* RESPONSIVE */
-
 @media (max-width: 1180px) {
     .details-hero-content {
         grid-template-columns: 1fr;
@@ -6159,12 +5834,6 @@ div[data-valmsg-summary="true"] ul:empty,
         border-radius: 28px;
     }
 }
-/* =========================================================
-   TRIP DETAILS LOWER CONTENT - PREMIUM FIX
-   Albumi, aktivnosti, troškovi, destinacije, karta
-========================================================= */
-
-/* ---------- shared section header ---------- */
 
 .details-main .section-panel-header {
     display: flex;
@@ -6195,8 +5864,6 @@ div[data-valmsg-summary="true"] ul:empty,
     font-size: 0.92rem;
     white-space: nowrap;
 }
-
-/* ---------- soft / empty messages ---------- */
 
 .soft-message,
 .empty-mini,
@@ -6232,8 +5899,6 @@ div[data-valmsg-summary="true"] ul:empty,
         font-weight: 750;
     }
 
-/* ---------- destination form ---------- */
-
 .add-destination-form {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -6258,8 +5923,6 @@ div[data-valmsg-summary="true"] ul:empty,
         padding: 0 22px;
         border-radius: 18px;
     }
-
-/* ---------- destination timeline ---------- */
 
 .destination-timeline {
     display: grid;
@@ -6347,8 +6010,6 @@ div[data-valmsg-summary="true"] ul:empty,
             background: #ef4444;
         }
 
-/* ---------- map ---------- */
-
 .map-feature-panel {
     overflow: hidden;
 }
@@ -6386,8 +6047,6 @@ div[data-valmsg-summary="true"] ul:empty,
     font-weight: 750;
     background: #ffffff;
 }
-
-/* ---------- memories / albums ---------- */
 
 .trip-memories-panel {
     overflow: hidden;
@@ -6506,8 +6165,6 @@ div[data-valmsg-summary="true"] ul:empty,
         margin: 0;
     }
 
-/* ---------- activities ---------- */
-
 .activity-card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -6580,8 +6237,6 @@ div[data-valmsg-summary="true"] ul:empty,
     font-weight: 750;
     margin: 0;
 }
-
-/* ---------- expenses ---------- */
 
 .expense-card-list {
     display: grid;
@@ -6684,8 +6339,6 @@ div[data-valmsg-summary="true"] ul:empty,
         line-height: 1.25;
     }
 
-/* ---------- weather ---------- */
-
 .weather-stack {
     display: grid;
     gap: 12px;
@@ -6731,8 +6384,6 @@ div[data-valmsg-summary="true"] ul:empty,
         font-weight: 750;
     }
 
-/* ---------- route panel ---------- */
-
 .route-loading {
     display: inline-flex;
     margin-top: 14px;
@@ -6750,8 +6401,6 @@ div[data-valmsg-summary="true"] ul:empty,
     background: #f8fafc;
     border: 1px solid rgba(15, 23, 42, 0.07);
 }
-
-/* ---------- responsive ---------- */
 
 @media (max-width: 900px) {
     .details-main .section-panel-header {
@@ -6803,9 +6452,6 @@ div[data-valmsg-summary="true"] ul:empty,
         min-height: 340px;
     }
 }
-/* =========================================================
-   DETAILS STATS - ONE ROW PREMIUM FIX
-========================================================= */
 
 .details-stats-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
@@ -6844,9 +6490,6 @@ div[data-valmsg-summary="true"] ul:empty,
         grid-template-columns: 1fr !important;
     }
 }
-/* =========================================================
-   DETAILS MEMORIES - COMPACT GRID FIX
-========================================================= */
 
 .trip-memory-strip {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
@@ -6875,7 +6518,6 @@ div[data-valmsg-summary="true"] ul:empty,
         font-size: 0.92rem !important;
     }
 
-/* ako ima samo jedna kartica u zadnjem redu, neka ne izgleda kao rupa */
 .trip-memory-card:last-child:nth-child(3n + 1) {
     max-width: 340px;
 }

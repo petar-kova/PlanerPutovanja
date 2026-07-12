@@ -86,9 +86,14 @@ namespace PlanerPutovanja.Controllers
             {
                 var uploadFolder = Path.Combine(_environment.WebRootPath, "uploads", "trips", tripId.ToString());
 
-                if (!Directory.Exists(uploadFolder))
+                try
                 {
-                    Directory.CreateDirectory(uploadFolder);
+                    if (!Directory.Exists(uploadFolder))
+                        Directory.CreateDirectory(uploadFolder);
+                }
+                catch (IOException)
+                {
+                    return RedirectToAction(nameof(Details), new { id = album.Id });
                 }
 
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
@@ -99,35 +104,32 @@ namespace PlanerPutovanja.Controllers
                     var photo = photos[i];
 
                     if (photo == null || photo.Length == 0)
-                    {
                         continue;
-                    }
 
                     var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
 
                     if (!allowedExtensions.Contains(extension))
-                    {
                         continue;
-                    }
 
                     if (photo.Length > 5 * 1024 * 1024)
-                    {
                         continue;
-                    }
 
                     var fileName = $"{Guid.NewGuid()}{extension}";
                     var filePath = Path.Combine(uploadFolder, fileName);
 
-                    await using (var stream = new FileStream(filePath, FileMode.Create))
+                    try
                     {
+                        await using var stream = new FileStream(filePath, FileMode.Create);
                         await photo.CopyToAsync(stream);
+                    }
+                    catch (IOException)
+                    {
+                        continue;
                     }
 
                     var imagePath = $"/uploads/trips/{tripId}/{fileName}";
 
-                    var caption = captions != null && captions.Count > i
-                        ? captions[i]
-                        : null;
+                    var caption = captions != null && captions.Count > i ? captions[i] : null;
 
                     var tripPhoto = new TripPhoto
                     {
@@ -141,9 +143,7 @@ namespace PlanerPutovanja.Controllers
                     _context.TripPhotos.Add(tripPhoto);
 
                     if (string.IsNullOrWhiteSpace(album.CoverImagePath))
-                    {
                         album.CoverImagePath = imagePath;
-                    }
 
                     displayOrder++;
                 }
@@ -273,9 +273,14 @@ namespace PlanerPutovanja.Controllers
 
             var uploadFolder = Path.Combine(_environment.WebRootPath, "uploads", "trips", album.TripId.ToString());
 
-            if (!Directory.Exists(uploadFolder))
+            try
             {
-                Directory.CreateDirectory(uploadFolder);
+                if (!Directory.Exists(uploadFolder))
+                    Directory.CreateDirectory(uploadFolder);
+            }
+            catch (IOException)
+            {
+                return RedirectToAction(nameof(Details), new { id = albumId });
             }
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
@@ -287,28 +292,27 @@ namespace PlanerPutovanja.Controllers
             foreach (var photo in photos)
             {
                 if (photo == null || photo.Length == 0)
-                {
                     continue;
-                }
 
                 var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
 
                 if (!allowedExtensions.Contains(extension))
-                {
                     continue;
-                }
 
                 if (photo.Length > 5 * 1024 * 1024)
-                {
                     continue;
-                }
 
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(uploadFolder, fileName);
 
-                await using (var stream = new FileStream(filePath, FileMode.Create))
+                try
                 {
+                    await using var stream = new FileStream(filePath, FileMode.Create);
                     await photo.CopyToAsync(stream);
+                }
+                catch (IOException)
+                {
+                    continue;
                 }
 
                 var imagePath = $"/uploads/trips/{album.TripId}/{fileName}";
@@ -325,9 +329,7 @@ namespace PlanerPutovanja.Controllers
                 _context.TripPhotos.Add(tripPhoto);
 
                 if (string.IsNullOrWhiteSpace(album.CoverImagePath))
-                {
                     album.CoverImagePath = imagePath;
-                }
 
                 displayOrder++;
             }
@@ -340,13 +342,18 @@ namespace PlanerPutovanja.Controllers
         {
             if (string.IsNullOrWhiteSpace(imagePath)) return;
 
-            var relativePath = imagePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString());
-            var fullPath = Path.Combine(_environment.WebRootPath, relativePath);
-
-            if (System.IO.File.Exists(fullPath))
+            try
             {
-                System.IO.File.Delete(fullPath);
+                var relativePath = imagePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString());
+                var fullPath = Path.Combine(_environment.WebRootPath, relativePath);
+
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
             }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
         }
     }
 }

@@ -111,10 +111,7 @@ namespace PlanerPutovanja.Controllers
             trip.UserId = CurrentUserId;
 
             ModelState.Remove(nameof(Trip.UserId));
-            var budgetRaw = Request.Form[nameof(Trip.Budget)].FirstOrDefault()
-                            ?? Request.Form["Budget"].FirstOrDefault()
-                            ?? "";
-            trip.Budget = ParseBudget(budgetRaw);
+            trip.Budget = ParseBudgetFromForm();
             ModelState.Remove(nameof(Trip.Budget));
 
             if (!ModelState.IsValid)
@@ -151,11 +148,7 @@ namespace PlanerPutovanja.Controllers
             trip.UserId = CurrentUserId;
 
             ModelState.Remove(nameof(Trip.UserId));
-
-            var budgetRaw = Request.Form[nameof(Trip.Budget)].FirstOrDefault()
-                            ?? Request.Form["Budget"].FirstOrDefault()
-                            ?? "";
-            trip.Budget = ParseBudget(budgetRaw);
+            trip.Budget = ParseBudgetFromForm();
             ModelState.Remove(nameof(Trip.Budget));
 
             if (!ModelState.IsValid)
@@ -213,6 +206,14 @@ namespace PlanerPutovanja.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private decimal? ParseBudgetFromForm()
+        {
+            var raw = Request.Form[nameof(Trip.Budget)].FirstOrDefault()
+                      ?? Request.Form["Budget"].FirstOrDefault()
+                      ?? "";
+            return ParseBudget(raw);
         }
 
         private decimal? ParseBudget(string? input)

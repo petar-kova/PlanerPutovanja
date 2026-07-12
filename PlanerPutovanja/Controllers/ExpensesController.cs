@@ -16,7 +16,7 @@ namespace PlanerPutovanja.Controllers
             _context = context;
         }
 
-        private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         public async Task<IActionResult> Create(int tripId)
         {
             var ownsTrip = await _context.Trips.AnyAsync(t => t.Id == tripId && t.UserId == CurrentUserId);
